@@ -1,0 +1,23 @@
+"use client";
+
+import { useEffect } from "react";
+
+export function RegisterServiceWorker() {
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!("serviceWorker" in navigator)) return;
+    if (process.env.NODE_ENV !== "production") return;
+
+    const register = async () => {
+      try {
+        await navigator.serviceWorker.register("/sw.js", { scope: "/" });
+      } catch {
+        // Service worker registration failures are non fatal.
+      }
+    };
+
+    register();
+  }, []);
+
+  return null;
+}
