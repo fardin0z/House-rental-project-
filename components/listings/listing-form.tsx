@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import {
   ArrowUpRightIcon,
+  PencilIcon,
   SaveIcon,
   SendIcon,
   Trash2Icon,
@@ -15,7 +16,9 @@ import { Label } from "@/components/ui/label";
 import {
   updateListingAction,
   deleteListingAction,
+  withdrawListingToDraftAction,
 } from "@/lib/listings/actions";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import type { ActionState } from "@/lib/auth/actions";
 import type { ListingRow, RentalType } from "@/types/database.types";
 
@@ -42,6 +45,8 @@ export function ListingForm({
   const boundUpdate = updateListingAction.bind(null, listing.id);
   const [state, formAction, saving] = useActionState(boundUpdate, initial);
   const lastOk = useRef(false);
+  const [editConfirmOpen, setEditConfirmOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   useEffect(() => {
     if (state.ok && !lastOk.current) {
@@ -51,8 +56,16 @@ export function ListingForm({
     if (!state.ok) lastOk.current = false;
   }, [state.ok, t]);
 
+  async function handleWithdraw() {
+    try {
+      await withdrawListingToDraftAction(listing.id);
+      toast.success(t("nowEditable"));
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "সমস্যা হয়েছে");
+    }
+  }
+
   async function handleDelete() {
-    if (!confirm(t("confirmDelete"))) return;
     try {
       await deleteListingAction(listing.id);
     } catch (error) {
@@ -61,15 +74,24 @@ export function ListingForm({
   }
 
   const readonly = listing.status === "pending" || listing.status === "approved";
-  const canSubmit = !readonly && imageCount > 0;
 
   return (
     <form action={formAction} className="flex flex-col gap-7">
       {readonly ? (
-        <div className="flex items-start gap-3 rounded-2xl border border-rule/60 bg-canvas px-4 py-3">
-          <p className="text-xs leading-relaxed text-ink-soft">
-            {listing.status === "approved" ? t("readonlyApproved") : t("readonlyPending")}
+        <div className="flex flex-col gap-3 rounded-2xl border border-ember/30 bg-ember-soft/30 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs leading-relaxed text-clay">
+            {listing.status === "approved"
+              ? tForm("readonlyApproved")
+              : tForm("readonlyPending")}
           </p>
+          <button
+            type="button"
+            onClick={() => setEditConfirmOpen(true)}
+            className="inline-flex shrink-0 items-center gap-2 rounded-full bg-ink px-4 py-2 text-xs font-medium text-paper transition-transform hover:scale-[1.02]"
+          >
+            <PencilIcon className="size-3.5" />
+            <span>{t("editAgain")}</span>
+          </button>
         </div>
       ) : null}
 
@@ -200,12 +222,12 @@ export function ListingForm({
       <div className="flex flex-col gap-3 border-t border-rule/60 pt-6 sm:flex-row sm:items-center sm:justify-between">
         <button
           type="button"
-          onClick={handleDelete}
+          onClick={() => setDeleteConfirmOpen(true)}
           disabled={readonly}
           className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10 disabled:opacity-50"
         >
           <Trash2Icon className="size-4" />
-          {tForm("delete")}
+          <span>{tForm("delete")}</span>
         </button>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -216,12 +238,14 @@ export function ListingForm({
             disabled={readonly || saving}
             className="inline-flex items-center gap-2 rounded-full border border-rule bg-paper px-5 py-3 text-sm font-medium text-ink transition-colors hover:border-ink disabled:opacity-50"
           >
-            {saving ? (
-              <Loader2Icon className="size-4 animate-spin" />
-            ) : (
-              <SaveIcon className="size-4" />
-            )}
-            {tForm("save")}
+            <span className="inline-flex size-4 items-center justify-center">
+              {saving ? (
+                <Loader2Icon className="size-4 animate-spin" />
+              ) : (
+                <SaveIcon className="size-4" />
+              )}
+            </span>
+            <span>{tForm("save")}</span>
           </button>
 
           {listing.status === "draft" || listing.status === "rejected" ? (
@@ -250,6 +274,29 @@ export function ListingForm({
           ) : null}
         </div>
       </div>
+
+      <ConfirmDialog
+        open={editConfirmOpen}
+        onOpenChange={setEditConfirmOpen}
+        icon={<PencilIcon className="size-6" />}
+        title={t("editConfirmTitle")}
+        description={t("editConfirmBody")}
+        confirmLabel={t("editConfirmYes")}
+        cancelLabel={t("editConfirmNo")}
+        onConfirm={handleWithdraw}
+      />
+
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
+        variant="destructive"
+        icon={<Trash2Icon className="size-6" />}
+        title={t("deleteConfirmTitle")}
+        description={t("deleteConfirmBody")}
+        confirmLabel={t("deleteConfirmYes")}
+        cancelLabel={t("editConfirmNo")}
+        onConfirm={handleDelete}
+      />
     </form>
   );
 }

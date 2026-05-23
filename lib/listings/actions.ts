@@ -215,6 +215,26 @@ export async function submitListingForReviewAction(listingId: string) {
   redirect("/listings");
 }
 
+export async function withdrawListingToDraftAction(listingId: string) {
+  const profile = await requireProfile();
+  const supabase = await getSupabaseServerClient();
+
+  const { error } = await supabase
+    .from("listings")
+    .update({ status: "draft" })
+    .eq("id", listingId)
+    .eq("owner_id", profile.id)
+    .in("status", ["pending", "approved", "rejected"]);
+
+  if (error) {
+    throw new Error(`সম্পাদনায় সমস্যা: ${error.message}`);
+  }
+
+  revalidatePath(`/listings/${listingId}/edit`);
+  revalidatePath(`/listings/${listingId}`);
+  revalidatePath("/listings");
+}
+
 export async function deleteListingAction(listingId: string) {
   const profile = await requireProfile();
   const supabase = await getSupabaseServerClient();

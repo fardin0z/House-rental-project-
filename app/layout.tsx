@@ -35,9 +35,6 @@ export const metadata: Metadata = {
     icon: [{ url: "/icons/icon.svg", type: "image/svg+xml" }],
     apple: [{ url: "/icons/icon-192.svg", type: "image/svg+xml" }],
   },
-  other: {
-    google: "notranslate",
-  },
 };
 
 export const viewport: Viewport = {
@@ -61,8 +58,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      translate="no"
-      className={`${hindSiliguri.variable} ${instrumentSerif.variable} notranslate h-full antialiased`}
+      className={`${hindSiliguri.variable} ${instrumentSerif.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-background text-foreground">
         <NextIntlClientProvider locale={locale} messages={messages}>
