@@ -14,10 +14,7 @@ function getStore(): Map<string, Entry> {
 }
 
 export function isDevOtpEnabled(): boolean {
-  return (
-    process.env.NODE_ENV !== "production" &&
-    process.env.DEV_BYPASS_OTP === "true"
-  );
+  return process.env.DEV_BYPASS_OTP === "true";
 }
 
 export function generateDevOtp(): string {

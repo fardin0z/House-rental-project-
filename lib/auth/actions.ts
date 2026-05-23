@@ -162,6 +162,12 @@ function mapSupabaseAuthError(message: string): string {
   if (lower.includes("rate limit")) return "অনেক বেশি অনুরোধ। কিছুক্ষণ পর আবার চেষ্টা করুন।";
   if (lower.includes("invalid") && lower.includes("otp")) return "ভুল কোড। আবার চেষ্টা করুন।";
   if (lower.includes("expired")) return "কোডের মেয়াদ শেষ। নতুন কোড নিন।";
-  if (lower.includes("phone")) return "বৈধ মোবাইল নম্বর দিন।";
+  if (lower.includes("disabled") || lower.includes("not enabled") || lower.includes("provider")) {
+    return "SMS সেবা এখনো চালু হয়নি। কিছুক্ষণ পর আবার চেষ্টা করুন।";
+  }
+  if (lower.includes("sending") || lower.includes("sms")) {
+    return "OTP পাঠানো যায়নি। SMS সেবা কনফিগার করা প্রয়োজন।";
+  }
+  if (lower.includes("invalid") && lower.includes("phone")) return "বৈধ মোবাইল নম্বর দিন।";
   return "সমস্যা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।";
 }
