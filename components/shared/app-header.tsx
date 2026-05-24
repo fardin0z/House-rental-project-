@@ -13,14 +13,17 @@ export async function AppHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-rule/60 bg-paper/85 backdrop-blur-md">
-      <div className="mx-auto flex w-full max-w-[1320px] items-center justify-between gap-4 px-4 py-3 sm:px-6">
+      <div className="mx-auto flex w-full max-w-330 items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-baseline gap-1">
+          <Link href="/" className="flex items-baseline gap-1.5">
             <span className="font-display text-xl italic leading-none text-ember">
               /
             </span>
             <span className="text-base font-semibold tracking-tight">
               {tCommon("appName")}
+            </span>
+            <span className="hidden text-xs text-ink-soft sm:inline">
+              {tCommon("appNameBn")}
             </span>
           </Link>
           {profile ? (
@@ -51,7 +54,9 @@ export async function AppHeader() {
               <div className="hidden h-8 w-px bg-rule sm:block" />
               <div className="hidden flex-col items-end leading-tight sm:flex">
                 <span className="text-xs text-ink-soft">
-                  {formatBdPhoneForDisplay(profile.phone)}
+                  {profile.name ||
+                    formatBdPhoneForDisplay(profile.phone) ||
+                    profile.email}
                 </span>
               </div>
               <form action={signOutAction}>

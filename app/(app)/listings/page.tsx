@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { PlusIcon, ArrowUpRightIcon, AlertTriangleIcon } from "lucide-react";
+import { PlusIcon, ArrowUpRightIcon, ShieldCheckIcon } from "lucide-react";
 import { requireProfile } from "@/lib/auth/guards";
 import {
   getApprovedListings,
@@ -29,7 +29,7 @@ export default async function ListingsIndexPage() {
 
   if (profile.role === "landlord") {
     const listings = await getMyListings(profile.id);
-    const canCreate = profile.nid_status === "approved";
+    const unverified = profile.nid_status !== "approved";
 
     return (
       <div className="mx-auto w-full max-w-[1320px] px-4 py-10 sm:px-6 md:py-14">
@@ -41,25 +41,23 @@ export default async function ListingsIndexPage() {
             </h1>
             <p className="max-w-xl text-sm text-ink-soft">{t("myListingsSubtitle")}</p>
           </div>
-          {canCreate ? (
-            <Link
-              href="/listings/new"
-              className="group inline-flex items-center gap-2 self-start rounded-full bg-ink px-5 py-3 text-sm font-medium text-paper transition-transform hover:scale-[1.02] sm:self-end"
-            >
-              <PlusIcon className="size-4" />
-              {t("newListing")}
-              <span className="grid size-7 place-items-center rounded-full bg-ember transition-transform group-hover:rotate-12">
-                <ArrowUpRightIcon className="size-3.5" />
-              </span>
-            </Link>
-          ) : null}
+          <Link
+            href="/listings/new"
+            className="group inline-flex items-center gap-2 self-start rounded-full bg-ink px-5 py-3 text-sm font-medium text-paper transition-transform hover:scale-[1.02] sm:self-end"
+          >
+            <PlusIcon className="size-4" />
+            {t("newListing")}
+            <span className="grid size-7 place-items-center rounded-full bg-ember transition-transform group-hover:rotate-12">
+              <ArrowUpRightIcon className="size-3.5" />
+            </span>
+          </Link>
         </div>
 
-        {!canCreate ? (
-          <NidGate
-            heading={t("nidGateHeading")}
-            body={t("nidGateBody")}
-            cta={t("nidGateCta")}
+        {unverified ? (
+          <VerifyPrompt
+            heading={t("verifyPromptHeading")}
+            body={t("verifyPromptBody")}
+            cta={t("verifyPromptCta")}
           />
         ) : null}
 
@@ -119,7 +117,7 @@ function EmptyState({ heading, body }: { heading: string; body: string }) {
   );
 }
 
-function NidGate({
+function VerifyPrompt({
   heading,
   body,
   cta,
@@ -129,9 +127,9 @@ function NidGate({
   cta: string;
 }) {
   return (
-    <div className="mb-8 flex items-start gap-4 rounded-3xl border border-ember/40 bg-ember-soft/40 p-5 md:p-6">
-      <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-paper text-ember">
-        <AlertTriangleIcon className="size-6" />
+    <div className="mb-8 flex items-start gap-4 rounded-3xl border border-rule/60 bg-paper p-5 md:p-6">
+      <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-ember/15 text-ember">
+        <ShieldCheckIcon className="size-6" />
       </div>
       <div className="flex flex-1 flex-col gap-2">
         <h3 className="font-display text-xl italic text-ink">{heading}</h3>
@@ -139,7 +137,7 @@ function NidGate({
       </div>
       <Link
         href="/onboarding/nid"
-        className="inline-flex items-center gap-2 self-start rounded-full bg-ink px-4 py-2 text-sm font-medium text-paper"
+        className="inline-flex items-center gap-2 self-start rounded-full border border-rule px-4 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
       >
         {cta}
         <ArrowUpRightIcon className="size-3.5" />

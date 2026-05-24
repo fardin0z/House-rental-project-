@@ -2,16 +2,13 @@
 
 import { redirect } from "next/navigation";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
-import { getSupabaseAdminClient } from "@/lib/supabase/admin";
+import { parseIdentifier } from "./identifier";
 import {
-  consumeDevOtp,
-  devEmailForPhone,
-  devPasswordForPhone,
-  generateDevOtp,
-  isDevOtpEnabled,
-  storeDevOtp,
-} from "./dev-otp";
-import { sendOtpInput, verifyOtpInput } from "./schema";
+  loginInput,
+  signupInput,
+  resetRequestInput,
+  updatePasswordInput,
+} from "./schema";
 
 export type ActionState = {
   error?: string;
@@ -19,133 +16,133 @@ export type ActionState = {
   ok?: boolean;
 };
 
-export async function sendOtpAction(
+export async function loginAction(
   _state: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const parsed = sendOtpInput.safeParse({
-    phone: formData.get("phone"),
+  const parsed = loginInput.safeParse({
+    identifier: formData.get("identifier"),
+    password: formData.get("password"),
   });
 
   if (!parsed.success) {
     return { fieldErrors: flattenZodErrors(parsed.error) };
   }
 
-  if (isDevOtpEnabled()) {
-    const code = generateDevOtp();
-    storeDevOtp(parsed.data.phone, code);
-    console.info(`\n[DEV OTP] ${parsed.data.phone} → ${code}\n`);
-    redirect(`/verify-otp?phone=${encodeURIComponent(parsed.data.phone)}`);
-  }
+  const id = parseIdentifier(parsed.data.identifier);
+  if (!id) return { fieldErrors: { identifier: "বৈধ মোবাইল নম্বর বা ইমেইল দিন" } };
 
   const supabase = await getSupabaseServerClient();
-  const { error } = await supabase.auth.signInWithOtp({
-    phone: parsed.data.phone,
-    options: { channel: "sms" },
-  });
+  const credentials =
+    id.kind === "email"
+      ? { email: id.email, password: parsed.data.password }
+      : { phone: id.phone, password: parsed.data.password };
+
+  const { error } = await supabase.auth.signInWithPassword(credentials);
 
   if (error) {
-    return { error: mapSupabaseAuthError(error.message) };
+    return { error: mapAuthError(error.message) };
   }
 
-  redirect(`/verify-otp?phone=${encodeURIComponent(parsed.data.phone)}`);
+  redirect("/");
 }
 
-export async function verifyOtpAction(
+export async function signupAction(
   _state: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const parsed = verifyOtpInput.safeParse({
-    phone: formData.get("phone"),
-    token: formData.get("token"),
+  const parsed = signupInput.safeParse({
+    name: formData.get("name"),
+    identifier: formData.get("identifier"),
+    password: formData.get("password"),
   });
 
   if (!parsed.success) {
     return { fieldErrors: flattenZodErrors(parsed.error) };
   }
 
-  if (isDevOtpEnabled()) {
-    return await verifyDevOtp(parsed.data.phone, parsed.data.token);
-  }
+  const id = parseIdentifier(parsed.data.identifier);
+  if (!id) return { fieldErrors: { identifier: "বৈধ মোবাইল নম্বর বা ইমেইল দিন" } };
 
   const supabase = await getSupabaseServerClient();
-  const { error } = await supabase.auth.verifyOtp({
-    phone: parsed.data.phone,
-    token: parsed.data.token,
-    type: "sms",
+  const credentials =
+    id.kind === "email"
+      ? { email: id.email, password: parsed.data.password }
+      : { phone: id.phone, password: parsed.data.password };
+
+  const { data, error } = await supabase.auth.signUp({
+    ...credentials,
+    options: { data: { name: parsed.data.name } },
   });
 
   if (error) {
-    return { error: mapSupabaseAuthError(error.message) };
+    return { error: mapAuthError(error.message) };
+  }
+
+  if (!data.session) {
+    return {
+      ok: true,
+      error: undefined,
+      fieldErrors: { identifier: "অ্যাকাউন্ট তৈরি হয়েছে। লগইন করতে নিশ্চিতকরণ প্রয়োজন হতে পারে।" },
+    };
   }
 
   redirect("/onboarding/role");
+}
+
+export async function requestPasswordResetAction(
+  _state: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const parsed = resetRequestInput.safeParse({
+    email: formData.get("email"),
+  });
+
+  if (!parsed.success) {
+    return { fieldErrors: flattenZodErrors(parsed.error) };
+  }
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const supabase = await getSupabaseServerClient();
+  const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
+    redirectTo: `${siteUrl}/reset-password`,
+  });
+
+  if (error) {
+    return { error: mapAuthError(error.message) };
+  }
+
+  return { ok: true };
+}
+
+export async function updatePasswordAction(
+  _state: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const parsed = updatePasswordInput.safeParse({
+    password: formData.get("password"),
+  });
+
+  if (!parsed.success) {
+    return { fieldErrors: flattenZodErrors(parsed.error) };
+  }
+
+  const supabase = await getSupabaseServerClient();
+  const { error } = await supabase.auth.updateUser({
+    password: parsed.data.password,
+  });
+
+  if (error) {
+    return { error: mapAuthError(error.message) };
+  }
+
+  redirect("/");
 }
 
 export async function signOutAction() {
   const supabase = await getSupabaseServerClient();
   await supabase.auth.signOut();
   redirect("/");
-}
-
-async function verifyDevOtp(phone: string, token: string): Promise<ActionState> {
-  if (!consumeDevOtp(phone, token)) {
-    return { error: "ভুল কোড। আবার চেষ্টা করুন।" };
-  }
-
-  let admin;
-  try {
-    admin = getSupabaseAdminClient();
-  } catch {
-    return {
-      error: "DEV মোডে SUPABASE_SECRET_KEY প্রয়োজন। .env ফাইল চেক করুন।",
-    };
-  }
-
-  const email = devEmailForPhone(phone);
-  const password = devPasswordForPhone(phone);
-
-  const { error: createError } = await admin.auth.admin.createUser({
-    email,
-    phone,
-    password,
-    email_confirm: true,
-    phone_confirm: true,
-  });
-
-  if (createError) {
-    const alreadyExists = /already|registered|exists/i.test(createError.message);
-    if (alreadyExists) {
-      const { data, error: listError } = await admin.auth.admin.listUsers();
-      if (listError) {
-        return { error: `ব্যবহারকারী লোডে সমস্যা: ${listError.message}` };
-      }
-      const existing = data.users.find((u) => u.email === email);
-      if (existing) {
-        const { error: updateError } = await admin.auth.admin.updateUserById(
-          existing.id,
-          { password },
-        );
-        if (updateError) {
-          return { error: `পাসওয়ার্ড আপডেটে সমস্যা: ${updateError.message}` };
-        }
-      }
-    } else {
-      return { error: `ব্যবহারকারী তৈরিতে সমস্যা: ${createError.message}` };
-    }
-  }
-
-  const supabase = await getSupabaseServerClient();
-  const { error: signInError } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
-
-  if (signInError) {
-    return { error: `সাইন ইনে সমস্যা: ${signInError.message}` };
-  }
-
-  redirect("/onboarding/role");
 }
 
 function flattenZodErrors(error: import("zod").ZodError) {
@@ -157,17 +154,19 @@ function flattenZodErrors(error: import("zod").ZodError) {
   return out;
 }
 
-function mapSupabaseAuthError(message: string): string {
+function mapAuthError(message: string): string {
   const lower = message.toLowerCase();
-  if (lower.includes("rate limit")) return "অনেক বেশি অনুরোধ। কিছুক্ষণ পর আবার চেষ্টা করুন।";
-  if (lower.includes("invalid") && lower.includes("otp")) return "ভুল কোড। আবার চেষ্টা করুন।";
-  if (lower.includes("expired")) return "কোডের মেয়াদ শেষ। নতুন কোড নিন।";
-  if (lower.includes("disabled") || lower.includes("not enabled") || lower.includes("provider")) {
-    return "SMS সেবা এখনো চালু হয়নি। কিছুক্ষণ পর আবার চেষ্টা করুন।";
+  if (lower.includes("invalid login") || lower.includes("invalid credentials")) {
+    return "ভুল তথ্য। মোবাইল/ইমেইল বা পাসওয়ার্ড মিলছে না।";
   }
-  if (lower.includes("sending") || lower.includes("sms")) {
-    return "OTP পাঠানো যায়নি। SMS সেবা কনফিগার করা প্রয়োজন।";
+  if (lower.includes("already registered") || lower.includes("already exists")) {
+    return "এই অ্যাকাউন্ট আগে থেকেই আছে। লগইন করুন।";
   }
-  if (lower.includes("invalid") && lower.includes("phone")) return "বৈধ মোবাইল নম্বর দিন।";
+  if (lower.includes("rate limit")) {
+    return "অনেক বেশি অনুরোধ। কিছুক্ষণ পর আবার চেষ্টা করুন।";
+  }
+  if (lower.includes("weak") || lower.includes("password")) {
+    return "পাসওয়ার্ড দুর্বল। আরও শক্তিশালী পাসওয়ার্ড দিন।";
+  }
   return "সমস্যা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।";
 }

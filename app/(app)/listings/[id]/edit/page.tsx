@@ -6,6 +6,7 @@ import { requireProfile } from "@/lib/auth/guards";
 import { getListingById } from "@/lib/listings/queries";
 import { ListingForm } from "@/components/listings/listing-form";
 import { ListingImageUploader } from "@/components/listings/image-uploader";
+import { ListingVideoUploader } from "@/components/listings/video-uploader";
 
 export default async function EditListingPage(
   props: PageProps<"/listings/[id]/edit">,
@@ -51,6 +52,15 @@ export default async function EditListingPage(
             hint: t("images.hint"),
             limit: t("images.limit"),
           }}
+        />
+      </section>
+
+      <section className="mt-10 flex flex-col gap-5">
+        <h2 className="font-display text-2xl italic text-ink">{t("videoTitle")}</h2>
+        <ListingVideoUploader
+          listingId={listing.id}
+          ownerId={listing.owner_id}
+          initialPath={listing.video_path}
         />
       </section>
 

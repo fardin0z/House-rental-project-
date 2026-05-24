@@ -30,10 +30,6 @@ export function RoleSwitcher({
 
   function handleSwitch(target: "tenant" | "landlord") {
     if (target === active) return;
-    if (target === "landlord" && nidStatus !== "approved") {
-      toast.warning(nidStatus === "rejected" ? labels.nidRejected : labels.nidPending);
-      return;
-    }
     setActive(target);
     startTransition(async () => {
       try {

@@ -17,7 +17,6 @@ export default async function LoginPage() {
     <AuthShell
       appName={tCommon("appName")}
       backHref="/"
-      step={{ current: 1, total: 4, label: t("stepLogin") }}
       eyebrow="Welcome"
       heading={
         <>

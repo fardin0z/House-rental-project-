@@ -41,6 +41,7 @@ export async function submitNidAction(
   const userId = await requireUserId();
 
   const parsed = submitNidInput.safeParse({
+    documentType: formData.get("documentType"),
     frontPath: formData.get("frontPath"),
     backPath: formData.get("backPath"),
     selfiePath: formData.get("selfiePath"),
@@ -53,6 +54,7 @@ export async function submitNidAction(
   const supabase = await getSupabaseServerClient();
   const { error } = await supabase.from("nid_documents").insert({
     user_id: userId,
+    document_type: parsed.data.documentType,
     front_path: parsed.data.frontPath,
     back_path: parsed.data.backPath,
     selfie_path: parsed.data.selfiePath,

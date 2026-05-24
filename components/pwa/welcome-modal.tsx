@@ -54,7 +54,7 @@ export function WelcomeModal({ userName }: { userName: string | null }) {
           </div>
 
           <div className="grid size-14 place-items-center rounded-2xl bg-ink text-paper">
-            <span className="font-display text-3xl italic leading-none">B</span>
+            <span className="font-display text-3xl italic leading-none">T</span>
           </div>
 
           <DialogTitle className="font-display text-3xl italic leading-tight text-ink md:text-4xl">

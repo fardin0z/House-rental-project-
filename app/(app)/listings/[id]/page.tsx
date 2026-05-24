@@ -108,6 +108,22 @@ export default async function ListingDetailPage(
             ) : null}
           </div>
 
+          {listing.video_path ? (
+            <div className="mt-10">
+              <h2 className="font-display text-2xl italic text-ink">
+                {t("videoTitle")}
+              </h2>
+              <div className="mt-3 overflow-hidden rounded-[28px] border border-rule/60 bg-ink">
+                {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+                <video
+                  src={publicStorageUrl(LISTING_BUCKET, listing.video_path)}
+                  controls
+                  className="aspect-video w-full"
+                />
+              </div>
+            </div>
+          ) : null}
+
           {listing.description ? (
             <div className="mt-10">
               <h2 className="font-display text-2xl italic text-ink">

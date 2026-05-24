@@ -23,13 +23,13 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "বাসাভাড়া — ভাড়া বাড়ির নতুন ঠিকানা",
-  description: "১০০% NID যাচাইকৃত মালিকের কাছ থেকে দালাল ছাড়াই বাসা ভাড়া।",
+  title: "ToletZoo — বাসা ভাড়ার নতুন ঠিকানা",
+  description: "যাচাইকৃত মালিকের কাছ থেকে দালাল ছাড়াই বাসা ভাড়া।",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "বাসাভাড়া",
+    title: "ToletZoo",
   },
   icons: {
     icon: [{ url: "/icons/icon.svg", type: "image/svg+xml" }],

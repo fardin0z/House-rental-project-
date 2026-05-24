@@ -16,7 +16,7 @@ import {
 import { LISTING_BUCKET, publicStorageUrl } from "@/lib/storage/paths";
 import type { ListingImageRow } from "@/types/database.types";
 
-const MAX_IMAGES = 8;
+const MAX_IMAGES = 6;
 
 type Labels = {
   add: string;

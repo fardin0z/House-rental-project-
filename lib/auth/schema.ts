@@ -1,24 +1,34 @@
 import { z } from "zod";
-import { isValidBdPhone, normalizeBdPhone } from "./phone";
+import { parseIdentifier } from "./identifier";
 
-export const phoneSchema = z
+const identifierSchema = z
   .string()
-  .min(1, "মোবাইল নম্বর দিন")
-  .transform(normalizeBdPhone)
-  .refine(isValidBdPhone, "বৈধ বাংলাদেশী মোবাইল নম্বর দিন");
+  .min(1, "মোবাইল নম্বর বা ইমেইল দিন")
+  .refine((value) => parseIdentifier(value) !== null, "বৈধ মোবাইল নম্বর বা ইমেইল দিন");
 
-export const otpSchema = z
+const passwordSchema = z
   .string()
-  .regex(/^\d{6}$/, "৬ ডিজিটের কোড দিন");
+  .min(6, "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে")
+  .max(72, "পাসওয়ার্ড অনেক বড়");
 
-export const sendOtpInput = z.object({
-  phone: phoneSchema,
+export const loginInput = z.object({
+  identifier: identifierSchema,
+  password: z.string().min(1, "পাসওয়ার্ড দিন"),
 });
 
-export const verifyOtpInput = z.object({
-  phone: phoneSchema,
-  token: otpSchema,
+export const signupInput = z.object({
+  name: z.string().min(2, "নাম দিন").max(80),
+  identifier: identifierSchema,
+  password: passwordSchema,
 });
 
-export type SendOtpInput = z.infer<typeof sendOtpInput>;
-export type VerifyOtpInput = z.infer<typeof verifyOtpInput>;
+export const resetRequestInput = z.object({
+  email: z.string().email("বৈধ ইমেইল দিন"),
+});
+
+export const updatePasswordInput = z.object({
+  password: passwordSchema,
+});
+
+export type LoginInput = z.infer<typeof loginInput>;
+export type SignupInput = z.infer<typeof signupInput>;

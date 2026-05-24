@@ -25,7 +25,7 @@ export function AuthShell({
   return (
     <div className="relative min-h-screen">
       <header className="absolute inset-x-0 top-0 z-50">
-        <div className="mx-auto flex w-full max-w-[1320px] items-center justify-between px-4 pt-5 sm:px-6 md:pt-7">
+        <div className="mx-auto flex w-full max-w-330 items-center justify-between px-4 pt-5 sm:px-6 md:pt-7">
           <Link href="/" className="flex items-baseline gap-1">
             <span className="font-display text-2xl italic leading-none">/</span>
             <span className="text-lg font-semibold tracking-tight">{appName}</span>

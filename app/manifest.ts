@@ -2,10 +2,10 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "বাসাভাড়া",
-    short_name: "বাসাভাড়া",
+    name: "ToletZoo — বাসা ভাড়া",
+    short_name: "ToletZoo",
     description:
-      "১০০% NID যাচাইকৃত মালিকের কাছ থেকে দালাল ছাড়াই বাসা ভাড়া।",
+      "যাচাইকৃত মালিকের কাছ থেকে দালাল ছাড়াই বাসা ভাড়া।",
     start_url: "/",
     scope: "/",
     display: "standalone",

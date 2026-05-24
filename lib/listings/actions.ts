@@ -40,9 +40,6 @@ export async function createDraftListingAction() {
   if (profile.role !== "landlord") {
     redirect("/listings");
   }
-  if (profile.nid_status !== "approved") {
-    redirect("/onboarding/nid");
-  }
 
   const supabase = await getSupabaseServerClient();
   const { data, error } = await supabase
@@ -213,6 +210,62 @@ export async function submitListingForReviewAction(listingId: string) {
   revalidatePath(`/listings/${listingId}`);
   revalidatePath("/listings");
   redirect("/listings");
+}
+
+export async function attachListingVideoAction(listingId: string, path: string) {
+  const profile = await requireProfile();
+  const supabase = await getSupabaseServerClient();
+
+  const { data: existing } = await supabase
+    .from("listings")
+    .select("video_path")
+    .eq("id", listingId)
+    .eq("owner_id", profile.id)
+    .maybeSingle();
+
+  const { error } = await supabase
+    .from("listings")
+    .update({ video_path: path })
+    .eq("id", listingId)
+    .eq("owner_id", profile.id);
+
+  if (error) {
+    throw new Error(`ভিডিও সংরক্ষণে সমস্যা: ${error.message}`);
+  }
+
+  if (existing?.video_path && existing.video_path !== path) {
+    await supabase.storage.from("listing-images").remove([existing.video_path]);
+  }
+
+  revalidatePath(`/listings/${listingId}/edit`);
+}
+
+export async function removeListingVideoAction(listingId: string) {
+  const profile = await requireProfile();
+  const supabase = await getSupabaseServerClient();
+
+  const { data: existing } = await supabase
+    .from("listings")
+    .select("video_path")
+    .eq("id", listingId)
+    .eq("owner_id", profile.id)
+    .maybeSingle();
+
+  const { error } = await supabase
+    .from("listings")
+    .update({ video_path: null })
+    .eq("id", listingId)
+    .eq("owner_id", profile.id);
+
+  if (error) {
+    throw new Error(`ভিডিও মুছতে সমস্যা: ${error.message}`);
+  }
+
+  if (existing?.video_path) {
+    await supabase.storage.from("listing-images").remove([existing.video_path]);
+  }
+
+  revalidatePath(`/listings/${listingId}/edit`);
 }
 
 export async function withdrawListingToDraftAction(listingId: string) {

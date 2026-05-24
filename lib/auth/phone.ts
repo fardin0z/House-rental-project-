@@ -12,7 +12,8 @@ export function isValidBdPhone(phone: string): boolean {
   return BD_PHONE_PATTERN.test(phone);
 }
 
-export function formatBdPhoneForDisplay(phone: string): string {
+export function formatBdPhoneForDisplay(phone: string | null): string {
+  if (!phone) return "";
   const digits = phone.replace(/\D/g, "");
   if (digits.length === 13 && digits.startsWith("880")) {
     return `0${digits.slice(3)}`;

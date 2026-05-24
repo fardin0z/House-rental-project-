@@ -11,6 +11,13 @@ export type NidStatus = "pending" | "approved" | "rejected";
 export type MovingRequestStatus = "pending" | "confirmed" | "completed";
 export type ListingStatus = "draft" | "pending" | "approved" | "rejected" | "archived";
 export type RentalType = "family_flat" | "bachelor" | "sublet" | "shop" | "office";
+export type IdDocumentType =
+  | "nid"
+  | "birth_certificate"
+  | "passport"
+  | "driving_license"
+  | "student_id"
+  | "other";
 
 export type Database = {
   public: {
@@ -18,7 +25,8 @@ export type Database = {
       profiles: {
         Row: {
           id: string;
-          phone: string;
+          phone: string | null;
+          email: string | null;
           name: string | null;
           role: UserRole;
           nid_status: NidStatus;
@@ -29,7 +37,8 @@ export type Database = {
         };
         Insert: {
           id: string;
-          phone: string;
+          phone?: string | null;
+          email?: string | null;
           name?: string | null;
           role?: UserRole;
           nid_status?: NidStatus;
@@ -40,7 +49,8 @@ export type Database = {
         };
         Update: {
           id?: string;
-          phone?: string;
+          phone?: string | null;
+          email?: string | null;
           name?: string | null;
           role?: UserRole;
           nid_status?: NidStatus;
@@ -62,6 +72,7 @@ export type Database = {
         Row: {
           id: string;
           user_id: string;
+          document_type: IdDocumentType;
           front_path: string;
           back_path: string;
           selfie_path: string;
@@ -74,6 +85,7 @@ export type Database = {
         Insert: {
           id?: string;
           user_id: string;
+          document_type?: IdDocumentType;
           front_path: string;
           back_path: string;
           selfie_path: string;
@@ -86,6 +98,7 @@ export type Database = {
         Update: {
           id?: string;
           user_id?: string;
+          document_type?: IdDocumentType;
           front_path?: string;
           back_path?: string;
           selfie_path?: string;
@@ -120,6 +133,7 @@ export type Database = {
           district: string | null;
           lat: number | null;
           lng: number | null;
+          video_path: string | null;
           status: ListingStatus;
           rejection_reason: string | null;
           created_at: string;
@@ -140,6 +154,7 @@ export type Database = {
           district?: string | null;
           lat?: number | null;
           lng?: number | null;
+          video_path?: string | null;
           status?: ListingStatus;
           rejection_reason?: string | null;
           created_at?: string;
@@ -160,6 +175,7 @@ export type Database = {
           district?: string | null;
           lat?: number | null;
           lng?: number | null;
+          video_path?: string | null;
           status?: ListingStatus;
           rejection_reason?: string | null;
           created_at?: string;
@@ -266,6 +282,7 @@ export type Database = {
       moving_request_status: MovingRequestStatus;
       listing_status: ListingStatus;
       rental_type: RentalType;
+      id_document_type: IdDocumentType;
     };
     CompositeTypes: Record<never, never>;
   };

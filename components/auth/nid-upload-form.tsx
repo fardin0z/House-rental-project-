@@ -19,6 +19,7 @@ import { compressAndUploadNidImage } from "@/lib/storage/upload";
 import type { NidImageType } from "@/lib/storage/paths";
 import { submitNidAction } from "@/lib/auth/onboarding-actions";
 import type { ActionState } from "@/lib/auth/actions";
+import type { IdDocumentType } from "@/types/database.types";
 import { cn } from "@/lib/utils";
 
 type UploadState = {
@@ -28,6 +29,15 @@ type UploadState = {
   error?: string;
 };
 
+const DOCUMENT_TYPES: IdDocumentType[] = [
+  "nid",
+  "birth_certificate",
+  "passport",
+  "driving_license",
+  "student_id",
+  "other",
+];
+
 const initial: ActionState = {};
 
 export function NidUploadForm({ userId }: { userId: string }) {
@@ -35,6 +45,7 @@ export function NidUploadForm({ userId }: { userId: string }) {
   const [submitState, formAction, submitting] = useActionState(submitNidAction, initial);
   const [, startTransition] = useTransition();
 
+  const [documentType, setDocumentType] = useState<IdDocumentType>("nid");
   const [front, setFront] = useState<UploadState>({});
   const [back, setBack] = useState<UploadState>({});
   const [selfie, setSelfie] = useState<UploadState>({});
@@ -56,9 +67,27 @@ export function NidUploadForm({ userId }: { userId: string }) {
 
   return (
     <form action={formAction} className="flex flex-col gap-6">
+      <input type="hidden" name="documentType" value={documentType} />
       <input type="hidden" name="frontPath" value={front.path ?? ""} />
       <input type="hidden" name="backPath" value={back.path ?? ""} />
       <input type="hidden" name="selfiePath" value={selfie.path ?? ""} />
+
+      <div className="flex flex-col gap-2">
+        <span className="text-[0.7rem] uppercase tracking-[0.18em] text-ink-soft">
+          {t("documentTypeLabel")}
+        </span>
+        <select
+          value={documentType}
+          onChange={(event) => setDocumentType(event.target.value as IdDocumentType)}
+          className="h-12 rounded-2xl border border-rule bg-paper px-4 text-base outline-none focus:ring-2 focus:ring-ember/40"
+        >
+          {DOCUMENT_TYPES.map((type) => (
+            <option key={type} value={type}>
+              {t(`documentTypes.${type}`)}
+            </option>
+          ))}
+        </select>
+      </div>
 
       <div className="flex items-start gap-3 rounded-2xl border border-ember/30 bg-ember-soft/40 px-4 py-3">
         <CameraIcon className="mt-0.5 size-4 shrink-0 text-clay" />
