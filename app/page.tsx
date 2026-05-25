@@ -8,6 +8,7 @@ import {
   StarIcon,
 } from "lucide-react";
 import { getCurrentUserId } from "@/lib/auth/guards";
+import { MainMenu } from "@/components/shared/main-menu";
 
 const HERO_IMAGE =
   "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1600&q=80&auto=format&fit=crop";
@@ -52,6 +53,7 @@ export default async function HomePage() {
         appName={tCommon("appName")}
         cta={isAuthed ? "বিজ্ঞাপন দেখুন" : t("ctaLogin")}
         href={isAuthed ? "/listings" : "/login"}
+        isAuthed={isAuthed}
       />
 
       <section className="relative mx-auto w-full max-w-330 px-4 pt-28 pb-16 sm:px-6 md:pt-32 md:pb-24">
@@ -114,28 +116,30 @@ function SiteNav({
   appName,
   cta,
   href,
+  isAuthed,
 }: {
   appName: string;
   cta: string;
   href: string;
+  isAuthed: boolean;
 }) {
   return (
     <nav className="fixed inset-x-0 top-0 z-50">
       <div className="mx-auto flex w-full max-w-330 items-center justify-between px-4 pt-5 sm:px-6 md:pt-7">
         <Link href="/" className="group flex items-baseline gap-1.5">
-          <span className="font-display text-2xl italic leading-none tracking-tight">
-            /
-          </span>
           <span className="text-lg font-semibold tracking-tight">{appName}</span>
           <span className="hidden text-sm text-ink-soft sm:inline">বাসা ভাড়া</span>
         </Link>
-        <Link
-          href={href}
-          className="group inline-flex items-center gap-2 rounded-full border border-ink/15 bg-paper/70 px-5 py-2.5 text-sm font-medium text-ink backdrop-blur-md transition-all hover:bg-ink hover:text-paper"
-        >
-          {cta}
-          <ArrowUpRightIcon className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:translate-y-0.5" />
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href={href}
+            className="group inline-flex items-center gap-2 rounded-full border border-ink/15 bg-paper/70 px-5 py-2.5 text-sm font-medium text-ink backdrop-blur-md transition-all hover:bg-ink hover:text-paper"
+          >
+            {cta}
+            <ArrowUpRightIcon className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </Link>
+          <MainMenu isAuthed={isAuthed} />
+        </div>
       </div>
     </nav>
   );
@@ -513,8 +517,8 @@ function Footer({
     <footer className="relative border-t border-rule/60">
       <div className="mx-auto flex w-full max-w-330 flex-col items-start justify-between gap-6 px-4 py-12 sm:flex-row sm:items-end sm:px-6 md:px-8 md:py-16">
         <div className="flex flex-col gap-3">
-          <span className="font-display text-3xl italic leading-none text-ink">
-            /{appName}
+          <span className="text-2xl font-semibold tracking-tight text-ink">
+            {appName}
           </span>
           <span className="text-sm text-ink-soft">{note}</span>
         </div>

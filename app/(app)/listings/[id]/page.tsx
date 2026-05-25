@@ -11,6 +11,7 @@ import {
 import { requireProfile } from "@/lib/auth/guards";
 import { getListingById } from "@/lib/listings/queries";
 import { LISTING_BUCKET, publicStorageUrl } from "@/lib/storage/paths";
+import { PremiumLock } from "@/components/listings/premium-lock";
 
 export default async function ListingDetailPage(
   props: PageProps<"/listings/[id]">,
@@ -25,6 +26,8 @@ export default async function ListingDetailPage(
   if (!isOwner && listing.status !== "approved") {
     redirect("/listings");
   }
+
+  const canViewPremium = isOwner || profile.role === "admin";
 
   const t = await getTranslations("listings");
   const cover = listing.images?.[0];
@@ -129,9 +132,15 @@ export default async function ListingDetailPage(
               <h2 className="font-display text-2xl italic text-ink">
                 {t("aboutTitle")}
               </h2>
-              <p className="mt-3 whitespace-pre-line text-base leading-relaxed text-ink/80">
-                {listing.description}
-              </p>
+              {canViewPremium ? (
+                <p className="mt-3 whitespace-pre-line text-base leading-relaxed text-ink/80">
+                  {listing.description}
+                </p>
+              ) : (
+                <div className="mt-3">
+                  <PremiumLock label={t("lockDescription")} cta={t("unlockCta")} />
+                </div>
+              )}
             </div>
           ) : null}
         </div>
@@ -141,13 +150,20 @@ export default async function ListingDetailPage(
             <span className="text-[0.7rem] uppercase tracking-[0.18em] text-ink-soft">
               {t("rent")}
             </span>
-            <div className="mt-1 font-display text-5xl italic leading-none text-ink">
-              ৳{" "}
-              {listing.rent
-                ? listing.rent.toLocaleString("bn-BD")
-                : "—"}
-            </div>
-            <div className="mt-1 text-xs text-ink-soft">{t("perMonth")}</div>
+            {canViewPremium ? (
+              <>
+                <div className="mt-1 font-display text-5xl italic leading-none text-ink">
+                  ৳ {listing.rent ? listing.rent.toLocaleString("bn-BD") : "—"}
+                </div>
+                <div className="mt-1 text-xs text-ink-soft">{t("perMonth")}</div>
+              </>
+            ) : (
+              <div className="mt-2 flex items-baseline gap-2">
+                <span className="font-display text-5xl italic leading-none text-ink/30 blur-[6px] select-none">
+                  ৳ ০০,০০০
+                </span>
+              </div>
+            )}
 
             {isOwner ? (
               <Link
@@ -156,9 +172,9 @@ export default async function ListingDetailPage(
               >
                 {t("edit")}
               </Link>
-            ) : (
-              <div className="mt-6 rounded-2xl bg-canvas px-4 py-3 text-center text-xs text-ink-soft">
-                {t("contactGate")}
+            ) : canViewPremium ? null : (
+              <div className="mt-6">
+                <PremiumLock label={t("lockRentContact")} cta={t("unlockCta")} />
               </div>
             )}
           </div>

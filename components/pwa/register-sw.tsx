@@ -12,7 +12,7 @@ export function RegisterServiceWorker() {
       try {
         await navigator.serviceWorker.register("/sw.js", { scope: "/" });
       } catch {
-        // Service worker registration failures are non fatal.
+        void 0;
       }
     };
 

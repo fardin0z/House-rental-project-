@@ -3,14 +3,12 @@ import type { ListingImageRow, ListingRow } from "@/types/database.types";
 
 export type ListingWithImages = ListingRow & { images: ListingImageRow[] };
 
-function formatSupabaseError(context: string, error: { code?: string; message?: string; details?: string | null; hint?: string | null }): Error {
-  const parts = [
-    `[${context}]`,
-    error.code ? `code=${error.code}` : null,
-    error.message ?? "unknown error",
-    error.hint ? `hint: ${error.hint}` : null,
-  ].filter(Boolean);
-  return new Error(parts.join(" — "));
+function formatSupabaseError(
+  context: string,
+  error: { code?: string; message?: string; details?: string | null; hint?: string | null },
+): Error {
+  console.error(`[${context}]`, error);
+  return new Error("তথ্য লোড করা যায়নি। একটু পর আবার চেষ্টা করুন।");
 }
 
 export async function getMyListings(userId: string): Promise<ListingWithImages[]> {

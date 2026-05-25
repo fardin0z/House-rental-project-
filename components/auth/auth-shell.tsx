@@ -26,9 +26,9 @@ export function AuthShell({
     <div className="relative min-h-screen">
       <header className="absolute inset-x-0 top-0 z-50">
         <div className="mx-auto flex w-full max-w-330 items-center justify-between px-4 pt-5 sm:px-6 md:pt-7">
-          <Link href="/" className="flex items-baseline gap-1">
-            <span className="font-display text-2xl italic leading-none">/</span>
+          <Link href="/" className="flex items-baseline gap-1.5">
             <span className="text-lg font-semibold tracking-tight">{appName}</span>
+            <span className="hidden text-sm text-ink-soft sm:inline">বাসা ভাড়া</span>
           </Link>
           {backHref ? (
             <Link

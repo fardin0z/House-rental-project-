@@ -77,7 +77,8 @@ export async function switchRoleAction(role: "tenant" | "landlord") {
     .eq("id", userId);
 
   if (error) {
-    throw new Error(`ভূমিকা পরিবর্তনে সমস্যা: ${error.message}`);
+    console.error("[switchRole]", error);
+    throw new Error("ভূমিকা পরিবর্তন করা যায়নি। আবার চেষ্টা করুন।");
   }
 
   revalidatePath("/", "layout");

@@ -90,7 +90,8 @@ export async function updateListingAction(
     .eq("owner_id", profile.id);
 
   if (updateError) {
-    return { error: `সংরক্ষণে সমস্যা: ${updateError.message}` };
+    console.error("[updateListing]", updateError);
+    return { error: "সংরক্ষণ করা যায়নি। একটু পর আবার চেষ্টা করুন।" };
   }
 
   if (intent === "submit") {
@@ -110,7 +111,8 @@ export async function updateListingAction(
       .eq("owner_id", profile.id);
 
     if (statusError) {
-      return { error: `জমা দিতে সমস্যা: ${statusError.message}` };
+      console.error("[submitListing]", statusError);
+      return { error: "জমা দেওয়া যায়নি। একটু পর আবার চেষ্টা করুন।" };
     }
 
     revalidatePath("/listings");
@@ -138,7 +140,8 @@ export async function attachListingImageAction(
     .single();
 
   if (error || !data) {
-    throw new Error(error?.message ?? "ছবি সংরক্ষণ ব্যর্থ");
+    console.error("[attachListingImage]", error);
+    throw new Error("ছবি সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।");
   }
 
   void profile;
@@ -169,47 +172,14 @@ export async function removeListingImageAction(
     .eq("id", imageId);
 
   if (deleteError) {
-    throw new Error(`মুছতে সমস্যা: ${deleteError.message}`);
+    console.error("[removeListingImage]", deleteError);
+    throw new Error("ছবি মুছে ফেলা যায়নি। আবার চেষ্টা করুন।");
   }
 
   await supabase.storage.from("listing-images").remove([image.path]);
 
   void profile;
   revalidatePath(`/listings/${listingId}/edit`);
-}
-
-export async function submitListingForReviewAction(listingId: string) {
-  const profile = await requireProfile();
-  const supabase = await getSupabaseServerClient();
-
-  const { data: listing } = await supabase
-    .from("listings")
-    .select("id, title, area_name, rent")
-    .eq("id", listingId)
-    .eq("owner_id", profile.id)
-    .maybeSingle();
-
-  if (!listing) {
-    throw new Error("লিস্টিং পাওয়া যায়নি");
-  }
-
-  if (!listing.title || !listing.area_name || !listing.rent) {
-    throw new Error("সব তথ্য পূরণ করুন");
-  }
-
-  const { error } = await supabase
-    .from("listings")
-    .update({ status: "pending" })
-    .eq("id", listingId)
-    .eq("owner_id", profile.id);
-
-  if (error) {
-    throw new Error(`জমা দিতে সমস্যা: ${error.message}`);
-  }
-
-  revalidatePath(`/listings/${listingId}`);
-  revalidatePath("/listings");
-  redirect("/listings");
 }
 
 export async function attachListingVideoAction(listingId: string, path: string) {
@@ -230,7 +200,8 @@ export async function attachListingVideoAction(listingId: string, path: string) 
     .eq("owner_id", profile.id);
 
   if (error) {
-    throw new Error(`ভিডিও সংরক্ষণে সমস্যা: ${error.message}`);
+    console.error("[attachListingVideo]", error);
+    throw new Error("ভিডিও সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।");
   }
 
   if (existing?.video_path && existing.video_path !== path) {
@@ -258,7 +229,8 @@ export async function removeListingVideoAction(listingId: string) {
     .eq("owner_id", profile.id);
 
   if (error) {
-    throw new Error(`ভিডিও মুছতে সমস্যা: ${error.message}`);
+    console.error("[removeListingVideo]", error);
+    throw new Error("ভিডিও মুছে ফেলা যায়নি। আবার চেষ্টা করুন।");
   }
 
   if (existing?.video_path) {
@@ -280,7 +252,8 @@ export async function withdrawListingToDraftAction(listingId: string) {
     .in("status", ["pending", "approved", "rejected"]);
 
   if (error) {
-    throw new Error(`সম্পাদনায় সমস্যা: ${error.message}`);
+    console.error("[withdrawListing]", error);
+    throw new Error("সম্পাদনা শুরু করা যায়নি। আবার চেষ্টা করুন।");
   }
 
   revalidatePath(`/listings/${listingId}/edit`);
@@ -304,7 +277,8 @@ export async function deleteListingAction(listingId: string) {
     .eq("owner_id", profile.id);
 
   if (error) {
-    throw new Error(`মুছতে সমস্যা: ${error.message}`);
+    console.error("[deleteListing]", error);
+    throw new Error("বিজ্ঞাপন মুছে ফেলা যায়নি। আবার চেষ্টা করুন।");
   }
 
   if (images && images.length > 0) {

@@ -28,7 +28,8 @@ export async function compressAndUploadNidImage(
     });
 
   if (error) {
-    throw new Error(`আপলোড ব্যর্থ (${type}): ${error.message}`);
+    console.error("[nidUpload]", type, error);
+    throw new Error("ছবি আপলোড করা যায়নি। আবার চেষ্টা করুন।");
   }
 
   return path;

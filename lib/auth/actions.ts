@@ -80,11 +80,7 @@ export async function signupAction(
   }
 
   if (!data.session) {
-    return {
-      ok: true,
-      error: undefined,
-      fieldErrors: { identifier: "অ্যাকাউন্ট তৈরি হয়েছে। লগইন করতে নিশ্চিতকরণ প্রয়োজন হতে পারে।" },
-    };
+    return { error: "অ্যাকাউন্ট তৈরি হয়েছে। এখন লগইন পেজ থেকে প্রবেশ করুন।" };
   }
 
   redirect("/onboarding/role");

@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { LogOutIcon } from "lucide-react";
 import { getCurrentProfile } from "@/lib/auth/guards";
-import { signOutAction } from "@/lib/auth/actions";
 import { RoleSwitcher } from "@/components/shared/role-switcher";
+import { MainMenu } from "@/components/shared/main-menu";
 import { formatBdPhoneForDisplay } from "@/lib/auth/phone";
 
 export async function AppHeader() {
@@ -16,9 +15,6 @@ export async function AppHeader() {
       <div className="mx-auto flex w-full max-w-330 items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-baseline gap-1.5">
-            <span className="font-display text-xl italic leading-none text-ember">
-              /
-            </span>
             <span className="text-base font-semibold tracking-tight">
               {tCommon("appName")}
             </span>
@@ -59,23 +55,10 @@ export async function AppHeader() {
                     profile.email}
                 </span>
               </div>
-              <form action={signOutAction}>
-                <button
-                  type="submit"
-                  aria-label="Sign out"
-                  className="grid size-9 place-items-center rounded-full border border-rule text-ink-soft transition-colors hover:border-ink hover:text-ink"
-                >
-                  <LogOutIcon className="size-4" />
-                </button>
-              </form>
+              <MainMenu isAuthed />
             </>
           ) : (
-            <Link
-              href="/login"
-              className="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-paper px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-paper"
-            >
-              {tHeader("login")}
-            </Link>
+            <MainMenu isAuthed={false} />
           )}
         </div>
       </div>

@@ -28,7 +28,8 @@ export async function compressAndUploadListingImage(
     });
 
   if (error) {
-    throw new Error(`ছবি আপলোডে সমস্যা: ${error.message}`);
+    console.error("[listingImageUpload]", error);
+    throw new Error("ছবি আপলোড করা যায়নি। আবার চেষ্টা করুন।");
   }
 
   return path;

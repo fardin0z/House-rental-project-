@@ -15,7 +15,7 @@ const hindSiliguri = Hind_Siliguri({
 });
 
 const instrumentSerif = Instrument_Serif({
-  variable: "--font-display",
+  variable: "--font-instrument",
   weight: ["400"],
   style: ["normal", "italic"],
   subsets: ["latin"],
