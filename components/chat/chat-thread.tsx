@@ -116,41 +116,66 @@ export function ChatThread({
 
   useEffect(() => {
     const supabase = getSupabaseBrowserClient();
-    const channel = supabase
-      .channel(`messages:${conversationId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-          filter: `conversation_id=eq.${conversationId}`,
-        },
-        (payload) => {
-          const newMsg = payload.new as MessageRow;
-          setMessages((prev) => applyServerMessage(prev, newMsg, selfId));
-        },
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "messages",
-          filter: `conversation_id=eq.${conversationId}`,
-        },
-        (payload) => {
-          const updated = payload.new as MessageRow;
-          setMessages((prev) =>
-            prev.map((m) => (m.id === updated.id ? { ...m, ...updated } : m)),
-          );
-        },
-      )
-      .subscribe((status) => {
-        console.log(`[chat-thread] realtime status: ${status}`);
-      });
+    let cancelled = false;
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+
+    const start = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (cancelled) return;
+      if (session?.access_token) {
+        supabase.realtime.setAuth(session.access_token);
+      }
+      channel = supabase
+        .channel(`messages:${conversationId}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "messages",
+            filter: `conversation_id=eq.${conversationId}`,
+          },
+          (payload) => {
+            const newMsg = payload.new as MessageRow;
+            setMessages((prev) => applyServerMessage(prev, newMsg, selfId));
+          },
+        )
+        .on(
+          "postgres_changes",
+          {
+            event: "UPDATE",
+            schema: "public",
+            table: "messages",
+            filter: `conversation_id=eq.${conversationId}`,
+          },
+          (payload) => {
+            const updated = payload.new as MessageRow;
+            setMessages((prev) =>
+              prev.map((m) => (m.id === updated.id ? { ...m, ...updated } : m)),
+            );
+          },
+        )
+        .subscribe((status) => {
+          console.log(`[chat-thread] realtime status: ${status}`);
+        });
+    };
+
+    void start();
+
+    const { data: authSub } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (session?.access_token) {
+          supabase.realtime.setAuth(session.access_token);
+        }
+      },
+    );
+
     return () => {
-      supabase.removeChannel(channel);
+      cancelled = true;
+      authSub.subscription.unsubscribe();
+      if (channel) supabase.removeChannel(channel);
     };
   }, [conversationId, selfId]);
 

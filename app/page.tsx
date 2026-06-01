@@ -14,7 +14,6 @@ import {
   type ListingWithImages,
 } from "@/lib/listings/queries";
 import { LISTING_BUCKET, publicStorageUrl } from "@/lib/storage/paths";
-import { MainMenu } from "@/components/shared/main-menu";
 import { AppHeader } from "@/components/shared/app-header";
 import { BrandMark } from "@/components/shared/brand-mark";
 import { HeroSearch } from "@/components/landing/hero-search";
@@ -206,35 +205,19 @@ export default async function HomePage() {
 
       <SiteFooter
         brand={t("footerBrand")}
-        quickLinksTitle={t("footerQuickLinks")}
-        propertiesTitle={t("footerProperties")}
-        resourcesTitle={t("footerResources")}
+        tagline={t("footerNote")}
+        linksTitle={t("footerLinksTitle")}
+        legalTitle={t("footerLegalTitle")}
         contactTitle={t("footerContact")}
-        quickLinks={[
-          t("footerLink1"),
-          t("footerLink2"),
-          t("footerLink3"),
-          t("footerLink4"),
-          t("footerLink5"),
-        ]}
-        properties={[
-          t("footerProp1"),
-          t("footerProp2"),
-          t("footerProp3"),
-          t("footerProp4"),
-          t("footerProp5"),
-        ]}
-        resources={[
-          t("footerRes1"),
-          t("footerRes2"),
-          t("footerRes3"),
-          t("footerRes4"),
-          t("footerRes5"),
-        ]}
         emailLabel={t("footerEmailLabel")}
         phoneLabel={t("footerPhoneLabel")}
         copyright={t("footerCopyright")}
-        menuSlot={<MainMenu isAuthed={isAuthed} />}
+        labels={{
+          properties: t("footerLinkProperties"),
+          support: t("footerLinkSupport"),
+          privacy: t("footerLinkPrivacy"),
+          terms: t("footerLinkTerms"),
+        }}
       />
     </main>
   );
@@ -662,62 +645,97 @@ function JoinSection({
 
 function SiteFooter({
   brand,
-  quickLinksTitle,
-  propertiesTitle,
-  resourcesTitle,
+  tagline,
+  linksTitle,
+  legalTitle,
   contactTitle,
-  quickLinks,
-  properties,
-  resources,
   emailLabel,
   phoneLabel,
   copyright,
-  menuSlot,
+  labels,
 }: {
   brand: string;
-  quickLinksTitle: string;
-  propertiesTitle: string;
-  resourcesTitle: string;
+  tagline: string;
+  linksTitle: string;
+  legalTitle: string;
   contactTitle: string;
-  quickLinks: string[];
-  properties: string[];
-  resources: string[];
   emailLabel: string;
   phoneLabel: string;
   copyright: string;
-  menuSlot: React.ReactNode;
+  labels: {
+    properties: string;
+    support: string;
+    privacy: string;
+    terms: string;
+  };
 }) {
   return (
-    <footer className="mx-auto mb-8 max-w-7xl rounded-[14px] bg-[#101010] px-8 py-12 text-white md:px-10">
-      <div className="grid grid-cols-2 gap-10 md:grid-cols-5">
-        <div className="flex items-start justify-between md:block">
+    <footer className="mx-auto mb-6 max-w-7xl rounded-[14px] bg-[#101010] px-6 py-10 text-white md:mb-8 md:px-10 md:py-12">
+      <div className="grid grid-cols-1 gap-10 md:grid-cols-[1.4fr_1fr_1fr_1.1fr]">
+        <div>
           <div className="flex items-center gap-2.5">
             <BrandMark className="h-9 w-9" />
             <h3 className="text-[18px] font-bold tracking-tight">{brand}</h3>
           </div>
-          <div className="md:hidden">{menuSlot}</div>
+          <p className="mt-4 max-w-[320px] text-[12px] leading-relaxed text-white/55">
+            {tagline}
+          </p>
         </div>
-        <FooterCol title={quickLinksTitle} items={quickLinks} />
-        <FooterCol title={propertiesTitle} items={properties} />
-        <FooterCol title={resourcesTitle} items={resources} />
+
+        <div>
+          <h4 className="text-[12px] font-semibold">{linksTitle}</h4>
+          <ul className="mt-5 space-y-3 text-[12px] text-white/60">
+            <li>
+              <Link href="/properties" className="transition hover:text-white">
+                {labels.properties}
+              </Link>
+            </li>
+            <li>
+              <Link href="/support" className="transition hover:text-white">
+                {labels.support}
+              </Link>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 className="text-[12px] font-semibold">{legalTitle}</h4>
+          <ul className="mt-5 space-y-3 text-[12px] text-white/60">
+            <li>
+              <Link href="/privacy" className="transition hover:text-white">
+                {labels.privacy}
+              </Link>
+            </li>
+            <li>
+              <Link href="/terms" className="transition hover:text-white">
+                {labels.terms}
+              </Link>
+            </li>
+          </ul>
+        </div>
+
         <div>
           <h4 className="text-[12px] font-semibold">{contactTitle}</h4>
-          <ul className="mt-5 space-y-4 text-[11px] text-white/70">
+          <ul className="mt-5 space-y-4 text-[12px] text-white/70">
             <li className="flex items-center gap-3">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-greenx text-black">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-greenx text-black">
                 <MailIcon className="h-4 w-4" />
               </span>
               <span>
-                <span className="block text-white/40">{emailLabel}</span>
+                <span className="block text-[10px] uppercase tracking-wider text-white/40">
+                  {emailLabel}
+                </span>
                 support@toletzoo.com
               </span>
             </li>
             <li className="flex items-center gap-3">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-greenx text-black">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-greenx text-black">
                 <PhoneIcon className="h-4 w-4" />
               </span>
               <span>
-                <span className="block text-white/40">{phoneLabel}</span>
+                <span className="block text-[10px] uppercase tracking-wider text-white/40">
+                  {phoneLabel}
+                </span>
                 +৮৮০ ১৭xx-xxxxxx
               </span>
             </li>
@@ -725,37 +743,10 @@ function SiteFooter({
         </div>
       </div>
 
-      <div className="mt-12 flex items-center justify-between border-t border-white/10 pt-7">
-        <div className="flex items-center gap-3">
-          <span className="flex h-7 w-7 items-center justify-center rounded-full border border-white/15 text-[10px]">
-            𝕏
-          </span>
-          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-greenx text-[10px] font-bold text-black">
-            f
-          </span>
-          <span className="flex h-7 w-7 items-center justify-center rounded-full border border-white/15 text-[10px]">
-            ◎
-          </span>
-          <span className="flex h-7 w-7 items-center justify-center rounded-full border border-white/15 text-[10px]">
-            in
-          </span>
-        </div>
-        <p className="text-[11px] text-white/50">{copyright}</p>
+      <div className="mt-10 border-t border-white/10 pt-6 text-[11px] text-white/50 md:mt-12 md:pt-7">
+        {copyright}
       </div>
     </footer>
-  );
-}
-
-function FooterCol({ title, items }: { title: string; items: string[] }) {
-  return (
-    <div>
-      <h4 className="text-[12px] font-semibold">{title}</h4>
-      <ul className="mt-5 space-y-3 text-[11px] text-white/55">
-        {items.map((label, i) => (
-          <li key={`${label}-${i}`}>{label}</li>
-        ))}
-      </ul>
-    </div>
   );
 }
 

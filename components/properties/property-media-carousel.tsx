@@ -141,7 +141,7 @@ export function PropertyMediaCarousel({
         }
         setPaused(false);
       }}
-      className="relative aspect-2/1 max-h-[600px] w-full overflow-hidden rounded-[34px] bg-ink-900 shadow-[0_28px_60px_-20px_rgba(14,17,13,.35)]"
+      className="relative aspect-[4/5] max-h-[680px] w-full overflow-hidden rounded-[22px] bg-ink-900 shadow-[0_28px_60px_-20px_rgba(14,17,13,.35)] sm:aspect-[3/2] sm:rounded-[28px] md:aspect-[2/1] md:max-h-[600px] md:rounded-[34px]"
     >
       {slides.map((slide, i) => {
         const isActive = i === safeIndex;
@@ -184,7 +184,7 @@ export function PropertyMediaCarousel({
 
       <div className="pointer-events-none absolute inset-0 z-[3] bg-[linear-gradient(to_top,rgba(0,0,0,.82),rgba(0,0,0,.18)_55%,rgba(0,0,0,.24)),linear-gradient(to_right,rgba(0,0,0,.26),transparent_48%,rgba(0,0,0,.22))]" />
 
-      <div className="absolute left-5 right-5 top-5 z-[20] flex flex-wrap items-center justify-between gap-3 md:left-6 md:right-6 md:top-6">
+      <div className="absolute left-4 right-4 top-4 z-[20] flex flex-wrap items-center justify-between gap-2 md:left-6 md:right-6 md:top-6 md:gap-3">
         <div className="flex flex-wrap gap-2">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-lime-400 px-3.5 py-1.5 text-[11.5px] font-bold tracking-tight text-ink-900 shadow-[0_6px_18px_rgba(164,232,97,.5)]">
             <span className="h-1.5 w-1.5 rounded-full bg-ink-900" />
@@ -230,21 +230,21 @@ export function PropertyMediaCarousel({
       ) : null}
 
       {safeIndex === 0 ? (
-        <div className="absolute bottom-[150px] left-5 right-5 z-[20] max-w-[850px] md:left-8 md:right-8">
-          <p className="font-display text-[22px] italic leading-none text-lime-300 md:text-[28px]">
+        <div className="absolute bottom-[110px] left-4 right-4 z-[20] max-w-[850px] md:bottom-[150px] md:left-8 md:right-8">
+          <p className="font-display text-[16px] italic leading-none text-lime-300 sm:text-[20px] md:text-[28px]">
             {district}
           </p>
-          <h1 className="font-display mt-4 text-[40px] italic leading-[.9] tracking-tight text-white drop-shadow-[0_8px_22px_rgba(0,0,0,.45)] md:text-[72px]">
+          <h1 className="font-display mt-2 text-[28px] italic leading-[.9] tracking-tight text-white drop-shadow-[0_8px_22px_rgba(0,0,0,.45)] sm:mt-3 sm:text-[40px] md:mt-4 md:text-[72px]">
             {title}
           </h1>
-          <div className="mt-5 flex flex-wrap gap-2">
-            <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-[11.5px] font-bold text-white backdrop-blur-xl">
-              <ImageIcon className="mr-2 h-3.5 w-3.5 text-lime-300" />
+          <div className="mt-3 flex flex-wrap gap-1.5 md:mt-5 md:gap-2">
+            <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-2.5 py-1 text-[10.5px] font-bold text-white backdrop-blur-xl md:px-3.5 md:py-1.5 md:text-[11.5px]">
+              <ImageIcon className="mr-1.5 h-3 w-3 text-lime-300 md:mr-2 md:h-3.5 md:w-3.5" />
               {photoCountLabel}
             </span>
             {videoPath ? (
-              <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-[11.5px] font-bold text-white backdrop-blur-xl">
-                <PlayCircleIcon className="mr-2 h-3.5 w-3.5 text-lime-300" />
+              <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-2.5 py-1 text-[10.5px] font-bold text-white backdrop-blur-xl md:px-3.5 md:py-1.5 md:text-[11.5px]">
+                <PlayCircleIcon className="mr-1.5 h-3 w-3 text-lime-300 md:mr-2 md:h-3.5 md:w-3.5" />
                 {videoLabel}
               </span>
             ) : null}
@@ -274,13 +274,13 @@ export function PropertyMediaCarousel({
         <div
           className={
             showPocket
-              ? "absolute bottom-5 left-5 z-[20] max-w-[calc(100%-2.5rem)] md:max-w-[calc(100%-20rem)]"
-              : "absolute bottom-5 left-5 z-[20] max-w-[calc(100%-2.5rem)]"
+              ? "absolute bottom-3 left-3 z-[20] max-w-[calc(100%-1.5rem)] md:bottom-5 md:left-5 md:max-w-[calc(100%-20rem)]"
+              : "absolute bottom-3 left-3 z-[20] max-w-[calc(100%-1.5rem)] md:bottom-5 md:left-5 md:max-w-[calc(100%-2.5rem)]"
           }
         >
           <div
             ref={stripRef}
-            className="flex w-fit gap-2.5 overflow-x-auto rounded-[20px] border border-white/25 bg-white/10 p-2.5 backdrop-blur-xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="flex w-fit gap-1.5 overflow-x-auto rounded-[14px] border border-white/25 bg-white/10 p-1.5 backdrop-blur-xl md:gap-2.5 md:rounded-[20px] md:p-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             {slides.map((slide, i) => {
               const isActive = i === safeIndex;
@@ -292,8 +292,8 @@ export function PropertyMediaCarousel({
                   aria-label={`slide ${i + 1}`}
                   className={
                     isActive
-                      ? "relative h-16 w-24 shrink-0 overflow-hidden rounded-[12px] outline-2 outline-offset-2 outline-lime-400 transition-all duration-300"
-                      : "relative h-16 w-24 shrink-0 overflow-hidden rounded-[12px] opacity-65 transition-all duration-300 hover:scale-105 hover:opacity-100"
+                      ? "relative h-11 w-16 shrink-0 overflow-hidden rounded-[8px] outline-2 outline-offset-2 outline-lime-400 transition-all duration-300 md:h-16 md:w-24 md:rounded-[12px]"
+                      : "relative h-11 w-16 shrink-0 overflow-hidden rounded-[8px] opacity-65 transition-all duration-300 hover:scale-105 hover:opacity-100 md:h-16 md:w-24 md:rounded-[12px]"
                   }
                 >
                   {slide.kind === "image" ? (

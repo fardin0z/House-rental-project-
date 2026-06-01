@@ -13,6 +13,7 @@ import {
   LogOutIcon,
   MapIcon,
   MenuIcon,
+  MessageCircleIcon,
   ShieldIcon,
   TruckIcon,
 } from "lucide-react";
@@ -85,6 +86,13 @@ export function MainMenu({
             >
               <MapIcon className="size-4" />
               {t("map")}
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              render={<Link href="/chat" />}
+              className="gap-2 rounded-xl px-3 py-2"
+            >
+              <MessageCircleIcon className="size-4" />
+              {t("chat")}
             </DropdownMenuItem>
             <DropdownMenuItem
               render={<Link href="/subscription" />}
