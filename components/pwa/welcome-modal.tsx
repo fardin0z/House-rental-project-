@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
+import { BrandMark } from "@/components/shared/brand-mark";
 import {
   ArrowUpRightIcon,
   CheckCircle2Icon,
@@ -53,9 +54,7 @@ export function WelcomeModal({ userName }: { userName: string | null }) {
             </span>
           </div>
 
-          <div className="grid size-14 place-items-center rounded-2xl bg-ink text-paper">
-            <span className="font-display text-3xl italic leading-none">T</span>
-          </div>
+          <BrandMark className="size-14" />
 
           <DialogTitle className="font-display text-3xl italic leading-tight text-ink md:text-4xl">
             {t("greeting", { name: displayName })}

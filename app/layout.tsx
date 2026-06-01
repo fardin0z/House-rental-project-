@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Hind_Siliguri, Instrument_Serif } from "next/font/google";
+import { Hind_Siliguri, Instrument_Serif, Space_Grotesk } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { Toaster } from "@/components/ui/sonner";
@@ -18,6 +18,13 @@ const instrumentSerif = Instrument_Serif({
   variable: "--font-instrument",
   weight: ["400"],
   style: ["normal", "italic"],
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
+  weight: ["500", "600", "700"],
   subsets: ["latin"],
   display: "swap",
 });
@@ -58,7 +65,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${hindSiliguri.variable} ${instrumentSerif.variable} h-full antialiased`}
+      className={`${hindSiliguri.variable} ${instrumentSerif.variable} ${spaceGrotesk.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-background text-foreground">
         <NextIntlClientProvider locale={locale} messages={messages}>

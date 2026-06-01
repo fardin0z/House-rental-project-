@@ -46,3 +46,11 @@ export async function requireApprovedNid(): Promise<ProfileRow> {
   if (profile.nid_status !== "approved") redirect("/onboarding/nid");
   return profile;
 }
+
+export async function requirePremium(): Promise<ProfileRow> {
+  const profile = await requireProfile();
+  const { hasActivePremium } = await import("@/lib/payments/queries");
+  const premium = await hasActivePremium(profile.id);
+  if (!premium && profile.role !== "admin") redirect("/subscription");
+  return profile;
+}

@@ -4,14 +4,17 @@ import Link from "next/link";
 import { useTransition } from "react";
 import { useTranslations } from "next-intl";
 import {
+  CrownIcon,
   FileTextIcon,
   HomeIcon,
   LayoutListIcon,
   LifeBuoyIcon,
   LogInIcon,
   LogOutIcon,
+  MapIcon,
   MenuIcon,
   ShieldIcon,
+  TruckIcon,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -22,7 +25,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { signOutAction } from "@/lib/auth/actions";
 
-export function MainMenu({ isAuthed }: { isAuthed: boolean }) {
+export function MainMenu({
+  isAuthed,
+  role,
+}: {
+  isAuthed: boolean;
+  role?: "tenant" | "landlord" | "admin" | null;
+}) {
   const t = useTranslations("menu");
   const [, startTransition] = useTransition();
 
@@ -53,13 +62,45 @@ export function MainMenu({ isAuthed }: { isAuthed: boolean }) {
         </DropdownMenuItem>
 
         {isAuthed ? (
-          <DropdownMenuItem
-            render={<Link href="/listings" />}
-            className="gap-2 rounded-xl px-3 py-2"
-          >
-            <LayoutListIcon className="size-4" />
-            {t("listings")}
-          </DropdownMenuItem>
+          <>
+            {role === "landlord" ? (
+              <DropdownMenuItem
+                render={<Link href="/listings" />}
+                className="gap-2 rounded-xl px-3 py-2"
+              >
+                <LayoutListIcon className="size-4" />
+                {t("listings")}
+              </DropdownMenuItem>
+            ) : null}
+            <DropdownMenuItem
+              render={<Link href="/properties" />}
+              className="gap-2 rounded-xl px-3 py-2"
+            >
+              <LayoutListIcon className="size-4" />
+              {t("properties")}
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              render={<Link href="/map" />}
+              className="gap-2 rounded-xl px-3 py-2"
+            >
+              <MapIcon className="size-4" />
+              {t("map")}
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              render={<Link href="/subscription" />}
+              className="gap-2 rounded-xl px-3 py-2"
+            >
+              <CrownIcon className="size-4" />
+              {t("subscription")}
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              render={<Link href="/moving" />}
+              className="gap-2 rounded-xl px-3 py-2"
+            >
+              <TruckIcon className="size-4" />
+              {t("moving")}
+            </DropdownMenuItem>
+          </>
         ) : null}
 
         <DropdownMenuSeparator className="my-1" />

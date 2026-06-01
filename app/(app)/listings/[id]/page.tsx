@@ -5,11 +5,14 @@ import {
   ArrowLeftIcon,
   BedDoubleIcon,
   BathIcon,
+  MessageCircleIcon,
   RulerIcon,
   MapPinIcon,
 } from "lucide-react";
 import { requireProfile } from "@/lib/auth/guards";
 import { getListingById } from "@/lib/listings/queries";
+import { openConversationWithLandlord } from "@/lib/chat/actions";
+import { hasActivePremium } from "@/lib/payments/queries";
 import { LISTING_BUCKET, publicStorageUrl } from "@/lib/storage/paths";
 import { PremiumLock } from "@/components/listings/premium-lock";
 
@@ -27,11 +30,16 @@ export default async function ListingDetailPage(
     redirect("/listings");
   }
 
-  const canViewPremium = isOwner || profile.role === "admin";
+  const canViewPremium =
+    isOwner ||
+    profile.role === "admin" ||
+    (await hasActivePremium(profile.id));
 
   const t = await getTranslations("listings");
+  const tChat = await getTranslations("chat");
   const cover = listing.images?.[0];
   const otherImages = (listing.images ?? []).slice(1);
+  const openConversation = openConversationWithLandlord.bind(null, listing.id);
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6 md:py-14">
@@ -172,10 +180,21 @@ export default async function ListingDetailPage(
               >
                 {t("edit")}
               </Link>
-            ) : canViewPremium ? null : (
-              <div className="mt-6">
-                <PremiumLock label={t("lockRentContact")} cta={t("unlockCta")} />
-              </div>
+            ) : (
+              <form action={openConversation} className="mt-6">
+                <button
+                  type="submit"
+                  className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-ink-900 px-4 text-[14px] font-bold text-white transition hover:bg-ink-700"
+                >
+                  <MessageCircleIcon className="h-4 w-4" />
+                  {tChat("contactCta")}
+                </button>
+                {canViewPremium ? null : (
+                  <div className="mt-4">
+                    <PremiumLock label={t("lockRentContact")} cta={t("unlockCta")} />
+                  </div>
+                )}
+              </form>
             )}
           </div>
         </aside>

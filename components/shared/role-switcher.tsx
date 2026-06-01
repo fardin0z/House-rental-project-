@@ -4,7 +4,6 @@ import { useState, useTransition } from "react";
 import { HomeIcon, KeyIcon, AlertTriangleIcon } from "lucide-react";
 import { switchRoleAction } from "@/lib/auth/onboarding-actions";
 import type { NidStatus, UserRole } from "@/types/database.types";
-import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 type Labels = {
@@ -42,37 +41,34 @@ export function RoleSwitcher({
   }
 
   return (
-    <div className="inline-flex items-center rounded-full border border-rule bg-canvas p-0.5">
+    <div className="inline-flex items-center rounded-full bg-white p-1">
       <button
         type="button"
         onClick={() => handleSwitch("tenant")}
         disabled={pending}
-        className={cn(
-          "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
+        className={
           active === "tenant"
-            ? "bg-ink text-paper"
-            : "text-ink-soft hover:text-ink",
-        )}
+            ? "inline-flex items-center gap-1.5 rounded-full bg-ink-900 px-3 py-1.5 text-[12px] font-bold text-white transition"
+            : "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-bold text-ink-500 transition hover:text-ink-900"
+        }
       >
-        <HomeIcon className="size-3.5" />
+        <HomeIcon className="h-3.5 w-3.5" />
         {labels.tenant}
       </button>
       <button
         type="button"
         onClick={() => handleSwitch("landlord")}
         disabled={pending}
-        className={cn(
-          "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
+        className={
           active === "landlord"
-            ? "bg-ink text-paper"
-            : "text-ink-soft hover:text-ink",
-          nidStatus !== "approved" && "opacity-70",
-        )}
+            ? "inline-flex items-center gap-1.5 rounded-full bg-ink-900 px-3 py-1.5 text-[12px] font-bold text-white transition"
+            : "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-bold text-ink-500 transition hover:text-ink-900"
+        }
       >
         {nidStatus !== "approved" ? (
-          <AlertTriangleIcon className="size-3.5 text-ember" />
+          <AlertTriangleIcon className="h-3.5 w-3.5 text-lime-600" />
         ) : (
-          <KeyIcon className="size-3.5" />
+          <KeyIcon className="h-3.5 w-3.5" />
         )}
         {labels.landlord}
       </button>

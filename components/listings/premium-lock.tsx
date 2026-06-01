@@ -11,22 +11,22 @@ export function PremiumLock({
   compact?: boolean;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-ember/30 bg-ember-soft/30 p-5">
+    <div className="rounded-[18px] border border-ink-900/10 bg-ink-50 p-5">
       <div className="flex items-start gap-3">
-        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-paper text-ember">
-          <LockIcon className="size-5" />
+        <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-lime-400/20 text-lime-600">
+          <LockIcon className="h-5 w-5" />
         </span>
-        <p className="flex-1 text-sm leading-relaxed text-clay">{label}</p>
+        <p className="flex-1 text-[13px] font-medium leading-relaxed text-ink-500">
+          {label}
+        </p>
       </div>
       {!compact ? (
         <Link
           href="/subscription"
-          className="group mt-4 inline-flex w-full items-center justify-between gap-2 rounded-full bg-ink px-5 py-3 text-sm font-medium text-paper transition-transform hover:scale-[1.01]"
+          className="mt-4 inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-ink-900 px-5 text-[13px] font-bold text-white transition hover:bg-ink-700"
         >
-          <span>{cta}</span>
-          <span className="grid size-7 place-items-center rounded-full bg-ember transition-transform group-hover:rotate-12">
-            <ArrowUpRightIcon className="size-3.5" />
-          </span>
+          {cta}
+          <ArrowUpRightIcon className="h-4 w-4" />
         </Link>
       ) : null}
     </div>

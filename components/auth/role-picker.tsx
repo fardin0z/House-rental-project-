@@ -2,10 +2,9 @@
 
 import { useActionState, useState } from "react";
 import { useTranslations } from "next-intl";
-import { ArrowUpRightIcon, HomeIcon, KeyIcon } from "lucide-react";
+import { ArrowUpRightIcon, KeyRoundIcon, SearchIcon } from "lucide-react";
 import { setRoleAction } from "@/lib/auth/onboarding-actions";
 import type { ActionState } from "@/lib/auth/actions";
-import { cn } from "@/lib/utils";
 
 type Role = "tenant" | "landlord";
 
@@ -18,32 +17,29 @@ export function RolePicker({ initialRole }: { initialRole: Role }) {
 
   const options: {
     value: Role;
-    icon: typeof HomeIcon;
+    icon: React.ReactNode;
     title: string;
     desc: string;
-    accent: string;
   }[] = [
     {
       value: "tenant",
-      icon: HomeIcon,
+      icon: <SearchIcon className="h-6 w-6" />,
       title: t("roleTenant"),
       desc: t("roleTenantDesc"),
-      accent: "from-ember/15 via-transparent to-transparent",
     },
     {
       value: "landlord",
-      icon: KeyIcon,
+      icon: <KeyRoundIcon className="h-6 w-6" />,
       title: t("roleLandlord"),
       desc: t("roleLandlordDesc"),
-      accent: "from-clay/15 via-transparent to-transparent",
     },
   ];
 
   return (
-    <form action={formAction} className="flex flex-col gap-6">
+    <form action={formAction} className="space-y-4">
       <input type="hidden" name="role" value={selected} />
 
-      <div className="grid gap-3">
+      <div className="grid grid-cols-1 gap-4">
         {options.map((option) => {
           const isActive = selected === option.value;
           return (
@@ -51,64 +47,62 @@ export function RolePicker({ initialRole }: { initialRole: Role }) {
               key={option.value}
               type="button"
               onClick={() => setSelected(option.value)}
-              className={cn(
-                "group relative flex items-center gap-5 overflow-hidden rounded-3xl border bg-paper p-5 text-left transition-all",
+              className={
                 isActive
-                  ? "border-ink/80 shadow-[0_18px_60px_-30px_oklch(0.30_0.04_60/0.45)]"
-                  : "border-rule/70 hover:border-ink/30",
-              )}
+                  ? "rounded-[22px] bg-ink-900 p-5 text-left text-white shadow-[0_0_0_2px_#A4E861] transition"
+                  : "rounded-[22px] bg-white p-5 text-left text-ink-900 transition hover:bg-white/80"
+              }
             >
-              <div
-                className={cn(
-                  "absolute inset-0 bg-linear-to-br opacity-0 transition-opacity",
-                  option.accent,
-                  isActive ? "opacity-100" : "group-hover:opacity-60",
-                )}
-              />
-              <div
-                className={cn(
-                  "relative grid size-14 shrink-0 place-items-center rounded-2xl transition-colors",
-                  isActive
-                    ? "bg-ink text-paper"
-                    : "bg-canvas-deep text-ink group-hover:bg-ink/10",
-                )}
-              >
-                <option.icon className="size-6" strokeWidth={1.75} />
-              </div>
-              <div className="relative flex flex-1 flex-col gap-0.5">
-                <span className="font-display text-2xl italic leading-tight text-ink">
-                  {option.title}
+              <div className="flex items-center gap-4">
+                <span
+                  className={
+                    isActive
+                      ? "flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-lime-400 text-ink-900"
+                      : "flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-ink-50 text-ink-900"
+                  }
+                >
+                  {option.icon}
                 </span>
-                <span className="text-sm text-ink-soft">{option.desc}</span>
-              </div>
-              <div
-                className={cn(
-                  "relative grid size-9 place-items-center rounded-full border transition-colors",
-                  isActive ? "border-ember bg-ember text-paper" : "border-rule",
-                )}
-              >
-                {isActive ? (
-                  <span className="size-2 rounded-full bg-paper" />
-                ) : null}
+                <span className="flex-1">
+                  <span className="block text-[24px] font-semibold leading-none tracking-tight">
+                    {option.title}
+                  </span>
+                  <span
+                    className={
+                      isActive
+                        ? "mt-2 block text-[14px] font-semibold text-white/65"
+                        : "mt-2 block text-[14px] font-semibold text-ink-500"
+                    }
+                  >
+                    {option.desc}
+                  </span>
+                </span>
+                <span
+                  className={
+                    isActive
+                      ? "hidden text-[12px] font-bold text-white/65 md:inline"
+                      : "hidden text-[12px] font-bold text-ink-500 md:inline"
+                  }
+                >
+                  {isActive ? "নির্বাচিত" : "নির্বাচন করুন"}
+                </span>
               </div>
             </button>
           );
         })}
       </div>
 
-      {state.error ? (
-        <p className="text-sm text-destructive">{state.error}</p>
-      ) : null}
+      <p className="min-h-5 text-[13px] font-semibold leading-5 text-red-600">
+        {state.error ?? ""}
+      </p>
 
       <button
         type="submit"
         disabled={pending}
-        className="group inline-flex items-center justify-between rounded-full bg-ink px-6 py-4 text-base font-medium text-paper transition-transform hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex h-14 w-full items-center justify-center rounded-full bg-lime-400 text-[15px] font-bold text-ink-900 transition hover:bg-lime-500 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        <span>{pending ? "..." : t("nextStep")}</span>
-        <span className="grid size-9 place-items-center rounded-full bg-ember text-paper transition-transform group-hover:rotate-12">
-          <ArrowUpRightIcon className="size-4" />
-        </span>
+        {pending ? "..." : t("nextStep")}
+        <ArrowUpRightIcon className="ml-2 h-5 w-5" />
       </button>
     </form>
   );

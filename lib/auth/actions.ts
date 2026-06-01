@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { parseIdentifier } from "./identifier";
 import {
@@ -14,6 +15,7 @@ export type ActionState = {
   error?: string;
   fieldErrors?: Record<string, string>;
   ok?: boolean;
+  redirectTo?: string;
 };
 
 export async function loginAction(
@@ -44,7 +46,8 @@ export async function loginAction(
     return { error: mapAuthError(error.message) };
   }
 
-  redirect("/");
+  revalidatePath("/", "layout");
+  return { ok: true, redirectTo: "/" };
 }
 
 export async function signupAction(
@@ -83,7 +86,8 @@ export async function signupAction(
     return { error: "অ্যাকাউন্ট তৈরি হয়েছে। এখন লগইন পেজ থেকে প্রবেশ করুন।" };
   }
 
-  redirect("/onboarding/role");
+  revalidatePath("/", "layout");
+  return { ok: true, redirectTo: "/onboarding/role" };
 }
 
 export async function requestPasswordResetAction(
@@ -132,12 +136,14 @@ export async function updatePasswordAction(
     return { error: mapAuthError(error.message) };
   }
 
-  redirect("/");
+  revalidatePath("/", "layout");
+  return { ok: true, redirectTo: "/" };
 }
 
 export async function signOutAction() {
   const supabase = await getSupabaseServerClient();
   await supabase.auth.signOut();
+  revalidatePath("/", "layout");
   redirect("/");
 }
 

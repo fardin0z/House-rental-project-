@@ -1,16 +1,18 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { PlusIcon, ArrowUpRightIcon, ShieldCheckIcon } from "lucide-react";
+import { ArrowUpRightIcon, PlusIcon, ShieldCheckIcon } from "lucide-react";
 import { requireProfile } from "@/lib/auth/guards";
-import {
-  getApprovedListings,
-  getMyListings,
-} from "@/lib/listings/queries";
+import { getMyListings } from "@/lib/listings/queries";
 import { ListingCard } from "@/components/listings/listing-card";
 
 export default async function ListingsIndexPage() {
   const profile = await requireProfile();
   const t = await getTranslations("listings");
+
+  if (profile.role !== "landlord") {
+    redirect("/properties");
+  }
 
   const labels = {
     pending: t("statusPending"),
@@ -27,44 +29,77 @@ export default async function ListingsIndexPage() {
     view: t("view"),
   };
 
-  if (profile.role === "landlord") {
-    const listings = await getMyListings(profile.id);
-    const unverified = profile.nid_status !== "approved";
+  const listings = await getMyListings(profile.id);
+  const unverified = profile.nid_status !== "approved";
 
-    return (
-      <div className="mx-auto w-full max-w-[1320px] px-4 py-10 sm:px-6 md:py-14">
-        <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-          <div className="flex flex-col gap-3">
-            <span className="slash-label text-xl md:text-2xl">{t("ownerLabel")}</span>
-            <h1 className="font-display text-4xl italic leading-tight text-ink md:text-5xl">
+  return (
+    <div>
+      <section className="mx-auto max-w-7xl px-6 pb-8 pt-10">
+        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="font-display text-[24px] italic leading-none text-lime-600">
+              {t("ownerLabel")}
+            </p>
+            <h1 className="font-display mt-6 text-[56px] italic leading-[.88] tracking-tight text-ink-900 md:text-[88px]">
               {t("myListingsTitle")}
             </h1>
-            <p className="max-w-xl text-sm text-ink-soft">{t("myListingsSubtitle")}</p>
+            <p className="mt-7 max-w-[420px] text-[15px] font-medium leading-relaxed text-ink-500">
+              {t("myListingsSubtitle")}
+            </p>
           </div>
+
           <Link
             href="/listings/new"
-            className="group inline-flex items-center gap-2 self-start rounded-full bg-ink px-5 py-3 text-sm font-medium text-paper transition-transform hover:scale-[1.02] sm:self-end"
+            className="inline-flex h-14 w-fit items-center justify-center rounded-full bg-ink-900 pl-6 pr-2 text-[15px] font-bold text-white transition hover:bg-ink-700"
           >
-            <PlusIcon className="size-4" />
+            <PlusIcon className="mr-3 h-5 w-5" />
             {t("newListing")}
-            <span className="grid size-7 place-items-center rounded-full bg-ember transition-transform group-hover:rotate-12">
-              <ArrowUpRightIcon className="size-3.5" />
+            <span className="ml-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-lime-400 text-ink-900">
+              <ArrowUpRightIcon className="h-5 w-5" />
             </span>
           </Link>
         </div>
+      </section>
 
-        {unverified ? (
-          <VerifyPrompt
-            heading={t("verifyPromptHeading")}
-            body={t("verifyPromptBody")}
-            cta={t("verifyPromptCta")}
-          />
-        ) : null}
+      {unverified ? (
+        <section className="mx-auto max-w-7xl px-6">
+          <div className="verify-strip rounded-[28px] border border-ink-900/10 p-6 md:p-8">
+            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+              <div className="flex items-start gap-5">
+                <span className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-lime-400/20 text-lime-600">
+                  <ShieldCheckIcon className="h-7 w-7" />
+                </span>
+                <div>
+                  <h2 className="font-display text-[26px] italic leading-none text-ink-900 md:text-[30px]">
+                    {t("verifyPromptHeading")}
+                  </h2>
+                  <p className="mt-3 max-w-[640px] text-[14px] font-medium leading-relaxed text-ink-500 md:text-[15px]">
+                    {t("verifyPromptBody")}
+                  </p>
+                </div>
+              </div>
+              <Link
+                href="/onboarding/nid"
+                className="inline-flex h-11 w-fit items-center justify-center rounded-full border border-ink-900/10 bg-white px-6 text-[14px] font-bold text-ink-900 transition hover:bg-ink-50"
+              >
+                {t("verifyPromptCta")}
+                <ArrowUpRightIcon className="ml-2 h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
+      <section className="mx-auto max-w-7xl px-6 py-10">
         {listings.length === 0 ? (
-          <EmptyState heading={t("ownerEmpty")} body={t("ownerEmptyBody")} />
+          <EmptyState
+            heading={t("ownerEmpty")}
+            body={t("ownerEmptyBody")}
+            ctaHref="/listings/new"
+            ctaLabel={t("newListing")}
+          />
         ) : (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             {listings.map((listing) => (
               <ListingCard
                 key={listing.id}
@@ -73,75 +108,55 @@ export default async function ListingsIndexPage() {
                 ownerView
               />
             ))}
+            <Link
+              href="/listings/new"
+              className="hidden min-h-[520px] flex-col items-center justify-center rounded-[24px] border border-dashed border-ink-900/15 bg-white/55 p-6 text-center transition hover:bg-white xl:flex"
+            >
+              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-lime-400 text-ink-900">
+                <PlusIcon className="h-7 w-7" />
+              </span>
+              <span className="mt-5 block text-[18px] font-bold text-ink-900">
+                {t("newListing")}
+              </span>
+              <span className="mt-2 block text-[13px] font-medium text-ink-500">
+                {t("ownerEmptyBody")}
+              </span>
+            </Link>
           </div>
         )}
-      </div>
-    );
-  }
-
-  const listings = await getApprovedListings();
-  return (
-    <div className="mx-auto w-full max-w-[1320px] px-4 py-10 sm:px-6 md:py-14">
-      <div className="mb-10 flex flex-col gap-3">
-        <span className="slash-label text-xl md:text-2xl">{t("browseLabel")}</span>
-        <h1 className="font-display text-4xl italic leading-tight text-ink md:text-5xl">
-          {t("browseTitle")}
-        </h1>
-        <p className="max-w-xl text-sm text-ink-soft">{t("browseSubtitle")}</p>
-      </div>
-
-      {listings.length === 0 ? (
-        <EmptyState heading={t("browseEmpty")} body={t("browseEmptyBody")} />
-      ) : (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {listings.map((listing) => (
-            <ListingCard
-              key={listing.id}
-              listing={listing}
-              labels={labels}
-              ownerView={false}
-            />
-          ))}
-        </div>
-      )}
+      </section>
     </div>
   );
 }
 
-function EmptyState({ heading, body }: { heading: string; body: string }) {
-  return (
-    <div className="flex flex-col items-center gap-3 rounded-3xl border border-dashed border-rule bg-paper/70 px-6 py-16 text-center">
-      <div className="font-display text-3xl italic text-ink">{heading}</div>
-      <p className="max-w-md text-sm text-ink-soft">{body}</p>
-    </div>
-  );
-}
-
-function VerifyPrompt({
+function EmptyState({
   heading,
   body,
-  cta,
+  ctaHref,
+  ctaLabel,
 }: {
   heading: string;
   body: string;
-  cta: string;
+  ctaHref?: string;
+  ctaLabel?: string;
 }) {
   return (
-    <div className="mb-8 flex items-start gap-4 rounded-3xl border border-rule/60 bg-paper p-5 md:p-6">
-      <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-ember/15 text-ember">
-        <ShieldCheckIcon className="size-6" />
-      </div>
-      <div className="flex flex-1 flex-col gap-2">
-        <h3 className="font-display text-xl italic text-ink">{heading}</h3>
-        <p className="text-sm text-ink-soft">{body}</p>
-      </div>
-      <Link
-        href="/onboarding/nid"
-        className="inline-flex items-center gap-2 self-start rounded-full border border-rule px-4 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
-      >
-        {cta}
-        <ArrowUpRightIcon className="size-3.5" />
-      </Link>
+    <div className="flex flex-col items-start gap-4 rounded-[24px] border border-ink-900/10 bg-white px-6 py-10 md:items-center md:px-10 md:py-16 md:text-center">
+      <h3 className="font-display text-[28px] italic leading-tight text-ink-900 md:text-[36px]">
+        {heading}
+      </h3>
+      <p className="max-w-[480px] text-[14px] font-medium leading-relaxed text-ink-500">
+        {body}
+      </p>
+      {ctaHref && ctaLabel ? (
+        <Link
+          href={ctaHref}
+          className="mt-2 inline-flex h-11 items-center gap-2 rounded-full bg-ink-900 px-5 text-[13px] font-bold text-white transition hover:bg-ink-700"
+        >
+          <PlusIcon className="h-4 w-4" />
+          {ctaLabel}
+        </Link>
+      ) : null}
     </div>
   );
 }

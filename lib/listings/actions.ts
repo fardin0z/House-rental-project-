@@ -8,6 +8,14 @@ import { rentalTypeSchema } from "./schema";
 import { parseBengaliInt } from "@/lib/utils/bengali-number";
 import type { ActionState } from "@/lib/auth/actions";
 
+function parseFloatOrNull(v: FormDataEntryValue | null): number | null {
+  if (v === null) return null;
+  const s = String(v).trim();
+  if (!s) return null;
+  const n = Number(s);
+  return Number.isFinite(n) ? n : null;
+}
+
 function readListingForm(formData: FormData) {
   const rentalTypeRaw = formData.get("rental_type");
   const rentalType = rentalTypeSchema.safeParse(rentalTypeRaw);
@@ -23,6 +31,8 @@ function readListingForm(formData: FormData) {
     area_name: String(formData.get("area_name") ?? "").trim(),
     division: String(formData.get("division") ?? "").trim(),
     district: String(formData.get("district") ?? "").trim(),
+    lat: parseFloatOrNull(formData.get("lat")),
+    lng: parseFloatOrNull(formData.get("lng")),
   };
 }
 
@@ -85,6 +95,8 @@ export async function updateListingAction(
       area_name: v.area_name,
       division: v.division ? v.division : null,
       district: v.district ? v.district : null,
+      lat: v.lat,
+      lng: v.lng,
     })
     .eq("id", listingId)
     .eq("owner_id", profile.id);
@@ -259,6 +271,30 @@ export async function withdrawListingToDraftAction(listingId: string) {
   revalidatePath(`/listings/${listingId}/edit`);
   revalidatePath(`/listings/${listingId}`);
   revalidatePath("/listings");
+}
+
+export async function setListingLocationAction(
+  listingId: string,
+  lat: number | null,
+  lng: number | null,
+) {
+  const profile = await requireProfile();
+  const supabase = await getSupabaseServerClient();
+
+  const { error } = await supabase
+    .from("listings")
+    .update({ lat, lng })
+    .eq("id", listingId)
+    .eq("owner_id", profile.id);
+
+  if (error) {
+    console.error("[setListingLocation]", error);
+    throw new Error("লোকেশন সংরক্ষণ করা যায়নি।");
+  }
+
+  revalidatePath(`/listings/${listingId}/edit`);
+  revalidatePath(`/listings/${listingId}`);
+  revalidatePath("/map");
 }
 
 export async function deleteListingAction(listingId: string) {

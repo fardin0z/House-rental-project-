@@ -2,7 +2,6 @@ import Link from "next/link";
 import { ArrowUpRightIcon, BedDoubleIcon, BathIcon, RulerIcon } from "lucide-react";
 import { LISTING_BUCKET, publicStorageUrl } from "@/lib/storage/paths";
 import type { ListingWithImages } from "@/lib/listings/queries";
-import { cn } from "@/lib/utils";
 
 type Labels = {
   pending: string;
@@ -17,6 +16,14 @@ type Labels = {
   sqft: string;
   edit: string;
   view: string;
+};
+
+const STATUS_STYLES: Record<string, string> = {
+  approved: "bg-lime-50 text-lime-600",
+  pending: "bg-[#FFF6E1] text-[#A07A1F]",
+  draft: "bg-ink-100 text-ink-500",
+  rejected: "bg-[#FFE4E4] text-[#A8362A]",
+  archived: "bg-ink-900 text-white",
 };
 
 export function ListingCard({
@@ -38,90 +45,91 @@ export function ListingCard({
       archived: labels.archived,
     }[listing.status] ?? listing.status;
 
+  const detailHref = ownerView
+    ? `/listings/${listing.id}/edit`
+    : `/listings/${listing.id}`;
+  const ctaLabel = ownerView ? labels.edit : labels.view;
+
   return (
-    <article className="group flex flex-col overflow-hidden rounded-[28px] border border-rule/60 bg-paper transition-all hover:-translate-y-1 hover:shadow-[0_24px_60px_-30px_oklch(0.30_0.04_60/0.35)]">
+    <article className="card-hover overflow-hidden rounded-[24px] border border-ink-900/10 bg-white">
       <Link
-        href={ownerView ? `/listings/${listing.id}/edit` : `/listings/${listing.id}`}
-        className="relative block aspect-[4/3] overflow-hidden bg-canvas-deep"
+        href={detailHref}
+        className="relative block aspect-4/3 overflow-hidden bg-ink-100"
       >
         {cover ? (
           /* eslint-disable-next-line @next/next/no-img-element */
           <img
             src={publicStorageUrl(LISTING_BUCKET, cover.path)}
             alt={listing.title || labels.noImage}
-            className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="absolute inset-0 size-full object-cover"
             loading="lazy"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-sm text-ink-soft">
+          <div className="flex h-full items-center justify-center text-sm text-ink-500">
             {labels.noImage}
           </div>
         )}
-        <div className="absolute left-3 top-3">
-          <span
-            className={cn(
-              "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[0.7rem] font-medium backdrop-blur",
-              listing.status === "approved" && "bg-emerald-100/90 text-emerald-700",
-              listing.status === "pending" && "bg-ember/95 text-paper",
-              listing.status === "rejected" && "bg-destructive/90 text-paper",
-              listing.status === "draft" && "bg-paper/95 text-ink-soft",
-              listing.status === "archived" && "bg-ink/85 text-paper",
-            )}
-          >
-            {statusLabel}
+
+        <span
+          className={`absolute left-4 top-4 z-3 rounded-full px-4 py-2 text-[12px] font-bold ${
+            STATUS_STYLES[listing.status] ?? STATUS_STYLES.draft
+          }`}
+        >
+          {statusLabel}
+        </span>
+
+        <div className="ad-image-pocket">
+          <span className="absolute bottom-2.5 right-2.5 z-6 inline-flex h-14 w-14 items-center justify-center rounded-full bg-white text-ink-900 shadow-[0_8px_20px_rgba(0,0,0,.06)] max-md:h-12 max-md:w-12">
+            <ArrowUpRightIcon className="h-5 w-5" />
           </span>
         </div>
       </Link>
 
-      <div className="flex flex-1 flex-col gap-3 p-5">
-        <div className="flex items-start justify-between gap-3">
-          <h3 className="font-display text-2xl italic leading-tight text-ink line-clamp-2">
-            {listing.title || "—"}
-          </h3>
-        </div>
-
-        <div className="text-sm text-ink-soft">
+      <div className="p-6">
+        <h3 className="font-display text-[28px] italic leading-tight tracking-tight text-ink-900 line-clamp-2 md:text-[32px]">
+          {listing.title || "—"}
+        </h3>
+        <p className="mt-2 text-[14px] font-medium text-ink-500">
           {listing.area_name || "—"}
           {listing.district ? `, ${listing.district}` : ""}
+        </p>
+
+        <div className="mt-6">
+          <p className="font-space text-[11px] font-bold uppercase tracking-[.22em] text-ink-500/70">
+            {labels.rent}
+          </p>
+          <p className="font-display mt-2 text-[30px] italic leading-none tracking-tight text-ink-900 md:text-[34px]">
+            {listing.rent ? `৳ ${listing.rent.toLocaleString("bn-BD")}` : "—"}
+          </p>
         </div>
 
-        <div className="mt-auto flex items-end justify-between gap-3 pt-2">
-          <div className="flex flex-col">
-            <span className="text-[0.7rem] uppercase tracking-[0.18em] text-ink-soft">
-              {labels.rent}
+        <div className="mt-6 flex items-center justify-end gap-4 text-[13px] font-semibold text-ink-500">
+          {listing.beds != null ? (
+            <span className="inline-flex items-center gap-1">
+              <BedDoubleIcon className="h-4 w-4" />
+              {listing.beds}
             </span>
-            <span className="font-display text-2xl italic text-ink">
-              {listing.rent ? `৳ ${listing.rent.toLocaleString("bn-BD")}` : "—"}
+          ) : null}
+          {listing.baths != null ? (
+            <span className="inline-flex items-center gap-1">
+              <BathIcon className="h-4 w-4" />
+              {listing.baths}
             </span>
-          </div>
-          <div className="flex items-center gap-3 text-xs text-ink-soft">
-            {listing.beds != null ? (
-              <span className="inline-flex items-center gap-1">
-                <BedDoubleIcon className="size-3.5" />
-                {listing.beds}
-              </span>
-            ) : null}
-            {listing.baths != null ? (
-              <span className="inline-flex items-center gap-1">
-                <BathIcon className="size-3.5" />
-                {listing.baths}
-              </span>
-            ) : null}
-            {listing.area_sqft != null ? (
-              <span className="inline-flex items-center gap-1">
-                <RulerIcon className="size-3.5" />
-                {listing.area_sqft}
-              </span>
-            ) : null}
-          </div>
+          ) : null}
+          {listing.area_sqft != null ? (
+            <span className="inline-flex items-center gap-1">
+              <RulerIcon className="h-4 w-4" />
+              {listing.area_sqft}
+            </span>
+          ) : null}
         </div>
 
         <Link
-          href={ownerView ? `/listings/${listing.id}/edit` : `/listings/${listing.id}`}
-          className="group/cta mt-3 inline-flex items-center justify-between rounded-full border border-rule px-4 py-2 text-xs font-medium text-ink transition-colors hover:border-ink"
+          href={detailHref}
+          className="mt-6 inline-flex h-11 w-full items-center justify-between rounded-full border border-ink-900/10 bg-white px-5 text-[14px] font-bold text-ink-900 transition hover:bg-ink-50"
         >
-          <span>{ownerView ? labels.edit : labels.view}</span>
-          <ArrowUpRightIcon className="size-3.5 transition-transform group-hover/cta:translate-x-0.5 group-hover/cta:-translate-y-0.5" />
+          {ctaLabel}
+          <ArrowUpRightIcon className="h-4 w-4" />
         </Link>
       </div>
     </article>

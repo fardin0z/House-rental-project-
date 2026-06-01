@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   useActionState,
   useCallback,
@@ -10,9 +11,9 @@ import {
 import { useTranslations } from "next-intl";
 import {
   ArrowUpRightIcon,
-  CameraIcon,
-  CheckCircle2Icon,
-  ImageIcon,
+  CheckIcon,
+  IdCardIcon,
+  ImageUpIcon,
   Loader2Icon,
 } from "lucide-react";
 import { compressAndUploadNidImage } from "@/lib/storage/upload";
@@ -20,7 +21,6 @@ import type { NidImageType } from "@/lib/storage/paths";
 import { submitNidAction } from "@/lib/auth/onboarding-actions";
 import type { ActionState } from "@/lib/auth/actions";
 import type { IdDocumentType } from "@/types/database.types";
-import { cn } from "@/lib/utils";
 
 type UploadState = {
   preview?: string;
@@ -53,54 +53,45 @@ export function NidUploadForm({ userId }: { userId: string }) {
   const allUploaded = Boolean(front.path && back.path && selfie.path);
   const anyUploading = front.uploading || back.uploading || selfie.uploading;
 
-  const slots: {
-    key: NidImageType;
-    label: string;
-    icon: typeof CameraIcon;
-    state: UploadState;
-    setState: (next: UploadState) => void;
-  }[] = [
-    { key: "front", label: t("nidFront"), icon: ImageIcon, state: front, setState: setFront },
-    { key: "back", label: t("nidBack"), icon: ImageIcon, state: back, setState: setBack },
-    { key: "selfie", label: t("nidSelfie"), icon: CameraIcon, state: selfie, setState: setSelfie },
+  const slots: { key: NidImageType; label: string; state: UploadState; setState: (s: UploadState) => void }[] = [
+    { key: "front", label: t("nidFront"), state: front, setState: setFront },
+    { key: "back", label: t("nidBack"), state: back, setState: setBack },
+    { key: "selfie", label: t("nidSelfie"), state: selfie, setState: setSelfie },
   ];
 
   return (
-    <form action={formAction} className="flex flex-col gap-6">
+    <form action={formAction} className="space-y-4">
       <input type="hidden" name="documentType" value={documentType} />
       <input type="hidden" name="frontPath" value={front.path ?? ""} />
       <input type="hidden" name="backPath" value={back.path ?? ""} />
       <input type="hidden" name="selfiePath" value={selfie.path ?? ""} />
 
-      <div className="flex flex-col gap-2">
-        <span className="text-[0.7rem] uppercase tracking-[0.18em] text-ink-soft">
+      <label className="input-card block rounded-[18px] bg-white p-4">
+        <span className="block text-[12px] font-bold text-ink-500">
           {t("documentTypeLabel")}
         </span>
-        <select
-          value={documentType}
-          onChange={(event) => setDocumentType(event.target.value as IdDocumentType)}
-          className="h-12 rounded-2xl border border-rule bg-paper px-4 text-base outline-none focus:ring-2 focus:ring-ember/40"
-        >
-          {DOCUMENT_TYPES.map((type) => (
-            <option key={type} value={type}>
-              {t(`documentTypes.${type}`)}
-            </option>
-          ))}
-        </select>
-      </div>
+        <div className="mt-3 flex items-center gap-3">
+          <IdCardIcon className="h-5 w-5 text-ink-500/40" />
+          <select
+            value={documentType}
+            onChange={(e) => setDocumentType(e.target.value as IdDocumentType)}
+            className="w-full appearance-none border-0 bg-transparent text-[17px] font-semibold tracking-tight text-ink-900 outline-none"
+          >
+            {DOCUMENT_TYPES.map((type) => (
+              <option key={type} value={type}>
+                {t(`documentTypes.${type}`)}
+              </option>
+            ))}
+          </select>
+        </div>
+      </label>
 
-      <div className="flex items-start gap-3 rounded-2xl border border-ember/30 bg-ember-soft/40 px-4 py-3">
-        <CameraIcon className="mt-0.5 size-4 shrink-0 text-clay" />
-        <p className="text-xs leading-relaxed text-clay">{t("uploadHint")}</p>
-      </div>
-
-      <div className="grid gap-3">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         {slots.map((slot) => (
           <UploadSlot
             key={slot.key}
             type={slot.key}
             label={slot.label}
-            icon={slot.icon}
             state={slot.state}
             userId={userId}
             doneLabel={t("uploadDone")}
@@ -110,20 +101,34 @@ export function NidUploadForm({ userId }: { userId: string }) {
         ))}
       </div>
 
-      {submitState.error ? (
-        <p className="text-sm text-destructive">{submitState.error}</p>
-      ) : null}
+      <p className="rounded-[18px] bg-white px-4 py-3 text-[13px] font-medium leading-relaxed text-ink-500">
+        {t("uploadHint")}
+      </p>
+
+      <p className="min-h-5 text-[13px] font-semibold leading-5 text-red-600">
+        {submitState.error ?? ""}
+      </p>
 
       <button
         type="submit"
         disabled={!allUploaded || anyUploading || submitting}
-        className="group inline-flex items-center justify-between rounded-full bg-ink px-6 py-4 text-base font-medium text-paper transition-transform hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex h-14 w-full items-center justify-center rounded-full bg-lime-400 text-[15px] font-bold text-ink-900 transition hover:bg-lime-500 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        <span>{submitting ? "..." : t("submitNid")}</span>
-        <span className="grid size-9 place-items-center rounded-full bg-ember text-paper transition-transform group-hover:rotate-12">
-          <ArrowUpRightIcon className="size-4" />
-        </span>
+        {submitting ? "..." : t("submitNid")}
+        <ArrowUpRightIcon className="ml-2 h-5 w-5" />
       </button>
+
+      <div className="border-t border-ink-100 pt-4">
+        <p className="text-center text-[13px] font-medium leading-relaxed text-ink-500">
+          {t("skipHint")}
+        </p>
+        <Link
+          href="/"
+          className="mt-3 inline-flex h-12 w-full items-center justify-center rounded-full bg-ink-900 text-[14px] font-bold text-white transition hover:bg-ink-700"
+        >
+          {t("skipForNow")}
+        </Link>
+      </div>
     </form>
   );
 }
@@ -131,7 +136,6 @@ export function NidUploadForm({ userId }: { userId: string }) {
 function UploadSlot({
   type,
   label,
-  icon: Icon,
   state,
   userId,
   doneLabel,
@@ -140,7 +144,6 @@ function UploadSlot({
 }: {
   type: NidImageType;
   label: string;
-  icon: typeof CameraIcon;
   state: UploadState;
   userId: string;
   doneLabel: string;
@@ -168,52 +171,79 @@ function UploadSlot({
   );
 
   const done = Boolean(state.path);
+  const uploading = Boolean(state.uploading);
 
   return (
     <button
       type="button"
       onClick={() => inputRef.current?.click()}
-      className={cn(
-        "group relative flex items-center gap-4 overflow-hidden rounded-2xl border bg-paper p-3 pr-5 text-left transition-all",
+      className={
         done
-          ? "border-ink/30"
-          : "border-dashed border-rule hover:border-ink/40 hover:bg-canvas-deep/40",
-      )}
+          ? "relative cursor-pointer overflow-hidden rounded-[20px] bg-ink-900 p-4 text-left text-white transition"
+          : "relative cursor-pointer overflow-hidden rounded-[20px] bg-white p-4 text-left text-ink-900 transition hover:bg-white/80"
+      }
     >
-      {state.preview ? (
+      <div className="flex min-h-[160px] flex-col justify-between pr-8">
+        <div>
+          <span
+            className={
+              done
+                ? "inline-flex h-11 w-11 items-center justify-center rounded-full bg-lime-400 text-ink-900"
+                : "inline-flex h-11 w-11 items-center justify-center rounded-full bg-ink-50 text-ink-900"
+            }
+          >
+            {done ? (
+              <CheckIcon className="h-5 w-5" />
+            ) : uploading ? (
+              <Loader2Icon className="h-5 w-5 animate-spin" />
+            ) : (
+              <ImageUpIcon className="h-5 w-5" />
+            )}
+          </span>
+          <h3 className="mt-4 text-[17px] font-semibold leading-tight tracking-tight">
+            {label}
+          </h3>
+          {done ? (
+            <p className="mt-2 text-[12px] font-semibold text-white/65">
+              {doneLabel}
+            </p>
+          ) : null}
+        </div>
+
+        <div>
+          {uploading ? (
+            <>
+              <div className="h-1.5 overflow-hidden rounded-full bg-ink-100">
+                <div className="h-full w-2/3 rounded-full bg-lime-400" />
+              </div>
+              <p className="mt-3 text-[13px] font-bold text-ink-500">
+                আপলোড হচ্ছে...
+              </p>
+            </>
+          ) : done ? (
+            <p className="text-[13px] font-bold text-white/65">
+              ছবি পরিবর্তন করুন
+            </p>
+          ) : (
+            <p className="text-[13px] font-bold text-lime-600">{pickLabel}</p>
+          )}
+          {state.error ? (
+            <p className="mt-2 text-[12px] font-bold text-red-600">
+              {state.error}
+            </p>
+          ) : null}
+        </div>
+      </div>
+
+      {done && state.preview ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={state.preview}
           alt=""
-          className="size-16 shrink-0 rounded-xl object-cover"
+          className="absolute bottom-3 right-3 z-[6] h-16 w-16 rounded-full border-4 border-lime-400 object-cover"
         />
-      ) : (
-        <div className="grid size-16 shrink-0 place-items-center rounded-xl bg-canvas-deep text-ink-soft">
-          <Icon className="size-6" strokeWidth={1.5} />
-        </div>
-      )}
-      <div className="flex flex-1 flex-col gap-0.5">
-        <span className="text-[0.7rem] uppercase tracking-[0.18em] text-ink-soft">
-          {label}
-        </span>
-        <span className="font-display text-lg italic leading-tight text-ink">
-          {done ? doneLabel : pickLabel}
-        </span>
-        {state.error ? (
-          <span className="text-xs text-destructive">{state.error}</span>
-        ) : null}
-      </div>
-      <div className="shrink-0">
-        {state.uploading ? (
-          <Loader2Icon className="size-5 animate-spin text-ink-soft" />
-        ) : done ? (
-          <CheckCircle2Icon className="size-6 fill-ember text-paper" />
-        ) : (
-          <span className="grid size-9 place-items-center rounded-full border border-rule text-ink-soft transition-colors group-hover:border-ink group-hover:text-ink">
-            <ArrowUpRightIcon className="size-4" />
-          </span>
-        )}
-      </div>
+      ) : null}
+
       <input
         ref={inputRef}
         type="file"
