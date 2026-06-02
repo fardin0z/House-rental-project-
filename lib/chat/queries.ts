@@ -107,6 +107,7 @@ export type ConversationDetail = ConversationRow & {
     title: string;
     area_name: string;
     rent: number;
+    cover_path: string | null;
   };
   counterpart: {
     id: string;
@@ -126,7 +127,7 @@ export async function getConversationById(
     .select(
       `
         *,
-        listing:listings!conversations_listing_id_fkey(id, title, area_name, rent),
+        listing:listings!conversations_listing_id_fkey(id, title, area_name, rent, images:listing_images(path, sort_order)),
         tenant:profiles!conversations_tenant_id_fkey(id, name, phone, email),
         landlord:profiles!conversations_landlord_id_fkey(id, name, phone, email)
       `,
@@ -153,6 +154,7 @@ export async function getConversationById(
       title: string;
       area_name: string;
       rent: number;
+      images: { path: string; sort_order: number }[] | null;
     } | null;
     tenant: CounterpartShape | null;
     landlord: CounterpartShape | null;
@@ -160,6 +162,9 @@ export async function getConversationById(
 
   const isTenant = row.tenant_id === userId;
   const counterpart = isTenant ? row.landlord : row.tenant;
+  const sortedImages = [...(row.listing?.images ?? [])].sort(
+    (a, b) => a.sort_order - b.sort_order,
+  );
 
   return {
     ...row,
@@ -168,6 +173,7 @@ export async function getConversationById(
       title: row.listing?.title ?? "—",
       area_name: row.listing?.area_name ?? "",
       rent: row.listing?.rent ?? 0,
+      cover_path: sortedImages[0]?.path ?? null,
     },
     counterpart: {
       id: counterpart?.id ?? "",

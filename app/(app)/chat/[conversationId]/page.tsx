@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { ArrowUpRightIcon } from "lucide-react";
+import { ArrowUpRightIcon, ImageIcon } from "lucide-react";
 import { requireProfile } from "@/lib/auth/guards";
 import { getConversationById, getMessages, getMyConversations } from "@/lib/chat/queries";
 import { resolveCounterpartName } from "@/lib/chat/display";
 import { ChatThread } from "@/components/chat/chat-thread";
 import { ConversationSidebar } from "@/components/chat/conversation-sidebar";
+import { LISTING_BUCKET, renderImageUrl } from "@/lib/storage/paths";
 
 export default async function ChatThreadPage(
   props: PageProps<"/chat/[conversationId]">,
@@ -63,10 +64,28 @@ export default async function ChatThreadPage(
           <div className="mx-5 mt-5 rounded-[20px] bg-ink-50 p-3">
             <div className="flex items-center gap-4">
               <Link
-                href={`/listings/${conversation.listing.id}`}
-                className="relative block h-24 w-32 shrink-0 overflow-hidden rounded-[16px] bg-ink-100"
+                href={`/properties/${conversation.listing.id}`}
+                className="group relative block h-24 w-32 shrink-0 overflow-hidden rounded-[16px] bg-ink-100"
               >
-                <span className="absolute bottom-3 right-3 z-6 inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-ink-900 shadow-[0_8px_20px_rgba(0,0,0,.08)]">
+                {conversation.listing.cover_path ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={renderImageUrl(
+                      LISTING_BUCKET,
+                      conversation.listing.cover_path,
+                      { width: 320, quality: 78, resize: "cover" },
+                    )}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                ) : (
+                  <span className="absolute inset-0 flex items-center justify-center text-ink-500">
+                    <ImageIcon className="h-6 w-6" />
+                  </span>
+                )}
+                <span className="absolute bottom-2 right-2 z-[6] inline-flex h-9 w-9 items-center justify-center rounded-full bg-white text-ink-900 shadow-[0_8px_20px_rgba(0,0,0,.18)]">
                   <ArrowUpRightIcon className="h-4 w-4" />
                 </span>
               </Link>
