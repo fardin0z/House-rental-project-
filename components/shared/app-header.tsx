@@ -95,7 +95,17 @@ export async function AppHeader({
             <ArrowRightIcon className="h-3.5 w-3.5" />
           </Link>
           <div className="hidden max-[900px]:block">
-            <MainMenu isAuthed={isAuthed} role={profile?.role ?? null} />
+            <MainMenu
+              isAuthed={isAuthed}
+              role={profile?.role ?? null}
+              nidStatus={profile?.nid_status ?? null}
+              roleSwitchLabels={{
+                tenant: tHeader("roleTenant"),
+                landlord: tHeader("roleLandlord"),
+                nidPending: tHeader("nidPending"),
+                nidRejected: tHeader("nidRejected"),
+              }}
+            />
           </div>
         </div>
       </header>
@@ -188,7 +198,17 @@ export async function AppHeader({
                 {displayName}
               </span>
             </div>
-            <MainMenu isAuthed role={profile.role} />
+            <MainMenu
+              isAuthed
+              role={profile.role}
+              nidStatus={profile.nid_status}
+              roleSwitchLabels={{
+                tenant: tHeader("roleTenant"),
+                landlord: tHeader("roleLandlord"),
+                nidPending: tHeader("nidPending"),
+                nidRejected: tHeader("nidRejected"),
+              }}
+            />
           </>
         ) : (
           <MainMenu isAuthed={false} />

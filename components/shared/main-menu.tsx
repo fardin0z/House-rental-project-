@@ -25,16 +25,34 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { signOutAction } from "@/lib/auth/actions";
+import { RoleSwitcher } from "@/components/shared/role-switcher";
+import type { NidStatus } from "@/types/database.types";
+
+type RoleSwitchLabels = {
+  tenant: string;
+  landlord: string;
+  nidPending: string;
+  nidRejected: string;
+};
 
 export function MainMenu({
   isAuthed,
   role,
+  nidStatus,
+  roleSwitchLabels,
 }: {
   isAuthed: boolean;
   role?: "tenant" | "landlord" | "admin" | null;
+  nidStatus?: NidStatus | null;
+  roleSwitchLabels?: RoleSwitchLabels;
 }) {
   const t = useTranslations("menu");
   const [, startTransition] = useTransition();
+  const canSwitchRole =
+    isAuthed &&
+    (role === "tenant" || role === "landlord") &&
+    roleSwitchLabels &&
+    nidStatus;
 
   return (
     <DropdownMenu>
@@ -52,8 +70,21 @@ export function MainMenu({
       <DropdownMenuContent
         align="end"
         sideOffset={8}
-        className="w-56 rounded-2xl border border-rule/60 bg-paper p-2"
+        className="w-60 rounded-2xl border border-rule/60 bg-paper p-2"
       >
+        {canSwitchRole ? (
+          <>
+            <div className="px-2 pb-2 pt-1 md:hidden">
+              <RoleSwitcher
+                role={role as "tenant" | "landlord"}
+                nidStatus={nidStatus as NidStatus}
+                labels={roleSwitchLabels as RoleSwitchLabels}
+              />
+            </div>
+            <DropdownMenuSeparator className="my-1 md:hidden" />
+          </>
+        ) : null}
+
         <DropdownMenuItem
           render={<Link href="/" />}
           className="gap-2 rounded-xl px-3 py-2"
