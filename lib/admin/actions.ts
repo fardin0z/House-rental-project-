@@ -126,6 +126,109 @@ export async function deleteUserAction(formData: FormData): Promise<void> {
   revalidatePath("/admin");
 }
 
+const setRoleSchema = z.object({
+  id: z.string().uuid(),
+  role: z.enum(["tenant", "landlord", "admin"]),
+});
+
+export async function setUserRoleAction(formData: FormData): Promise<void> {
+  const admin = await requireRole("admin");
+  const parsed = setRoleSchema.parse({
+    id: formData.get("id"),
+    role: formData.get("role"),
+  });
+  if (parsed.id === admin.id && parsed.role !== "admin") {
+    throw new Error("cannot demote self");
+  }
+
+  const supabase = getSupabaseAdminClient();
+  const { error } = await supabase
+    .from("profiles")
+    .update({ role: parsed.role })
+    .eq("id", parsed.id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/users");
+  revalidatePath("/admin");
+}
+
+const createUserSchema = z
+  .object({
+    name: z.string().trim().min(1).max(100),
+    email: z
+      .string()
+      .trim()
+      .email()
+      .optional()
+      .or(z.literal("").transform(() => undefined)),
+    phone: z
+      .string()
+      .trim()
+      .regex(/^\+?\d{8,15}$/)
+      .optional()
+      .or(z.literal("").transform(() => undefined)),
+    password: z.string().min(8).max(72),
+    role: z.enum(["tenant", "landlord", "admin"]),
+  })
+  .refine((d) => Boolean(d.email || d.phone), {
+    message: "email or phone required",
+    path: ["email"],
+  });
+
+export type CreateUserState = {
+  error?: string;
+  fieldErrors?: Record<string, string>;
+  ok?: boolean;
+  redirectTo?: string;
+};
+
+export async function createUserAction(
+  _state: CreateUserState,
+  formData: FormData,
+): Promise<CreateUserState> {
+  await requireRole("admin");
+  const parsed = createUserSchema.safeParse({
+    name: formData.get("name"),
+    email: formData.get("email"),
+    phone: formData.get("phone"),
+    password: formData.get("password"),
+    role: formData.get("role"),
+  });
+  if (!parsed.success) {
+    const fieldErrors: Record<string, string> = {};
+    for (const issue of parsed.error.issues) {
+      const key = String(issue.path[0] ?? "form");
+      if (!fieldErrors[key]) fieldErrors[key] = issue.message;
+    }
+    return { fieldErrors };
+  }
+
+  const supabase = getSupabaseAdminClient();
+  const { data, error } = await supabase.auth.admin.createUser({
+    email: parsed.data.email,
+    phone: parsed.data.phone,
+    password: parsed.data.password,
+    email_confirm: Boolean(parsed.data.email),
+    phone_confirm: Boolean(parsed.data.phone),
+    user_metadata: { name: parsed.data.name },
+  });
+  if (error || !data.user) {
+    return { error: error?.message ?? "failed to create user" };
+  }
+
+  const { error: profileErr } = await supabase
+    .from("profiles")
+    .update({ role: parsed.data.role, name: parsed.data.name })
+    .eq("id", data.user.id);
+  if (profileErr) {
+    return { error: profileErr.message };
+  }
+
+  revalidatePath("/admin/users");
+  revalidatePath("/admin");
+  return { ok: true, redirectTo: "/admin/users" };
+}
+
 export async function approveListingAction(formData: FormData): Promise<void> {
   await requireRole("admin");
   const id = idSchema.parse(formData.get("id"));

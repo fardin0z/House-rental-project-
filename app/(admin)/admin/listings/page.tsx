@@ -18,6 +18,7 @@ import {
 } from "@/lib/admin/actions";
 import { LISTING_BUCKET, renderImageUrl } from "@/lib/storage/paths";
 import { FilterChip } from "@/components/admin/filter-chip";
+import { ConfirmActionButton } from "@/components/admin/confirm-action-button";
 
 const STATUSES = [
   "draft",
@@ -224,26 +225,29 @@ function ListingRow({ listing, t }: { listing: AdminListing; t: T }) {
           ) : null}
 
           {listing.status !== "archived" ? (
-            <form action={archiveListingAction}>
-              <input type="hidden" name="id" value={listing.id} />
-              <button
-                type="submit"
-                className="inline-flex h-9 w-full items-center justify-center rounded-full border border-ink-900/10 bg-white px-4 text-[11px] font-bold text-ink-900 transition hover:bg-ink-50"
-              >
-                {t("listingsArchive")}
-              </button>
-            </form>
+            <ConfirmActionButton
+              action={archiveListingAction}
+              id={listing.id}
+              triggerLabel={t("listingsArchive")}
+              title={t("confirmArchiveListingTitle")}
+              body={t("confirmArchiveListingBody")}
+              confirmLabel={t("confirmYes")}
+              cancelLabel={t("confirmCancel")}
+              variant="neutral"
+              triggerClassName="inline-flex h-9 w-full items-center justify-center rounded-full border border-ink-900/10 bg-white px-4 text-[11px] font-bold text-ink-900 transition hover:bg-ink-50"
+            />
           ) : null}
 
-          <form action={deleteListingAction}>
-            <input type="hidden" name="id" value={listing.id} />
-            <button
-              type="submit"
-              className="inline-flex h-9 w-full items-center justify-center rounded-full bg-red-100 px-4 text-[11px] font-bold text-red-700 transition hover:bg-red-200"
-            >
-              {t("listingsDelete")}
-            </button>
-          </form>
+          <ConfirmActionButton
+            action={deleteListingAction}
+            id={listing.id}
+            triggerLabel={t("listingsDelete")}
+            title={t("confirmDeleteListingTitle")}
+            body={t("confirmDeleteListingBody")}
+            confirmLabel={t("confirmYes")}
+            cancelLabel={t("confirmCancel")}
+            triggerClassName="inline-flex h-9 w-full items-center justify-center rounded-full bg-red-100 px-4 text-[11px] font-bold text-red-700 transition hover:bg-red-200"
+          />
         </div>
       </div>
     </article>

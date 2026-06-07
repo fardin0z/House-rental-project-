@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { TruckIcon, PhoneIcon, MapPinIcon, CalendarIcon } from "lucide-react";
 import { FilterChip } from "@/components/admin/filter-chip";
+import { ConfirmActionButton } from "@/components/admin/confirm-action-button";
 import {
   getAdminMovingRequests,
   type AdminMovingRequest,
@@ -216,15 +217,18 @@ function MovingCard({ req, t }: { req: AdminMovingRequest; t: T }) {
             </button>
           </form>
 
-          <form action={deleteMovingRequestAction} className="mt-3">
-            <input type="hidden" name="id" value={req.id} />
-            <button
-              type="submit"
-              className="inline-flex h-9 w-full items-center justify-center rounded-full bg-red-100 px-4 text-[11px] font-bold text-red-700 transition hover:bg-red-200"
-            >
-              {t("movingDelete")}
-            </button>
-          </form>
+          <div className="mt-3">
+            <ConfirmActionButton
+              action={deleteMovingRequestAction}
+              id={req.id}
+              triggerLabel={t("movingDelete")}
+              title={t("confirmDeleteMovingTitle")}
+              body={t("confirmDeleteMovingBody")}
+              confirmLabel={t("confirmYes")}
+              cancelLabel={t("confirmCancel")}
+              triggerClassName="inline-flex h-9 w-full items-center justify-center rounded-full bg-red-100 px-4 text-[11px] font-bold text-red-700 transition hover:bg-red-200"
+            />
+          </div>
         </aside>
       </div>
     </article>
