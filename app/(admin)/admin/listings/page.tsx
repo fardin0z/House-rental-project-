@@ -1,10 +1,11 @@
 import Link from "next/link";
+import Form from "next/form";
 import { getTranslations } from "next-intl/server";
 import {
   HomeIcon,
   SearchIcon,
   ImageIcon,
-  ExternalLinkIcon,
+  ArrowUpRightIcon,
 } from "lucide-react";
 import {
   getAdminListings,
@@ -19,6 +20,8 @@ import {
 import { LISTING_BUCKET, renderImageUrl } from "@/lib/storage/paths";
 import { FilterChip } from "@/components/admin/filter-chip";
 import { ConfirmActionButton } from "@/components/admin/confirm-action-button";
+import { ConfirmActionWithReason } from "@/components/admin/confirm-action-with-reason";
+import { AdminPagination } from "@/components/admin/admin-pagination";
 
 const STATUSES = [
   "draft",
@@ -28,6 +31,7 @@ const STATUSES = [
   "archived",
 ] as const;
 type Status = (typeof STATUSES)[number];
+const PAGE_SIZE = 25;
 
 export default async function AdminListingsPage({
   searchParams,
@@ -37,13 +41,20 @@ export default async function AdminListingsPage({
   const sp = await searchParams;
   const rawStatus = Array.isArray(sp.status) ? sp.status[0] : sp.status;
   const rawQ = Array.isArray(sp.q) ? sp.q[0] : sp.q;
+  const rawPage = Array.isArray(sp.page) ? sp.page[0] : sp.page;
   const status: Status | null = STATUSES.includes(rawStatus as Status)
     ? (rawStatus as Status)
     : null;
   const q = rawQ?.trim() ?? "";
+  const page = Math.max(1, Number.parseInt(rawPage ?? "1", 10) || 1);
 
   const t = await getTranslations("admin");
-  const listings = await getAdminListings({ status, search: q });
+  const listings = await getAdminListings({
+    status,
+    search: q,
+    limit: PAGE_SIZE,
+    offset: (page - 1) * PAGE_SIZE,
+  });
 
   return (
     <div className="space-y-6">
@@ -56,7 +67,11 @@ export default async function AdminListingsPage({
         </h1>
       </header>
 
-      <form className="flex flex-col gap-3 rounded-[20px] bg-white p-3 md:flex-row md:items-center">
+      <Form
+        action="/admin/listings"
+        scroll={false}
+        className="flex flex-col gap-3 rounded-[20px] bg-white p-3 md:flex-row md:items-center"
+      >
         <div className="relative flex flex-1 items-center">
           <SearchIcon className="absolute left-4 h-4 w-4 text-ink-500" />
           <input
@@ -74,7 +89,7 @@ export default async function AdminListingsPage({
         >
           {t("listingsSearch")}
         </button>
-      </form>
+      </Form>
 
       <nav className="flex flex-wrap items-center gap-2">
         <FilterChip
@@ -94,7 +109,7 @@ export default async function AdminListingsPage({
         ))}
       </nav>
 
-      {listings.length === 0 ? (
+      {listings.rows.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-[28px] bg-white p-16 text-center">
           <HomeIcon className="h-10 w-10 text-ink-500/50" />
           <h3 className="font-display mt-5 text-[24px] italic text-ink-900">
@@ -102,20 +117,38 @@ export default async function AdminListingsPage({
           </h3>
         </div>
       ) : (
-        <div className="space-y-3">
-          {listings.map((l) => (
-            <ListingRow key={l.id} listing={l} t={t} />
-          ))}
-        </div>
+        <>
+          <div className="space-y-3">
+            {listings.rows.map((l) => (
+              <ListingRow key={l.id} listing={l} t={t} />
+            ))}
+          </div>
+          <AdminPagination
+            page={page}
+            pageSize={PAGE_SIZE}
+            total={listings.total}
+            buildHref={(p) => buildListingHref(status, q, p)}
+            labels={{
+              prev: t("paginationPrev"),
+              next: t("paginationNext"),
+              range: t("paginationRange"),
+            }}
+          />
+        </>
       )}
     </div>
   );
 }
 
-function buildListingHref(value: Status | null, q: string): string {
+function buildListingHref(
+  value: Status | null,
+  q: string,
+  page = 1,
+): string {
   const params = new URLSearchParams();
   if (value) params.set("status", value);
   if (q) params.set("q", q);
+  if (page > 1) params.set("page", String(page));
   return params.toString() ? `?${params.toString()}` : "?";
 }
 
@@ -130,8 +163,7 @@ function ListingRow({ listing, t }: { listing: AdminListing; t: T }) {
     <article className="rounded-[20px] bg-white p-4 md:p-5">
       <div className="flex flex-col gap-4 md:flex-row md:items-center">
         <Link
-          href={`/properties/${listing.id}`}
-          target="_blank"
+          href={`/admin/listings/${listing.id}`}
           className="relative h-24 w-32 shrink-0 overflow-hidden rounded-[14px] bg-ink-100"
         >
           {listing.cover_path ? (
@@ -176,12 +208,11 @@ function ListingRow({ listing, t }: { listing: AdminListing; t: T }) {
 
         <div className="flex flex-wrap items-center gap-2 md:flex-col md:items-stretch">
           <Link
-            href={`/properties/${listing.id}`}
-            target="_blank"
-            className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full border border-ink-900/10 bg-white px-4 text-[11px] font-bold text-ink-900 transition hover:bg-ink-50"
+            href={`/admin/listings/${listing.id}`}
+            className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full bg-ink-900 px-4 text-[11px] font-bold text-white transition hover:bg-ink-700"
           >
-            {t("listingsView")}
-            <ExternalLinkIcon className="h-3 w-3" />
+            {t("listingsManage")}
+            <ArrowUpRightIcon className="h-3 w-3" />
           </Link>
 
           {listing.status === "pending" ? (
@@ -198,30 +229,18 @@ function ListingRow({ listing, t }: { listing: AdminListing; t: T }) {
 
           {(listing.status === "pending" ||
             listing.status === "approved") ? (
-            <details className="w-full">
-              <summary className="inline-flex h-9 w-full cursor-pointer items-center justify-center rounded-full border border-ink-900/10 bg-white px-4 text-[11px] font-bold text-ink-900 transition hover:bg-ink-50">
-                {t("listingsReject")}
-              </summary>
-              <form
-                action={rejectListingAction}
-                className="mt-2 flex flex-col gap-2 rounded-[12px] bg-ink-50 p-3"
-              >
-                <input type="hidden" name="id" value={listing.id} />
-                <input
-                  type="text"
-                  name="reason"
-                  maxLength={500}
-                  placeholder={t("listingsRejPlaceholder")}
-                  className="w-full rounded-full border border-ink-900/10 bg-white px-3 py-2 text-[11px] text-ink-900 outline-none focus:border-ink-900/40"
-                />
-                <button
-                  type="submit"
-                  className="inline-flex h-8 items-center justify-center rounded-full bg-ink-900 px-4 text-[11px] font-bold text-white"
-                >
-                  {t("listingsRejConfirm")}
-                </button>
-              </form>
-            </details>
+            <ConfirmActionWithReason
+              action={rejectListingAction}
+              id={listing.id}
+              triggerLabel={t("listingsReject")}
+              title={t("listingsRejectTitle")}
+              body={t("listingsRejectBody")}
+              reasonLabel={t("listingsRejReason")}
+              reasonPlaceholder={t("listingsRejPlaceholder")}
+              confirmLabel={t("confirmYes")}
+              cancelLabel={t("confirmCancel")}
+              triggerClassName="inline-flex h-9 w-full items-center justify-center rounded-full border border-ink-900/10 bg-white px-4 text-[11px] font-bold text-ink-900 transition hover:bg-ink-50"
+            />
           ) : null}
 
           {listing.status !== "archived" ? (

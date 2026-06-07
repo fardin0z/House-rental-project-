@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { TruckIcon, PhoneIcon, MapPinIcon, CalendarIcon } from "lucide-react";
 import { FilterChip } from "@/components/admin/filter-chip";
 import { ConfirmActionButton } from "@/components/admin/confirm-action-button";
+import { AdminPagination } from "@/components/admin/admin-pagination";
 import {
   getAdminMovingRequests,
   type AdminMovingRequest,
@@ -14,6 +15,7 @@ import {
 
 const STATUSES = ["pending", "confirmed", "completed"] as const;
 type Status = (typeof STATUSES)[number];
+const PAGE_SIZE = 15;
 
 export default async function AdminMovingRequestsPage({
   searchParams,
@@ -22,17 +24,23 @@ export default async function AdminMovingRequestsPage({
 }) {
   const sp = await searchParams;
   const rawStatus = Array.isArray(sp.status) ? sp.status[0] : sp.status;
+  const rawPage = Array.isArray(sp.page) ? sp.page[0] : sp.page;
   const status: Status | null = STATUSES.includes(rawStatus as Status)
     ? (rawStatus as Status)
     : null;
+  const page = Math.max(1, Number.parseInt(rawPage ?? "1", 10) || 1);
 
   const t = await getTranslations("admin");
-  const requests = await getAdminMovingRequests({ status, limit: 200 });
+  const requests = await getAdminMovingRequests({
+    status,
+    limit: PAGE_SIZE,
+    offset: (page - 1) * PAGE_SIZE,
+  });
 
   const counts = {
-    pending: requests.filter((r) => r.status === "pending").length,
-    confirmed: requests.filter((r) => r.status === "confirmed").length,
-    completed: requests.filter((r) => r.status === "completed").length,
+    pending: requests.rows.filter((r) => r.status === "pending").length,
+    confirmed: requests.rows.filter((r) => r.status === "confirmed").length,
+    completed: requests.rows.filter((r) => r.status === "completed").length,
   };
 
   return (
@@ -79,7 +87,7 @@ export default async function AdminMovingRequestsPage({
         ))}
       </nav>
 
-      {requests.length === 0 ? (
+      {requests.rows.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-[28px] bg-white p-16 text-center">
           <TruckIcon className="h-10 w-10 text-ink-500/50" />
           <h3 className="font-display mt-5 text-[24px] italic text-ink-900">
@@ -87,11 +95,24 @@ export default async function AdminMovingRequestsPage({
           </h3>
         </div>
       ) : (
-        <div className="space-y-4">
-          {requests.map((req) => (
-            <MovingCard key={req.id} req={req} t={t} />
-          ))}
-        </div>
+        <>
+          <div className="space-y-4">
+            {requests.rows.map((req) => (
+              <MovingCard key={req.id} req={req} t={t} />
+            ))}
+          </div>
+          <AdminPagination
+            page={page}
+            pageSize={PAGE_SIZE}
+            total={requests.total}
+            buildHref={(p) => buildMovingHref(status, p)}
+            labels={{
+              prev: t("paginationPrev"),
+              next: t("paginationNext"),
+              range: t("paginationRange"),
+            }}
+          />
+        </>
       )}
     </div>
   );
@@ -110,9 +131,10 @@ function StatTile({ label, value }: { label: string; value: number }) {
   );
 }
 
-function buildMovingHref(value: Status | null): string {
+function buildMovingHref(value: Status | null, page = 1): string {
   const params = new URLSearchParams();
   if (value) params.set("status", value);
+  if (page > 1) params.set("page", String(page));
   return params.toString() ? `?${params.toString()}` : "?";
 }
 

@@ -1,9 +1,11 @@
 import Link from "next/link";
+import Form from "next/form";
 import { getTranslations } from "next-intl/server";
 import { UsersIcon, SearchIcon, PlusIcon } from "lucide-react";
 import { FilterChip } from "@/components/admin/filter-chip";
 import { UserRoleMenu } from "@/components/admin/user-role-menu";
 import { ConfirmActionButton } from "@/components/admin/confirm-action-button";
+import { AdminPagination } from "@/components/admin/admin-pagination";
 import { getCurrentProfile } from "@/lib/auth/guards";
 import { getUsers, type AdminUser } from "@/lib/admin/queries";
 import {
@@ -14,6 +16,7 @@ import {
 
 const ROLES = ["tenant", "landlord", "admin"] as const;
 type RoleFilter = (typeof ROLES)[number];
+const PAGE_SIZE = 25;
 
 export default async function AdminUsersPage({
   searchParams,
@@ -23,15 +26,25 @@ export default async function AdminUsersPage({
   const sp = await searchParams;
   const rawQ = Array.isArray(sp.q) ? sp.q[0] : sp.q;
   const rawRole = Array.isArray(sp.role) ? sp.role[0] : sp.role;
+  const rawId = Array.isArray(sp.id) ? sp.id[0] : sp.id;
+  const rawPage = Array.isArray(sp.page) ? sp.page[0] : sp.page;
   const role: RoleFilter | null = ROLES.includes(rawRole as RoleFilter)
     ? (rawRole as RoleFilter)
     : null;
   const q = rawQ?.trim() ?? "";
+  const id = rawId?.trim() || undefined;
+  const page = Math.max(1, Number.parseInt(rawPage ?? "1", 10) || 1);
 
   const [t, self, users] = await Promise.all([
     getTranslations("admin"),
     getCurrentProfile(),
-    getUsers({ search: q, role }),
+    getUsers({
+      search: q,
+      role,
+      id,
+      limit: PAGE_SIZE,
+      offset: (page - 1) * PAGE_SIZE,
+    }),
   ]);
 
   return (
@@ -54,7 +67,11 @@ export default async function AdminUsersPage({
         </Link>
       </header>
 
-      <form className="flex flex-col gap-3 rounded-[20px] bg-white p-3 md:flex-row md:items-center">
+      <Form
+        action="/admin/users"
+        scroll={false}
+        className="flex flex-col gap-3 rounded-[20px] bg-white p-3 md:flex-row md:items-center"
+      >
         <div className="relative flex flex-1 items-center">
           <SearchIcon className="absolute left-4 h-4 w-4 text-ink-500" />
           <input
@@ -93,9 +110,9 @@ export default async function AdminUsersPage({
         >
           {t("usersSearch")}
         </button>
-      </form>
+      </Form>
 
-      {users.length === 0 ? (
+      {users.rows.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-[28px] bg-white p-16 text-center">
           <UsersIcon className="h-10 w-10 text-ink-500/50" />
           <h3 className="font-display mt-5 text-[24px] italic text-ink-900">
@@ -103,29 +120,56 @@ export default async function AdminUsersPage({
           </h3>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-[24px] bg-white">
-          <div className="hidden grid-cols-[2fr_1fr_1fr_1fr_1fr_auto] gap-4 border-b border-ink-900/5 px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-ink-500/70 md:grid">
-            <span>{t("usersColUser")}</span>
-            <span>{t("usersColRole")}</span>
-            <span>{t("usersColNid")}</span>
-            <span>{t("usersColListings")}</span>
-            <span>{t("usersColStatus")}</span>
-            <span className="text-right">{t("usersColActions")}</span>
+        <>
+          <div className="overflow-hidden rounded-[24px] bg-white">
+            <div className="hidden grid-cols-[2fr_1fr_1fr_1fr_1fr_220px] gap-4 border-b border-ink-900/5 px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-ink-500/70 md:grid">
+              <span>{t("usersColUser")}</span>
+              <span>{t("usersColRole")}</span>
+              <span>{t("usersColNid")}</span>
+              <span>{t("usersColListings")}</span>
+              <span>{t("usersColStatus")}</span>
+              <span className="text-right">{t("usersColActions")}</span>
+            </div>
+            <ul className="divide-y divide-ink-900/5">
+              {users.rows.map((u) => (
+                <UserRow
+                  key={u.id}
+                  user={u}
+                  isSelf={u.id === self?.id}
+                  t={t}
+                />
+              ))}
+            </ul>
           </div>
-          <ul className="divide-y divide-ink-900/5">
-            {users.map((u) => (
-              <UserRow
-                key={u.id}
-                user={u}
-                isSelf={u.id === self?.id}
-                t={t}
-              />
-            ))}
-          </ul>
-        </div>
+          <AdminPagination
+            page={page}
+            pageSize={PAGE_SIZE}
+            total={users.total}
+            buildHref={(p) => buildUsersHref(role, q, id, p)}
+            labels={{
+              prev: t("paginationPrev"),
+              next: t("paginationNext"),
+              range: t("paginationRange"),
+            }}
+          />
+        </>
       )}
     </div>
   );
+}
+
+function buildUsersHref(
+  role: RoleFilter | null,
+  q: string,
+  id: string | undefined,
+  page: number,
+): string {
+  const params = new URLSearchParams();
+  if (role) params.set("role", role);
+  if (q) params.set("q", q);
+  if (id) params.set("id", id);
+  if (page > 1) params.set("page", String(page));
+  return params.toString() ? `?${params.toString()}` : "?";
 }
 
 function buildRoleHref(value: RoleFilter | null, q: string): string {
@@ -151,7 +195,7 @@ function UserRow({
   const suspended = user.suspended_at != null;
 
   return (
-    <li className="grid grid-cols-1 gap-3 px-6 py-5 md:grid-cols-[2fr_1fr_1fr_1fr_1fr_auto] md:items-center md:gap-4">
+    <li className="grid grid-cols-1 gap-3 px-6 py-5 md:grid-cols-[2fr_1fr_1fr_1fr_1fr_220px] md:items-center md:gap-4">
       <div className="flex items-center gap-3">
         <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-lime-400 text-[13px] font-bold text-ink-900">
           {initial}

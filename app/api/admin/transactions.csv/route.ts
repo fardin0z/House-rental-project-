@@ -25,7 +25,7 @@ export async function GET(req: Request) {
     ? (rawStatus as Status)
     : null;
 
-  const txns = await getAdminTransactions({ status, limit: 5000 });
+  const { rows: txns } = await getAdminTransactions({ status, limit: 5000 });
 
   const headers = [
     "id",

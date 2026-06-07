@@ -6,9 +6,11 @@ import {
   type AdminTransaction,
 } from "@/lib/admin/queries";
 import { FilterChip } from "@/components/admin/filter-chip";
+import { AdminPagination } from "@/components/admin/admin-pagination";
 
 const STATUSES = ["pending", "completed", "failed", "cancelled"] as const;
 type Status = (typeof STATUSES)[number];
+const PAGE_SIZE = 25;
 
 export default async function AdminPaymentsPage({
   searchParams,
@@ -17,14 +19,20 @@ export default async function AdminPaymentsPage({
 }) {
   const sp = await searchParams;
   const rawStatus = Array.isArray(sp.status) ? sp.status[0] : sp.status;
+  const rawPage = Array.isArray(sp.page) ? sp.page[0] : sp.page;
   const status: Status | null = STATUSES.includes(rawStatus as Status)
     ? (rawStatus as Status)
     : null;
+  const page = Math.max(1, Number.parseInt(rawPage ?? "1", 10) || 1);
 
   const t = await getTranslations("admin");
-  const txns = await getAdminTransactions({ status, limit: 200 });
+  const txns = await getAdminTransactions({
+    status,
+    limit: PAGE_SIZE,
+    offset: (page - 1) * PAGE_SIZE,
+  });
 
-  const completedTotal = txns
+  const completedTotal = txns.rows
     .filter((x) => x.status === "completed")
     .reduce((sum, x) => sum + x.amount, 0);
 
@@ -56,17 +64,17 @@ export default async function AdminPaymentsPage({
         />
         <StatTile
           label={t("paymentsStatTotal")}
-          value={txns.length.toLocaleString("bn-BD")}
+          value={txns.total.toLocaleString("bn-BD")}
         />
         <StatTile
           label={t("paymentsStatusLabel.completed")}
-          value={txns
+          value={txns.rows
             .filter((x) => x.status === "completed")
             .length.toLocaleString("bn-BD")}
         />
         <StatTile
           label={t("paymentsStatusLabel.pending")}
-          value={txns
+          value={txns.rows
             .filter((x) => x.status === "pending")
             .length.toLocaleString("bn-BD")}
         />
@@ -90,7 +98,7 @@ export default async function AdminPaymentsPage({
         ))}
       </nav>
 
-      {txns.length === 0 ? (
+      {txns.rows.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-[28px] bg-white p-16 text-center">
           <CreditCardIcon className="h-10 w-10 text-ink-500/50" />
           <h3 className="font-display mt-5 text-[24px] italic text-ink-900">
@@ -98,20 +106,33 @@ export default async function AdminPaymentsPage({
           </h3>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-[24px] bg-white">
-          <div className="hidden grid-cols-[1.5fr_1fr_1fr_1.5fr_1fr] gap-4 border-b border-ink-900/5 px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-ink-500/70 md:grid">
-            <span>{t("paymentsColUser")}</span>
-            <span>{t("paymentsColAmount")}</span>
-            <span>{t("paymentsColStatus")}</span>
-            <span>{t("paymentsColTxnId")}</span>
-            <span>{t("paymentsColDate")}</span>
+        <>
+          <div className="overflow-hidden rounded-[24px] bg-white">
+            <div className="hidden grid-cols-[1.5fr_1fr_1fr_1.5fr_1fr] gap-4 border-b border-ink-900/5 px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-ink-500/70 md:grid">
+              <span>{t("paymentsColUser")}</span>
+              <span>{t("paymentsColAmount")}</span>
+              <span>{t("paymentsColStatus")}</span>
+              <span>{t("paymentsColTxnId")}</span>
+              <span>{t("paymentsColDate")}</span>
+            </div>
+            <ul className="divide-y divide-ink-900/5">
+              {txns.rows.map((tx) => (
+                <TxnRow key={tx.id} tx={tx} t={t} />
+              ))}
+            </ul>
           </div>
-          <ul className="divide-y divide-ink-900/5">
-            {txns.map((tx) => (
-              <TxnRow key={tx.id} tx={tx} t={t} />
-            ))}
-          </ul>
-        </div>
+          <AdminPagination
+            page={page}
+            pageSize={PAGE_SIZE}
+            total={txns.total}
+            buildHref={(p) => buildPaymentsHref(status, p)}
+            labels={{
+              prev: t("paginationPrev"),
+              next: t("paginationNext"),
+              range: t("paginationRange"),
+            }}
+          />
+        </>
       )}
     </div>
   );
@@ -130,9 +151,10 @@ function StatTile({ label, value }: { label: string; value: string }) {
   );
 }
 
-function buildPaymentsHref(value: Status | null): string {
+function buildPaymentsHref(value: Status | null, page = 1): string {
   const params = new URLSearchParams();
   if (value) params.set("status", value);
+  if (page > 1) params.set("page", String(page));
   return params.toString() ? `?${params.toString()}` : "?";
 }
 
