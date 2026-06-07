@@ -40,14 +40,22 @@ export async function loginAction(
       ? { email: id.email, password: parsed.data.password }
       : { phone: id.phone, password: parsed.data.password };
 
-  const { error } = await supabase.auth.signInWithPassword(credentials);
+  const { data: signInData, error } =
+    await supabase.auth.signInWithPassword(credentials);
 
   if (error) {
     return { error: mapAuthError(error.message) };
   }
 
   revalidatePath("/", "layout");
-  return { ok: true, redirectTo: "/" };
+
+  const { roleFromJwt, redirectPathForRole } = await import(
+    "@/lib/auth/jwt-claims"
+  );
+  const role = signInData.session?.access_token
+    ? roleFromJwt(signInData.session.access_token)
+    : null;
+  return { ok: true, redirectTo: redirectPathForRole(role) };
 }
 
 export async function signupAction(

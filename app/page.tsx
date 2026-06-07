@@ -7,7 +7,7 @@ import {
   MailIcon,
   PhoneIcon,
 } from "lucide-react";
-import { getCurrentUserId } from "@/lib/auth/guards";
+import { getCurrentSession } from "@/lib/auth/guards";
 import {
   getApprovedListings,
   getLandingStats,
@@ -77,8 +77,9 @@ export default async function HomePage() {
   const t = await getTranslations("landing");
   const tCommon = await getTranslations("common");
   const tListings = await getTranslations("listings");
-  const userId = await getCurrentUserId();
-  const isAuthed = Boolean(userId);
+  const session = await getCurrentSession();
+  const isAuthed = Boolean(session);
+  const browseHref = "/properties";
   const [featured, liveStats] = await Promise.all([loadFeatured(), loadStats()]);
 
   const specWords = {
@@ -150,6 +151,11 @@ export default async function HomePage() {
         }}
         typeOptions={typeOptions}
         priceOptions={priceOptions}
+        primaryCta={{ label: t("ctaPrimary"), href: browseHref }}
+        secondaryCta={{
+          label: t("ctaSecondary"),
+          href: isAuthed ? "/listings/new" : "/signup",
+        }}
       />
 
       <HelpSection
@@ -169,6 +175,7 @@ export default async function HomePage() {
         title={t("featuredTitle")}
         subtitle={t("featuredSubtitle")}
         cta={t("featuredCta")}
+        ctaHref={browseHref}
         badge={t("featuredBadge")}
         priceLabel={t("featuredPriceLabel")}
         emptyTitle={t("featuredEmptyTitle")}
@@ -200,7 +207,7 @@ export default async function HomePage() {
       <JoinSection
         line1={t("joinTitle1")}
         line2={t("joinTitle2")}
-        href="/properties"
+        href={browseHref}
       />
 
       <SiteFooter
@@ -231,6 +238,8 @@ async function Hero(props: {
   searchValues: { location: string; type: string; price: string };
   typeOptions: { value: string; label: string }[];
   priceOptions: { value: string; label: string }[];
+  primaryCta: { label: string; href: string };
+  secondaryCta: { label: string; href: string };
 }) {
   return (
     <section className="relative mx-6 mt-6 h-[680px] overflow-hidden rounded-[18px] bg-[#111] max-[900px]:mx-3 max-[900px]:mt-3 max-[900px]:h-[820px]">
@@ -248,9 +257,27 @@ async function Hero(props: {
         <h1 className="m-0 text-[clamp(44px,5.8vw,86px)] font-bold leading-[1.02] tracking-tight text-white/95">
           {props.title}
         </h1>
-        <p className="mb-2 max-w-[460px] text-[18px] font-medium leading-[1.35] text-white/90 max-[900px]:text-[16px]">
-          {props.subhead}
-        </p>
+        <div>
+          <p className="mb-5 max-w-[460px] text-[18px] font-medium leading-[1.35] text-white/90 max-[900px]:text-[16px]">
+            {props.subhead}
+          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href={props.primaryCta.href}
+              className="inline-flex h-12 items-center gap-2 rounded-full bg-greenx px-6 text-[14px] font-bold text-black transition hover:scale-[1.03]"
+            >
+              {props.primaryCta.label}
+              <ArrowUpRightIcon className="h-4 w-4" />
+            </Link>
+            <Link
+              href={props.secondaryCta.href}
+              className="inline-flex h-12 items-center gap-2 rounded-full border border-white/30 bg-white/10 px-6 text-[14px] font-bold text-white backdrop-blur-xl transition hover:bg-white/20"
+            >
+              {props.secondaryCta.label}
+              <ArrowUpRightIcon className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
       </div>
 
       <div className="search-pocket">
@@ -370,6 +397,7 @@ function FeaturedSection({
   title,
   subtitle,
   cta,
+  ctaHref,
   badge,
   priceLabel,
   emptyTitle,
@@ -381,6 +409,7 @@ function FeaturedSection({
   title: string;
   subtitle: string;
   cta: string;
+  ctaHref: string;
   badge: string;
   priceLabel: string;
   emptyTitle: string;
@@ -406,7 +435,7 @@ function FeaturedSection({
         </div>
         {hasCards ? (
           <Link
-            href="/properties"
+            href={ctaHref}
             className="inline-flex h-9 w-fit items-center rounded-full bg-greenx px-5 text-[12px] font-bold text-black md:mt-6"
           >
             {cta}

@@ -8,11 +8,12 @@ import {
 } from "lucide-react";
 import { LoginForm } from "@/components/auth/login-form";
 import { AuthShell } from "@/components/auth/auth-shell";
-import { getCurrentUserId } from "@/lib/auth/guards";
+import { getCurrentSession } from "@/lib/auth/guards";
+import { redirectPathForRole } from "@/lib/auth/jwt-claims";
 
 export default async function LoginPage() {
-  const userId = await getCurrentUserId();
-  if (userId) redirect("/");
+  const session = await getCurrentSession();
+  if (session) redirect(redirectPathForRole(session.role));
 
   const t = await getTranslations("auth");
   const tCommon = await getTranslations("common");

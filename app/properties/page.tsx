@@ -1,5 +1,6 @@
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { SlidersHorizontalIcon } from "lucide-react";
+import { SlidersHorizontalIcon, ArrowUpRightIcon } from "lucide-react";
 import {
   getPublicListings,
   type PublicListing,
@@ -7,6 +8,7 @@ import {
 import { PropertyCard } from "@/components/properties/property-card";
 import { PropertiesMap } from "@/components/properties/properties-map";
 import { PropertiesSearch } from "@/components/properties/properties-search";
+import { getCurrentSession } from "@/lib/auth/guards";
 import type { RentalType } from "@/types/database.types";
 
 const ALLOWED_TYPES: RentalType[] = [
@@ -44,13 +46,17 @@ export default async function PropertiesSearchPage({
     areaParam || typeParam || budgetParam || bedsParam,
   );
 
-  const listings = await getPublicListings({
-    area: areaParam,
-    type: typeParam,
-    budget: budgetParam,
-    beds: bedsParam,
-    limit: 60,
-  });
+  const [listings, session] = await Promise.all([
+    getPublicListings({
+      area: areaParam,
+      type: typeParam,
+      budget: budgetParam,
+      beds: bedsParam,
+      limit: 60,
+    }),
+    getCurrentSession(),
+  ]);
+  const isLandlord = session?.role === "landlord";
 
   return (
     <div>
@@ -58,15 +64,24 @@ export default async function PropertiesSearchPage({
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="font-display text-[22px] italic leading-none text-lime-600">
-              {t("eyebrow")}
+              {isLandlord ? t("landlordEyebrow") : t("eyebrow")}
             </p>
             <h1 className="font-display mt-6 text-[48px] italic leading-[.9] tracking-tight text-ink-900 md:text-[72px]">
-              {t("heading")}
+              {isLandlord ? t("landlordHeading") : t("heading")}
             </h1>
             <p className="mt-6 max-w-[520px] text-[15px] font-medium leading-relaxed text-ink-500">
-              {t("subtitle")}
+              {isLandlord ? t("landlordSubtitle") : t("subtitle")}
             </p>
           </div>
+          {isLandlord ? (
+            <Link
+              href="/listings/new"
+              className="inline-flex h-12 w-fit items-center gap-2 rounded-full bg-ink-900 px-6 text-[14px] font-bold text-white transition hover:bg-ink-700"
+            >
+              {t("landlordCta")}
+              <ArrowUpRightIcon className="h-4 w-4" />
+            </Link>
+          ) : null}
         </div>
 
         <div className="mt-8">

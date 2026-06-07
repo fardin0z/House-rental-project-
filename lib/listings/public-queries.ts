@@ -1,6 +1,6 @@
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
-import { getCurrentUserId } from "@/lib/auth/guards";
+import { getCurrentSession } from "@/lib/auth/guards";
 import { hasActivePremium } from "@/lib/payments/queries";
 import type {
   ListingImageRow,
@@ -65,10 +65,18 @@ function roundCoord(coord: number | null, decimals = 2): number | null {
   return Math.round(coord * factor) / factor;
 }
 
-async function viewerAccess(): Promise<{ userId: string | null; premium: boolean }> {
-  const userId = await getCurrentUserId();
-  const premium = userId ? await hasActivePremium(userId) : false;
-  return { userId, premium };
+async function viewerAccess(): Promise<{
+  userId: string | null;
+  premium: boolean;
+  isAdmin: boolean;
+}> {
+  const session = await getCurrentSession();
+  const userId = session?.userId ?? null;
+  const isAdmin = session?.role === "admin";
+  const premium = userId
+    ? isAdmin || (await hasActivePremium(userId))
+    : false;
+  return { userId, premium, isAdmin };
 }
 
 export async function getPublicListings(
@@ -139,7 +147,7 @@ export async function getPublicListingDetail(
   id: string,
 ): Promise<PublicListingDetail | null> {
   const supabase = await getSupabaseServerClient();
-  const { userId, premium } = await viewerAccess();
+  const { userId, premium, isAdmin } = await viewerAccess();
 
   const { data, error } = await supabase
     .from("listings")
@@ -156,7 +164,7 @@ export async function getPublicListingDetail(
   const listing = data as ListingRow & { images: ListingImageRow[] };
   const isOwner = userId !== null && listing.owner_id === userId;
 
-  if (listing.status !== "approved" && !isOwner) {
+  if (listing.status !== "approved" && !isOwner && !isAdmin) {
     return null;
   }
 

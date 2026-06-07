@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { roleFromClaims } from "@/lib/auth/jwt-claims";
 import type { ProfileRow, UserRole } from "@/types/database.types";
 
 export async function getCurrentUserId(): Promise<string | null> {
@@ -7,6 +8,19 @@ export async function getCurrentUserId(): Promise<string | null> {
   const { data, error } = await supabase.auth.getClaims();
   if (error || !data?.claims) return null;
   return data.claims.sub;
+}
+
+export async function getCurrentSession(): Promise<{
+  userId: string;
+  role: UserRole | null;
+} | null> {
+  const supabase = await getSupabaseServerClient();
+  const { data, error } = await supabase.auth.getClaims();
+  if (error || !data?.claims?.sub) return null;
+  return {
+    userId: data.claims.sub,
+    role: roleFromClaims(data.claims as Record<string, unknown>),
+  };
 }
 
 export async function getCurrentProfile(): Promise<ProfileRow | null> {

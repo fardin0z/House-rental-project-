@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeftIcon, ArrowRightIcon, BellIcon } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { getCurrentProfile } from "@/lib/auth/guards";
+import { redirectPathForRole } from "@/lib/auth/jwt-claims";
 import { RoleSwitcher } from "@/components/shared/role-switcher";
 import { MainMenu } from "@/components/shared/main-menu";
 import { BrandMark } from "@/components/shared/brand-mark";
@@ -51,14 +52,16 @@ export async function AppHeader({
   }
 
   if (variant === "floating") {
-    const resolvedCta = cta ?? {
-      label: isAuthed ? tLanding("featuredCta") : tLanding("ctaLogin"),
-      href: isAuthed
-        ? profile?.role === "landlord"
-          ? "/listings"
-          : "/properties"
-        : "/login",
-    };
+    const resolvedCta =
+      cta ??
+      (!isAuthed
+        ? { label: tLanding("ctaLogin"), href: "/login" }
+        : profile?.role === "admin"
+          ? { label: tLanding("adminCta"), href: "/admin" }
+          : {
+              label: tLanding("featuredCta"),
+              href: redirectPathForRole(profile?.role ?? null),
+            });
     return (
       <header className="relative z-10 flex items-start justify-between px-8 pt-7 max-[900px]:px-5">
         <Link href="/" className="flex items-center gap-2.5">

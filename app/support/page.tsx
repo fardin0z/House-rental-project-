@@ -36,6 +36,23 @@ export default async function SupportPage() {
           </span>
         </a>
 
+        <a
+          href="https://wa.me/8801700000000"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 rounded-2xl border border-rule/60 bg-paper p-4 transition-colors hover:border-ink"
+        >
+          <span className="grid size-10 place-items-center rounded-xl bg-emerald-100 text-emerald-700">
+            <MessageCircleIcon className="size-5" />
+          </span>
+          <span className="flex flex-col">
+            <span className="text-sm font-medium text-ink">
+              {t("whatsappLabel")}
+            </span>
+            <span className="text-sm text-ink-soft">+880 1700-000000</span>
+          </span>
+        </a>
+
         <div className="flex items-center gap-3 rounded-2xl border border-rule/60 bg-paper p-4">
           <span className="grid size-10 place-items-center rounded-xl bg-ember/15 text-ember">
             <MessageCircleIcon className="size-5" />
