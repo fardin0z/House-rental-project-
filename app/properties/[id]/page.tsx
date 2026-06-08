@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
@@ -18,6 +19,63 @@ import { PropertyMediaCarousel } from "@/components/properties/property-media-ca
 import { PropertyLocationMap } from "@/components/properties/property-location-map";
 import { ContactLandlordButton } from "@/components/properties/contact-button";
 import { PremiumLock } from "@/components/listings/premium-lock";
+import { LISTING_BUCKET, publicStorageUrl } from "@/lib/storage/paths";
+import { SITE_NAME, getSiteUrl } from "@/lib/seo/site";
+
+export async function generateMetadata(
+  props: PageProps<"/properties/[id]">,
+): Promise<Metadata> {
+  const { id } = await props.params;
+  const listing = await getPublicListingDetail(id);
+  if (!listing) {
+    return { title: "Not found", robots: { index: false, follow: false } };
+  }
+
+  const titleParts = [
+    listing.title,
+    [listing.district, listing.area_name].filter(Boolean).join(", "),
+  ].filter(Boolean);
+  const title = titleParts.join(" · ") || SITE_NAME;
+
+  const rentLine = listing.rent
+    ? `৳ ${listing.rent.toLocaleString("bn-BD")} · `
+    : "";
+  const description = (
+    listing.description?.replace(/\s+/g, " ").trim().slice(0, 155) ||
+    `${rentLine}${[listing.area_name, listing.district]
+      .filter(Boolean)
+      .join(", ")} — ${SITE_NAME}`
+  ).slice(0, 160);
+
+  const ogImage = listing.cover_path
+    ? publicStorageUrl(LISTING_BUCKET, listing.cover_path)
+    : "/og-image.png";
+
+  const canonicalPath = `/properties/${id}`;
+  const indexable = listing.status === "approved";
+
+  return {
+    title,
+    description,
+    alternates: { canonical: canonicalPath },
+    openGraph: {
+      type: "website",
+      url: `${getSiteUrl()}${canonicalPath}`,
+      title,
+      description,
+      images: [{ url: ogImage, alt: listing.title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImage],
+    },
+    robots: indexable
+      ? { index: true, follow: true }
+      : { index: false, follow: false },
+  };
+}
 
 export default async function PropertyDetailPage(
   props: PageProps<"/properties/[id]">,
@@ -29,12 +87,23 @@ export default async function PropertyDetailPage(
   const listing = await getPublicListingDetail(id);
   if (!listing) notFound();
 
+  const jsonLd = buildListingJsonLd(id, listing);
+
   const userId = await getCurrentUserId();
   const isAuthed = userId !== null;
 
   return (
-    <div>
-      <section className="mx-auto max-w-7xl px-6 pb-2 pt-6">
+    <main>
+      {jsonLd ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      ) : null}
+      <nav
+        aria-label={t("backToSearch")}
+        className="mx-auto max-w-7xl px-6 pb-2 pt-6"
+      >
         <Link
           href="/properties"
           className="inline-flex items-center gap-2 text-[13px] font-bold text-ink-500 transition-colors hover:text-ink-900"
@@ -42,9 +111,12 @@ export default async function PropertyDetailPage(
           <ArrowLeftIcon className="h-4 w-4" />
           {t("backToSearch")}
         </Link>
-      </section>
+      </nav>
 
-      <section className="mx-auto max-w-7xl px-6 pb-8 pt-4">
+      <section
+        aria-label={t("photoCount", { count: listing.images.length })}
+        className="mx-auto max-w-7xl px-6 pb-8 pt-4"
+      >
         <PropertyMediaCarousel
           images={listing.images}
           videoPath={listing.video_path}
@@ -59,17 +131,23 @@ export default async function PropertyDetailPage(
         />
       </section>
 
-      <section className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-6 pb-12 lg:grid-cols-[1fr_380px]">
-        <div className="space-y-6">
-          <section className="rounded-[28px] bg-white p-6 md:p-8">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-6 pb-12 lg:grid-cols-[1fr_380px]">
+        <article className="space-y-6">
+          <section
+            aria-labelledby="overview-heading"
+            className="rounded-[28px] bg-white p-6 md:p-8"
+          >
             <p className="font-space text-[12px] font-bold uppercase tracking-[.18em] text-ink-500/70">
               {t("overviewEyebrow")}
             </p>
-            <h2 className="font-display mt-4 text-[36px] italic leading-none text-ink-900 md:text-[44px]">
+            <h2
+              id="overview-heading"
+              className="font-display mt-4 text-[36px] italic leading-none text-ink-900 md:text-[44px]"
+            >
               {t("overviewTitle")}
             </h2>
 
-            <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4">
+            <ul className="mt-8 grid grid-cols-2 gap-3 list-none ps-0 md:grid-cols-4">
               <StatTile
                 icon={<BedDoubleIcon className="h-5 w-5 text-lime-600" />}
                 value={listing.beds != null ? String(listing.beds) : "—"}
@@ -92,7 +170,7 @@ export default async function PropertyDetailPage(
                 value={t("available")}
                 label={t("availableLabel")}
               />
-            </div>
+            </ul>
           </section>
 
           <DescriptionSection
@@ -101,10 +179,13 @@ export default async function PropertyDetailPage(
             t={t}
           />
 
-          <section>
-            <p className="font-space mb-3 ml-2 text-[12px] font-bold uppercase tracking-[.18em] text-ink-500/70">
+          <section aria-labelledby="location-heading">
+            <h2
+              id="location-heading"
+              className="font-space mb-3 ml-2 text-[12px] font-bold uppercase tracking-[.18em] text-ink-500/70"
+            >
               {t("locationTitle")}
-            </p>
+            </h2>
             <PropertyLocationMap
               lat={listing.lat}
               lng={listing.lng}
@@ -119,7 +200,7 @@ export default async function PropertyDetailPage(
               </p>
             ) : null}
           </section>
-        </div>
+        </article>
 
         <aside className="space-y-6 lg:sticky lg:top-6 lg:self-start">
           <section className="rounded-[28px] bg-white p-6">
@@ -188,8 +269,8 @@ export default async function PropertyDetailPage(
             </p>
           </section>
         </aside>
-      </section>
-    </div>
+      </div>
+    </main>
   );
 }
 
@@ -203,13 +284,16 @@ function StatTile({
   label: string;
 }) {
   return (
-    <div className="rounded-[22px] bg-ink-50 p-5">
+    <li className="rounded-[22px] bg-ink-50 p-5">
       {icon}
       <p className="font-display mt-5 text-[30px] italic leading-none tracking-tight md:text-[34px]">
+        <span className="sr-only">{label}: </span>
         {value}
       </p>
-      <p className="mt-2 text-[12px] font-bold text-ink-500">{label}</p>
-    </div>
+      <p className="mt-2 text-[12px] font-bold text-ink-500" aria-hidden>
+        {label}
+      </p>
+    </li>
   );
 }
 
@@ -304,4 +388,63 @@ function DescriptionSection({
       </div>
     </section>
   );
+}
+
+type ListingForLd = Awaited<ReturnType<typeof getPublicListingDetail>>;
+
+function buildListingJsonLd(
+  id: string,
+  listing: NonNullable<ListingForLd>,
+): Record<string, unknown> | null {
+  if (listing.status !== "approved") return null;
+
+  const url = `${getSiteUrl()}/properties/${id}`;
+  const photos = listing.images
+    .slice(0, 8)
+    .map((img) => publicStorageUrl(LISTING_BUCKET, img.path));
+
+  const offers = listing.rent
+    ? {
+        "@type": "Offer",
+        price: listing.rent,
+        priceCurrency: "BDT",
+        availability: "https://schema.org/InStock",
+        url,
+      }
+    : undefined;
+
+  const address = {
+    "@type": "PostalAddress",
+    addressLocality: listing.area_name,
+    addressRegion: listing.district ?? undefined,
+    addressCountry: "BD",
+  };
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "Residence",
+    name: listing.title,
+    description: listing.description ?? undefined,
+    url,
+    image: photos.length > 0 ? photos : undefined,
+    address,
+    numberOfRooms: listing.beds ?? undefined,
+    numberOfBathroomsTotal: listing.baths ?? undefined,
+    floorSize: listing.area_sqft
+      ? {
+          "@type": "QuantitativeValue",
+          value: listing.area_sqft,
+          unitCode: "FTK",
+        }
+      : undefined,
+    geo:
+      listing.is_premium_viewer && listing.lat != null && listing.lng != null
+        ? {
+            "@type": "GeoCoordinates",
+            latitude: listing.lat,
+            longitude: listing.lng,
+          }
+        : undefined,
+    offers,
+  };
 }

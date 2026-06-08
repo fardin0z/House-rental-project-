@@ -28,60 +28,69 @@ export function PropertyCard({
     ? "bg-lime-400 text-ink-900"
     : "bg-white text-ink-900";
 
+  const titleId = `listing-${listing.id}-title`;
   return (
-    <Link href={`/properties/${listing.id}`} className={wrapperClass}>
-      <div className="flex gap-4">
-        <div className="relative h-32 w-36 shrink-0 overflow-hidden rounded-[18px] bg-ink-100">
-          {listing.cover_path ? (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img
-              src={publicStorageUrl(LISTING_BUCKET, listing.cover_path)}
-              alt={listing.title}
-              className="h-full w-full object-cover"
-            />
-          ) : null}
-          <span className="absolute left-2 top-2 rounded-full bg-lime-400 px-3 py-1 text-[10px] font-bold text-ink-900">
-            {verifiedLabel}
-          </span>
-        </div>
-        <div className="min-w-0 flex-1 py-1">
-          <h3 className="font-display truncate text-[28px] italic leading-none tracking-tight">
-            {listing.title}
-          </h3>
-          <p className={`mt-2 truncate text-[13px] font-medium ${mutedText}`}>
-            {listing.district || listing.area_name}
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {listing.beds != null ? (
-              <span className={`rounded-full px-3 py-1 text-[11px] font-bold ${pillBg}`}>
-                {listing.beds} {bedsLabel}
-              </span>
+    <article aria-labelledby={titleId}>
+      <Link href={`/properties/${listing.id}`} className={wrapperClass}>
+        <div className="flex gap-4">
+          <figure className="relative m-0 h-32 w-36 shrink-0 overflow-hidden rounded-[18px] bg-ink-100">
+            {listing.cover_path ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={publicStorageUrl(LISTING_BUCKET, listing.cover_path)}
+                alt={`${listing.title} — ${
+                  listing.district || listing.area_name
+                }`}
+                className="h-full w-full object-cover"
+              />
             ) : null}
-            {listing.baths != null ? (
-              <span className={`rounded-full px-3 py-1 text-[11px] font-bold ${pillBg}`}>
-                {listing.baths} {bathsLabel}
-              </span>
-            ) : null}
-            {listing.area_sqft != null ? (
-              <span className={`rounded-full px-3 py-1 text-[11px] font-bold ${pillBg}`}>
-                {listing.area_sqft} {sqftLabel}
-              </span>
-            ) : null}
-          </div>
-          <div className="mt-4 flex items-center justify-between gap-2">
-            <p className="font-display text-[28px] italic leading-none tracking-tight">
-              {listing.rent
-                ? `৳ ${listing.rent.toLocaleString("bn-BD")}`
-                : "—"}
-            </p>
-            <span
-              className={`inline-flex h-10 w-10 items-center justify-center rounded-full ${ctaBg}`}
+            <figcaption className="absolute left-2 top-2 rounded-full bg-lime-400 px-3 py-1 text-[10px] font-bold text-ink-900">
+              {verifiedLabel}
+            </figcaption>
+          </figure>
+          <div className="min-w-0 flex-1 py-1">
+            <h3
+              id={titleId}
+              className="font-display truncate text-[28px] italic leading-none tracking-tight"
             >
-              <ArrowUpRightIcon className="h-4 w-4" />
-            </span>
+              {listing.title}
+            </h3>
+            <p className={`mt-2 truncate text-[13px] font-medium ${mutedText}`}>
+              {listing.district || listing.area_name}
+            </p>
+            <ul className="mt-4 flex flex-wrap gap-2 list-none ps-0">
+              {listing.beds != null ? (
+                <li className={`rounded-full px-3 py-1 text-[11px] font-bold ${pillBg}`}>
+                  {listing.beds} {bedsLabel}
+                </li>
+              ) : null}
+              {listing.baths != null ? (
+                <li className={`rounded-full px-3 py-1 text-[11px] font-bold ${pillBg}`}>
+                  {listing.baths} {bathsLabel}
+                </li>
+              ) : null}
+              {listing.area_sqft != null ? (
+                <li className={`rounded-full px-3 py-1 text-[11px] font-bold ${pillBg}`}>
+                  {listing.area_sqft} {sqftLabel}
+                </li>
+              ) : null}
+            </ul>
+            <p className="mt-4 flex items-center justify-between gap-2">
+              <span className="font-display text-[28px] italic leading-none tracking-tight">
+                {listing.rent
+                  ? `৳ ${listing.rent.toLocaleString("bn-BD")}`
+                  : "—"}
+              </span>
+              <span
+                aria-hidden
+                className={`inline-flex h-10 w-10 items-center justify-center rounded-full ${ctaBg}`}
+              >
+                <ArrowUpRightIcon className="h-4 w-4" />
+              </span>
+            </p>
           </div>
         </div>
-      </div>
-    </Link>
+      </Link>
+    </article>
   );
 }

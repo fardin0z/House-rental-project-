@@ -15,7 +15,7 @@ import {
   XIcon,
 } from "lucide-react";
 import { signOutAction } from "@/lib/auth/actions";
-import { BrandMark } from "@/components/shared/brand-mark";
+import { Logo } from "@/components/shared/logo";
 
 const ICONS = {
   LayoutGridIcon,
@@ -93,22 +93,19 @@ export function AdminSidebar({
           (open ? "translate-x-0" : "-translate-x-[110%]")
         }
       >
-        <div className="flex items-center justify-between pb-6 pl-2">
-          <Link
-            href="/admin"
-            className="flex items-center gap-2.5"
-            onClick={() => setOpen(false)}
-          >
-            <BrandMark className="h-9 w-9" />
-            <span className="flex flex-col leading-none">
-              <span className="text-[16px] font-bold tracking-tight">
-                {brand}
-              </span>
-              <span className="mt-1 text-[10px] font-bold uppercase tracking-[.18em] text-lime-400">
-                {panelLabel}
-              </span>
+        <div className="flex items-center justify-between gap-3 pb-6">
+          <div className="flex items-center gap-3">
+            <Logo
+              href="/admin"
+              size="sm"
+              variant="dark"
+              ariaLabel={brand}
+              className="shrink-0"
+            />
+            <span className="text-[11px] font-bold uppercase tracking-[.18em] text-lime-400">
+              {panelLabel}
             </span>
-          </Link>
+          </div>
           <button
             type="button"
             onClick={() => setOpen(false)}

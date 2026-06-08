@@ -27,6 +27,7 @@ export type PublicListing = {
 };
 
 export type PublicListingDetail = PublicListing & {
+  status: "draft" | "pending" | "approved" | "rejected" | "archived";
   description: string | null;
   video_path: string | null;
   images: ListingImageRow[];
@@ -205,6 +206,7 @@ export async function getPublicListingDetail(
     lat: canSeeExact ? listing.lat : roundCoord(listing.lat),
     lng: canSeeExact ? listing.lng : roundCoord(listing.lng),
     cover_path: cover?.path ?? null,
+    status: listing.status,
     description: canSeeExact ? listing.description : null,
     video_path: canSeeExact ? listing.video_path : null,
     images: sortedImages,

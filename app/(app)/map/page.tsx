@@ -57,8 +57,11 @@ export default async function MapPage({
     });
 
   return (
-    <div>
-      <section className="mx-auto max-w-7xl px-6 pb-4 pt-8">
+    <main>
+      <nav
+        aria-label={tListings("backToListings")}
+        className="mx-auto max-w-7xl px-6 pb-4 pt-8"
+      >
         <Link
           href="/listings"
           className="inline-flex items-center gap-2 text-[13px] font-bold text-ink-500 transition-colors hover:text-ink-900"
@@ -66,9 +69,9 @@ export default async function MapPage({
           <ArrowLeftIcon className="h-4 w-4" />
           {tListings("backToListings")}
         </Link>
-      </section>
+      </nav>
 
-      <section className="mx-auto max-w-7xl px-6 pb-6">
+      <header className="mx-auto max-w-7xl px-6 pb-6">
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="font-display text-[20px] italic leading-none text-lime-600">
@@ -82,9 +85,12 @@ export default async function MapPage({
             {t("count", { count: mapListings.length })}
           </p>
         </div>
-      </section>
+      </header>
 
-      <section className="mx-auto max-w-7xl px-6 pb-12">
+      <section
+        aria-label={t("heading")}
+        className="mx-auto max-w-7xl px-6 pb-12"
+      >
         <ListingsMap
           listings={mapListings}
           labels={{
@@ -94,6 +100,6 @@ export default async function MapPage({
           }}
         />
       </section>
-    </div>
+    </main>
   );
 }

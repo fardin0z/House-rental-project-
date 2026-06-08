@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowLeftIcon, ShieldCheckIcon } from "lucide-react";
-import { BrandMark } from "@/components/shared/brand-mark";
+import { Logo } from "@/components/shared/logo";
 
 const HERO_IMAGE =
   "https://images.unsplash.com/photo-1600607688969-a5bfcd646154?w=2200&q=90&auto=format&fit=crop";
@@ -55,17 +55,7 @@ export function AuthShell({
           <div className="auth-overlay absolute inset-0 z-[1]" />
 
           <header className="relative z-10 flex items-start px-6 pt-6 md:px-8 md:pt-8">
-            <Link href="/" className="flex items-center gap-2.5">
-              <BrandMark className="h-9 w-9" />
-              <span>
-                <span className="font-space block text-[20px] font-semibold leading-none tracking-tight text-white">
-                  {appName}
-                </span>
-                <span className="mt-1 block text-[12px] font-semibold text-white/60">
-                  {appNameBn}
-                </span>
-              </span>
-            </Link>
+            <Logo size="md" variant="dark" ariaLabel={appName} />
           </header>
 
           <div className="relative z-[3] flex-1" />

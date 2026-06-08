@@ -15,7 +15,7 @@ import {
 } from "@/lib/listings/queries";
 import { LISTING_BUCKET, publicStorageUrl } from "@/lib/storage/paths";
 import { AppHeader } from "@/components/shared/app-header";
-import { BrandMark } from "@/components/shared/brand-mark";
+import { Logo } from "@/components/shared/logo";
 import { HeroSearch } from "@/components/landing/hero-search";
 
 const HERO_IMAGE =
@@ -702,10 +702,7 @@ function SiteFooter({
     <footer className="mx-auto mb-6 max-w-7xl rounded-[14px] bg-[#101010] px-6 py-10 text-white md:mb-8 md:px-10 md:py-12">
       <div className="grid grid-cols-1 gap-10 md:grid-cols-[1.4fr_1fr_1fr_1.1fr]">
         <div>
-          <div className="flex items-center gap-2.5">
-            <BrandMark className="h-9 w-9" />
-            <h3 className="text-[18px] font-bold tracking-tight">{brand}</h3>
-          </div>
+          <Logo size="md" variant="dark" ariaLabel={brand} />
           <p className="mt-4 max-w-[320px] text-[12px] leading-relaxed text-white/55">
             {tagline}
           </p>

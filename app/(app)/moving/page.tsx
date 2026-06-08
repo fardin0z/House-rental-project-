@@ -10,8 +10,8 @@ export default async function MovingRequestPage() {
   const defaultPhone = formatBdPhoneForDisplay(profile.phone) || "";
 
   return (
-    <div>
-      <section className="mx-auto max-w-7xl px-6 pb-8 pt-10">
+    <main>
+      <header className="mx-auto max-w-7xl px-6 pb-8 pt-10">
         <p className="font-display text-[24px] italic leading-none text-lime-600">
           {t("eyebrow")}
         </p>
@@ -21,19 +21,28 @@ export default async function MovingRequestPage() {
         <p className="mt-7 max-w-[520px] text-[15px] font-medium leading-relaxed text-ink-500">
           {t("subtitle")}
         </p>
-      </section>
+      </header>
 
-      <section className="mx-auto grid max-w-7xl gap-6 px-6 pb-12 lg:grid-cols-[1.4fr_1fr]">
-        <div className="rounded-[28px] bg-ink-50 p-5 md:p-7">
+      <section
+        aria-label={t("heading")}
+        className="mx-auto grid max-w-7xl gap-6 px-6 pb-12 lg:grid-cols-[1.4fr_1fr]"
+      >
+        <article className="rounded-[28px] bg-ink-50 p-5 md:p-7">
           <MovingForm defaultPhone={defaultPhone} />
-        </div>
+        </article>
 
-        <aside className="space-y-4">
+        <aside
+          aria-labelledby="moving-info-title"
+          className="space-y-4"
+        >
           <div className="rounded-[24px] bg-ink-900 p-6 text-white">
-            <p className="text-[11px] font-bold uppercase tracking-[.18em] text-white/40">
+            <h2
+              id="moving-info-title"
+              className="text-[11px] font-bold uppercase tracking-[.18em] text-white/40"
+            >
               {t("infoTitle")}
-            </p>
-            <div className="mt-5 space-y-5">
+            </h2>
+            <ul className="mt-5 space-y-5 list-none ps-0">
               <InfoLine
                 icon={<PhoneCallIcon className="h-4 w-4" />}
                 title={t("info1Title")}
@@ -49,11 +58,11 @@ export default async function MovingRequestPage() {
                 title={t("info3Title")}
                 body={t("info3Body")}
               />
-            </div>
+            </ul>
           </div>
         </aside>
       </section>
-    </div>
+    </main>
   );
 }
 
@@ -67,18 +76,18 @@ function InfoLine({
   body: string;
 }) {
   return (
-    <div className="flex items-start gap-3">
+    <li className="flex items-start gap-3">
       <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-lime-400 text-ink-900">
         {icon}
       </span>
       <div>
-        <p className="text-[14px] font-bold text-white">{title}</p>
+        <h3 className="text-[14px] font-bold text-white">{title}</h3>
         <p className="mt-1 text-[13px] font-medium text-white/65">{body}</p>
       </div>
       <CheckIcon
         className="ml-auto hidden h-4 w-4 text-lime-400 md:block"
         aria-hidden
       />
-    </div>
+    </li>
   );
 }

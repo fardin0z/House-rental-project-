@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import {
@@ -10,6 +11,13 @@ import { LoginForm } from "@/components/auth/login-form";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { getCurrentSession } from "@/lib/auth/guards";
 import { redirectPathForRole } from "@/lib/auth/jwt-claims";
+
+export const metadata: Metadata = {
+  title: "লগইন",
+  description: "ToletZoo অ্যাকাউন্টে লগইন করুন।",
+  alternates: { canonical: "/login" },
+  robots: { index: false, follow: true },
+};
 
 export default async function LoginPage() {
   const session = await getCurrentSession();

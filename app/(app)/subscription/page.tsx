@@ -40,8 +40,8 @@ export default async function SubscriptionPage({
   const isPremium = Boolean(subscription && subscription.tier === "premium");
 
   return (
-    <div>
-      <section className="mx-auto max-w-5xl px-6 pb-8 pt-10">
+    <main>
+      <header className="mx-auto max-w-5xl px-6 pb-8 pt-10">
         <p className="font-display text-[22px] italic leading-none text-lime-600">
           {t("eyebrow")}
         </p>
@@ -51,11 +51,15 @@ export default async function SubscriptionPage({
         <p className="mt-7 max-w-[480px] text-[15px] font-medium leading-relaxed text-ink-500">
           {t("subtitle")}
         </p>
-      </section>
+      </header>
 
       {banner ? (
-        <section className="mx-auto max-w-5xl px-6 pb-6">
+        <section
+          aria-live="polite"
+          className="mx-auto max-w-5xl px-6 pb-6"
+        >
           <div
+            role={status === "fail" ? "alert" : "status"}
             className={
               status === "success"
                 ? "rounded-[20px] border border-lime-400/30 bg-lime-50 p-5 md:p-6"
@@ -82,7 +86,10 @@ export default async function SubscriptionPage({
         </section>
       ) : null}
 
-      <section className="mx-auto grid max-w-5xl gap-4 px-6 pb-16 md:grid-cols-2">
+      <section
+        aria-label={t("title")}
+        className="mx-auto grid max-w-5xl gap-4 px-6 pb-16 md:grid-cols-2"
+      >
         <PlanCard
           title={t("free")}
           tagline={t("freeTagline")}
@@ -125,7 +132,7 @@ export default async function SubscriptionPage({
           }
         />
       </section>
-    </div>
+    </main>
   );
 }
 

@@ -5,7 +5,15 @@ import { getLocale, getMessages } from "next-intl/server";
 import { Toaster } from "@/components/ui/sonner";
 import { WelcomeModalTrigger } from "@/components/pwa/welcome-modal-trigger";
 import { RegisterServiceWorker } from "@/components/pwa/register-sw";
+import {
+  SITE_NAME,
+  SITE_TAGLINE_BN,
+  SITE_TAGLINE_EN,
+  getSiteUrl,
+} from "@/lib/seo/site";
 import "./globals.css";
+
+const siteUrl = getSiteUrl();
 
 const hindSiliguri = Hind_Siliguri({
   variable: "--font-sans",
@@ -30,18 +38,75 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "ToletZoo — বাসা ভাড়ার নতুন ঠিকানা",
-  description: "যাচাইকৃত মালিকের কাছ থেকে দালাল ছাড়াই বাসা ভাড়া।",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: `${SITE_NAME} — বাসা ভাড়ার নতুন ঠিকানা`,
+    template: `%s · ${SITE_NAME}`,
+  },
+  description: SITE_TAGLINE_BN,
+  applicationName: SITE_NAME,
+  keywords: [
+    "ToletZoo",
+    "বাসা ভাড়া",
+    "house rent bangladesh",
+    "tolet dhaka",
+    "flat for rent dhaka",
+    "rent house bangladesh",
+    "bachelor mess",
+    "family flat dhaka",
+    "sublet dhaka",
+    "verified landlord bangladesh",
+  ],
+  authors: [{ name: SITE_NAME }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
   manifest: "/manifest.webmanifest",
+  alternates: {
+    canonical: "/",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "ToletZoo",
+    title: SITE_NAME,
   },
   icons: {
     icon: [{ url: "/icons/icon.svg", type: "image/svg+xml" }],
     apple: [{ url: "/icons/icon-192.svg", type: "image/svg+xml" }],
   },
+  openGraph: {
+    type: "website",
+    locale: "bn_BD",
+    url: siteUrl,
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} — বাসা ভাড়ার নতুন ঠিকানা`,
+    description: SITE_TAGLINE_EN,
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: SITE_NAME,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${SITE_NAME} — বাসা ভাড়ার নতুন ঠিকানা`,
+    description: SITE_TAGLINE_EN,
+    images: ["/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-snippet": -1,
+      "max-image-preview": "large",
+      "max-video-preview": -1,
+    },
+  },
+  category: "real estate",
 };
 
 export const viewport: Viewport = {

@@ -1,6 +1,8 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { SlidersHorizontalIcon, ArrowUpRightIcon } from "lucide-react";
+import { SITE_NAME, getSiteUrl } from "@/lib/seo/site";
 import {
   getPublicListings,
   type PublicListing,
@@ -22,6 +24,21 @@ const ALLOWED_TYPES: RentalType[] = [
 function asString(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
 }
+
+export const metadata: Metadata = {
+  title: "বাসা ভাড়া খুঁজুন · ম্যাপ ভিউ",
+  description:
+    "ঢাকা ও বাংলাদেশে যাচাইকৃত মালিকের কাছ থেকে সরাসরি বাসা ভাড়া। এলাকা, বাজেট ও বেডরুম অনুযায়ী ফিল্টার করে ম্যাপে দেখুন।",
+  alternates: { canonical: "/properties" },
+  openGraph: {
+    type: "website",
+    url: `${getSiteUrl()}/properties`,
+    title: `বাসা ভাড়া খুঁজুন · ${SITE_NAME}`,
+    description:
+      "Browse verified rental homes across Bangladesh with map view and filters.",
+    images: ["/og-image.png"],
+  },
+};
 
 function asInt(value: string | string[] | undefined): number | undefined {
   const s = asString(value);
@@ -59,8 +76,8 @@ export default async function PropertiesSearchPage({
   const isLandlord = session?.role === "landlord";
 
   return (
-    <div>
-      <section className="mx-auto max-w-7xl px-6 pb-6 pt-8">
+    <main>
+      <header className="mx-auto max-w-7xl px-6 pb-6 pt-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="font-display text-[22px] italic leading-none text-lime-600">
@@ -87,9 +104,12 @@ export default async function PropertiesSearchPage({
         <div className="mt-8">
           <PropertiesSearch />
         </div>
-      </section>
+      </header>
 
-      <section className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-6 pb-10 lg:grid-cols-[420px_1fr]">
+      <section
+        aria-labelledby="properties-results-title"
+        className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-6 pb-10 lg:grid-cols-[420px_1fr]"
+      >
         <SidebarList
           listings={listings}
           hasFilters={hasFilters}
@@ -115,7 +135,7 @@ export default async function PropertiesSearchPage({
           }}
         />
       </section>
-    </div>
+    </main>
   );
 }
 
@@ -138,10 +158,16 @@ function SidebarList({
   };
 }) {
   return (
-    <aside className="rounded-[30px] bg-white p-4">
-      <div className="flex items-center justify-between px-2 py-2">
+    <aside
+      aria-labelledby="properties-results-title"
+      className="rounded-[30px] bg-white p-4"
+    >
+      <header className="flex items-center justify-between px-2 py-2">
         <div>
-          <h2 className="text-[22px] font-bold tracking-tight text-ink-900">
+          <h2
+            id="properties-results-title"
+            className="text-[22px] font-bold tracking-tight text-ink-900"
+          >
             {labels.availableTitle}
           </h2>
           <p className="mt-1 text-[12px] font-semibold text-ink-500">
@@ -155,32 +181,33 @@ function SidebarList({
         >
           <SlidersHorizontalIcon className="h-4 w-4" />
         </button>
-      </div>
+      </header>
 
-      <div className="scroll-soft mt-4 max-h-[760px] space-y-3 overflow-auto pr-1">
-        {listings.length === 0 ? (
-          <div className="rounded-[20px] bg-ink-50 p-6 text-center">
-            <p className="text-[15px] font-bold text-ink-900">
-              {labels.noResultsTitle}
-            </p>
-            <p className="mt-2 text-[13px] font-medium text-ink-500">
-              {hasFilters ? labels.noResultsBody : labels.noResultsBody}
-            </p>
-          </div>
-        ) : (
-          listings.map((l, i) => (
-            <PropertyCard
-              key={l.id}
-              listing={l}
-              active={i === 0}
-              verifiedLabel={labels.verified}
-              bedsLabel={labels.beds}
-              bathsLabel={labels.baths}
-              sqftLabel={labels.sqft}
-            />
-          ))
-        )}
-      </div>
+      {listings.length === 0 ? (
+        <div className="mt-4 rounded-[20px] bg-ink-50 p-6 text-center">
+          <p className="text-[15px] font-bold text-ink-900">
+            {labels.noResultsTitle}
+          </p>
+          <p className="mt-2 text-[13px] font-medium text-ink-500">
+            {hasFilters ? labels.noResultsBody : labels.noResultsBody}
+          </p>
+        </div>
+      ) : (
+        <ul className="scroll-soft mt-4 max-h-190 list-none space-y-3 overflow-auto pr-1 ps-0">
+          {listings.map((l, i) => (
+            <li key={l.id}>
+              <PropertyCard
+                listing={l}
+                active={i === 0}
+                verifiedLabel={labels.verified}
+                bedsLabel={labels.beds}
+                bathsLabel={labels.baths}
+                sqftLabel={labels.sqft}
+              />
+            </li>
+          ))}
+        </ul>
+      )}
     </aside>
   );
 }

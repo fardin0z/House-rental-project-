@@ -14,13 +14,15 @@ export async function ContentPage({
       <AppHeader />
 
       <main className="mx-auto w-full max-w-3xl px-5 py-12 sm:px-6 md:py-16">
-        <span className="slash-label text-xl md:text-2xl">{eyebrow}</span>
-        <h1 className="mt-3 font-display text-4xl italic leading-tight text-ink md:text-5xl">
-          {title}
-        </h1>
-        <div className="mt-8 flex flex-col gap-5 text-base leading-relaxed text-ink/80">
+        <header>
+          <span className="slash-label text-xl md:text-2xl">{eyebrow}</span>
+          <h1 className="mt-3 font-display text-4xl italic leading-tight text-ink md:text-5xl">
+            {title}
+          </h1>
+        </header>
+        <article className="mt-8 flex flex-col gap-5 text-base leading-relaxed text-ink/80">
           {children}
-        </div>
+        </article>
       </main>
     </div>
   );

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import {
@@ -10,6 +11,13 @@ import { SignupForm } from "@/components/auth/signup-form";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { getCurrentSession } from "@/lib/auth/guards";
 import { redirectPathForRole } from "@/lib/auth/jwt-claims";
+
+export const metadata: Metadata = {
+  title: "নতুন অ্যাকাউন্ট",
+  description: "ToletZoo-এ নতুন অ্যাকাউন্ট তৈরি করুন।",
+  alternates: { canonical: "/signup" },
+  robots: { index: false, follow: true },
+};
 
 export default async function SignupPage() {
   const session = await getCurrentSession();
