@@ -762,7 +762,7 @@ function SiteFooter({
                 <span className="block text-[10px] uppercase tracking-wider text-white/40">
                   {phoneLabel}
                 </span>
-                +৮৮০ ১৭xx-xxxxxx
+                +45 91 69 88 47
               </span>
             </li>
           </ul>

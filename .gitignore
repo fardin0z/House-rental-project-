@@ -19,7 +19,6 @@ CLAUDE.md
 /.next/
 /out/
 
-/supabase/
 # production
 /build
 

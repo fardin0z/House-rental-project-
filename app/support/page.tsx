@@ -43,7 +43,7 @@ export default async function SupportPage() {
 
           <li>
             <a
-              href="tel:+8801700000000"
+              href="tel:+4591698847"
               className="flex items-center gap-3 rounded-2xl border border-rule/60 bg-paper p-4 transition-colors hover:border-ink"
             >
               <span
@@ -56,14 +56,14 @@ export default async function SupportPage() {
                 <span className="text-sm font-medium text-ink">
                   {t("phoneLabel")}
                 </span>
-                <span className="text-sm text-ink-soft">+880 1700-000000</span>
+                <span className="text-sm text-ink-soft">+45 91 69 88 47</span>
               </span>
             </a>
           </li>
 
           <li>
             <a
-              href="https://wa.me/8801700000000"
+              href="https://wa.me/4591698847"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3 rounded-2xl border border-rule/60 bg-paper p-4 transition-colors hover:border-ink"
@@ -78,7 +78,7 @@ export default async function SupportPage() {
                 <span className="text-sm font-medium text-ink">
                   {t("whatsappLabel")}
                 </span>
-                <span className="text-sm text-ink-soft">+880 1700-000000</span>
+                <span className="text-sm text-ink-soft">+45 91 69 88 47</span>
               </span>
             </a>
           </li>
