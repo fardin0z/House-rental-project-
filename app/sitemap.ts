@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
-import { getSiteUrl } from "@/lib/seo/site";
+import { CANONICAL_ORIGIN } from "@/lib/seo/site";
 
 const STATIC_ROUTES: Array<{
   path: string;
@@ -17,7 +17,7 @@ const STATIC_ROUTES: Array<{
 export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = getSiteUrl();
+  const base = CANONICAL_ORIGIN;
   const now = new Date();
 
   const entries: MetadataRoute.Sitemap = STATIC_ROUTES.map((r) => ({

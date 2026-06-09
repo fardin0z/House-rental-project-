@@ -751,7 +751,7 @@ function SiteFooter({
                 <span className="block text-[10px] uppercase tracking-wider text-white/40">
                   {emailLabel}
                 </span>
-                support@toletzoo.com
+                hi@toletzoo.com
               </span>
             </li>
             <li className="flex items-center gap-3">

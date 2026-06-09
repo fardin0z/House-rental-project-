@@ -11,11 +11,11 @@ export function getSiteUrl(): string {
   if (!raw) return CANONICAL_ORIGIN;
   try {
     const parsed = new URL(raw);
-    const host = parsed.host.toLowerCase().replace(/^www\./, "");
-    if (host === CANONICAL_HOST || host.endsWith(`.${CANONICAL_HOST}`)) {
-      return CANONICAL_ORIGIN;
+    const host = parsed.host.toLowerCase();
+    if (host.startsWith("localhost") || host.startsWith("127.0.0.1")) {
+      return `${parsed.protocol}//${parsed.host}`;
     }
-    return `https://${host}`.replace(/\/$/, "");
+    return CANONICAL_ORIGIN;
   } catch {
     return CANONICAL_ORIGIN;
   }

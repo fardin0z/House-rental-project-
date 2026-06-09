@@ -21,7 +21,7 @@ export default async function SupportPage() {
         <ul className="flex flex-col gap-3 list-none ps-0">
           <li>
             <a
-              href="mailto:support@toletzoo.com"
+              href="mailto:hi@toletzoo.com"
               className="flex items-center gap-3 rounded-2xl border border-rule/60 bg-paper p-4 transition-colors hover:border-ink"
             >
               <span
@@ -35,7 +35,7 @@ export default async function SupportPage() {
                   {t("emailLabel")}
                 </span>
                 <span className="text-sm text-ink-soft">
-                  support@toletzoo.com
+                  hi@toletzoo.com
                 </span>
               </span>
             </a>
