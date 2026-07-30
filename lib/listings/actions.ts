@@ -133,6 +133,8 @@ export async function updateListingAction(
 
   revalidatePath(`/listings/${listingId}`);
   revalidatePath(`/listings/${listingId}/edit`);
+  revalidatePath(`/properties/${listingId}`);
+  revalidatePath("/properties");
   revalidatePath("/listings");
   return { ok: true };
 }
@@ -294,6 +296,8 @@ export async function setListingLocationAction(
 
   revalidatePath(`/listings/${listingId}/edit`);
   revalidatePath(`/listings/${listingId}`);
+  revalidatePath(`/properties/${listingId}`);
+  revalidatePath("/properties");
   revalidatePath("/map");
 }
 

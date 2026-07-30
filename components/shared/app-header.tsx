@@ -3,7 +3,6 @@ import { ArrowLeftIcon, ArrowRightIcon, BellIcon } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { getCurrentProfile } from "@/lib/auth/guards";
 import { redirectPathForRole } from "@/lib/auth/jwt-claims";
-import { RoleSwitcher } from "@/components/shared/role-switcher";
 import { MainMenu } from "@/components/shared/main-menu";
 import { Logo } from "@/components/shared/logo";
 import { formatBdPhoneForDisplay } from "@/lib/auth/phone";
@@ -58,8 +57,14 @@ export async function AppHeader({
               href: redirectPathForRole(profile?.role ?? null),
             });
     return (
-      <header className="relative z-10 flex items-start justify-between px-8 pt-7 max-[900px]:px-5">
-        <Logo size="md" variant="dark" priority ariaLabel={tCommon("appName")} />
+      <header className="relative z-10 flex items-start justify-between gap-3 px-8 pt-7 max-[900px]:px-4 max-[900px]:pt-4">
+        <Logo
+          size="md"
+          variant="dark"
+          priority
+          ariaLabel={tCommon("appName")}
+          className="max-[900px]:max-w-[104px]"
+        />
 
         {navLinks && navLinks.length > 0 ? (
           <nav className="absolute left-1/2 top-5 flex -translate-x-1/2 items-center gap-1 rounded-full border border-white/20 bg-white/40 px-1.5 py-1.5 backdrop-blur-[18px] max-[900px]:hidden">
@@ -79,26 +84,16 @@ export async function AppHeader({
           </nav>
         ) : null}
 
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2 max-[900px]:gap-1.5">
           <Link
             href={resolvedCta.href}
-            className="inline-flex h-11 items-center justify-center gap-1.5 rounded-full bg-greenx px-6 text-[14px] font-bold text-black transition-transform hover:scale-[1.03]"
+            className="inline-flex h-11 items-center justify-center gap-1.5 rounded-full bg-greenx px-6 text-[14px] font-bold text-black transition-transform hover:scale-[1.03] max-[900px]:h-10 max-[900px]:px-4 max-[900px]:text-[12px]"
           >
             {resolvedCta.label}
             <ArrowRightIcon className="h-3.5 w-3.5" />
           </Link>
           <div className="hidden max-[900px]:block">
-            <MainMenu
-              isAuthed={isAuthed}
-              role={profile?.role ?? null}
-              nidStatus={profile?.nid_status ?? null}
-              roleSwitchLabels={{
-                tenant: tHeader("roleTenant"),
-                landlord: tHeader("roleLandlord"),
-                nidPending: tHeader("nidPending"),
-                nidRejected: tHeader("nidRejected"),
-              }}
-            />
+            <MainMenu isAuthed={isAuthed} role={profile?.role ?? null} />
           </div>
         </div>
       </header>
@@ -154,18 +149,6 @@ export async function AppHeader({
       <div className="flex items-center gap-3">
         {profile ? (
           <>
-            <div className="hidden md:block">
-              <RoleSwitcher
-                role={profile.role}
-                nidStatus={profile.nid_status}
-                labels={{
-                  tenant: tHeader("roleTenant"),
-                  landlord: tHeader("roleLandlord"),
-                  nidPending: tHeader("nidPending"),
-                  nidRejected: tHeader("nidRejected"),
-                }}
-              />
-            </div>
             <button
               type="button"
               aria-label="Notifications"
@@ -181,17 +164,7 @@ export async function AppHeader({
                 {displayName}
               </span>
             </div>
-            <MainMenu
-              isAuthed
-              role={profile.role}
-              nidStatus={profile.nid_status}
-              roleSwitchLabels={{
-                tenant: tHeader("roleTenant"),
-                landlord: tHeader("roleLandlord"),
-                nidPending: tHeader("nidPending"),
-                nidRejected: tHeader("nidRejected"),
-              }}
-            />
+            <MainMenu isAuthed role={profile.role} />
           </>
         ) : (
           <MainMenu isAuthed={false} />

@@ -20,6 +20,9 @@ export const signupInput = z.object({
   name: z.string().min(2, "নাম দিন").max(80),
   identifier: identifierSchema,
   password: passwordSchema,
+  role: z.enum(["tenant", "landlord"], {
+    message: "ভূমিকা নির্বাচন করুন",
+  }),
 });
 
 export const resetRequestInput = z.object({

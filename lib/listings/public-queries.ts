@@ -2,6 +2,7 @@ import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getCurrentSession } from "@/lib/auth/guards";
 import { hasActivePremium } from "@/lib/payments/queries";
+import { expandAreaQuery } from "./area-index";
 import type {
   ListingImageRow,
   ListingRow,
@@ -93,10 +94,15 @@ export async function getPublicListings(
     .eq("status", "approved");
 
   if (area?.trim()) {
-    const safe = escape(area.trim());
-    query = query.or(
-      `area_name.ilike.%${safe}%,district.ilike.%${safe}%,division.ilike.%${safe}%`,
-    );
+    const variants = expandAreaQuery(area).map((v) => escape(v));
+    const clauses = variants.flatMap((v) => [
+      `area_name.ilike.%${v}%`,
+      `district.ilike.%${v}%`,
+      `division.ilike.%${v}%`,
+      `title.ilike.%${v}%`,
+      `description.ilike.%${v}%`,
+    ]);
+    if (clauses.length > 0) query = query.or(clauses.join(","));
   }
   if (type) query = query.eq("rental_type", type);
   if (budget) {

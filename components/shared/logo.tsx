@@ -43,9 +43,9 @@ export function Logo({
       width={width}
       height={height}
       priority={priority}
-      sizes={`${width}px`}
-      className="h-auto w-auto"
-      style={{ width, height }}
+      sizes={`(max-width: 900px) 104px, ${width}px`}
+      className="h-auto w-full"
+      style={{ maxWidth: width, maxHeight: height }}
     />
   );
 

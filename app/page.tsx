@@ -242,7 +242,7 @@ async function Hero(props: {
   secondaryCta: { label: string; href: string };
 }) {
   return (
-    <section className="relative mx-6 mt-6 h-[680px] overflow-hidden rounded-[18px] bg-[#111] max-[900px]:mx-3 max-[900px]:mt-3 max-[900px]:h-[820px]">
+    <section className="relative mx-6 mt-6 h-[680px] overflow-hidden rounded-[18px] bg-[#111] max-[900px]:mx-3 max-[900px]:mt-3 max-[900px]:h-[900px]">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         className="absolute inset-0 h-full w-full object-cover saturate-[.78] brightness-[.86]"
@@ -253,8 +253,8 @@ async function Hero(props: {
 
       <AppHeader variant="floating" navLinks={props.navLinks} />
 
-      <div className="absolute bottom-[125px] left-[34px] right-[34px] z-[4] grid grid-cols-[1.35fr_.92fr] items-end gap-9 max-[900px]:bottom-[305px] max-[900px]:left-6 max-[900px]:right-6 max-[900px]:grid-cols-1 max-[900px]:gap-5">
-        <h1 className="m-0 text-[clamp(44px,5.8vw,86px)] font-bold leading-[1.02] tracking-tight text-white/95">
+      <div className="absolute bottom-[125px] left-[34px] right-[34px] z-[4] grid grid-cols-[1.35fr_.92fr] items-end gap-9 max-[900px]:bottom-[420px] max-[900px]:left-5 max-[900px]:right-5 max-[900px]:grid-cols-1 max-[900px]:gap-4">
+        <h1 className="m-0 text-[clamp(44px,5.8vw,86px)] font-bold leading-[1.02] tracking-tight text-white/95 max-[900px]:text-[38px] max-[900px]:leading-[1.05]">
           {props.title}
         </h1>
         <div>

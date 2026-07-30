@@ -245,7 +245,22 @@
     "uploadPick": "ছবি নির্বাচন করুন",
     "uploadFailed": "আপলোড ব্যর্থ",
     "submitNid": "যাচাইয়ের জন্য জমা দিন",
-    "nextStep": "পরের ধাপ"
+    "nextStep": "পরের ধাপ",
+    "verifyEmailTitle": "ইমেইল যাচাই করুন",
+    "verifyEmailSubtitle": "আপনার ইমেইলে পাঠানো লিংকে ক্লিক করে অ্যাকাউন্ট সক্রিয় করুন",
+    "verifyEmailSent": "আমরা {email} ঠিকানায় একটি যাচাইকরণ লিংক পাঠিয়েছি।",
+    "verifyEmailHint": "মেইল না পেলে স্প্যাম বা প্রোমোশন ফোল্ডার চেক করুন।",
+    "verifyEmailResend": "আবার লিংক পাঠান",
+    "verifyEmailResent": "নতুন লিংক পাঠানো হয়েছে।",
+    "showPassword": "পাসওয়ার্ড দেখান",
+    "hidePassword": "পাসওয়ার্ড লুকান",
+    "verifyPhoneTitle": "মোবাইল নম্বর যাচাই করুন",
+    "verifyPhoneSubtitle": "আপনার মোবাইলে পাঠানো ৬ সংখ্যার কোডটি দিন",
+    "verifyPhoneSent": "{phone} নম্বরে OTP পাঠানো হয়েছে",
+    "verifyPhoneCodeLabel": "যাচাইকরণ কোড",
+    "verifyPhoneCta": "যাচাই করুন",
+    "verifyPhoneResend": "কোড আবার পাঠান",
+    "verifyPhoneResent": "নতুন কোড পাঠানো হয়েছে।"
   },
   "listings": {
     "title": "বাসার তালিকা",

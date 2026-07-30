@@ -69,7 +69,13 @@ export function LocationPicker({
         );
         url.searchParams.set("q", query.trim());
         url.searchParams.set("country", "bd");
-        url.searchParams.set("limit", "5");
+        url.searchParams.set("limit", "10");
+        url.searchParams.set(
+          "types",
+          "place,neighborhood,locality,address,street,postcode,district",
+        );
+        url.searchParams.set("proximity", "90.4125,23.8103");
+        url.searchParams.set("language", "bn,en");
         url.searchParams.set("access_token", MAPBOX_TOKEN);
         const res = await fetch(url.toString());
         if (!res.ok) {

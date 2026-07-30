@@ -66,6 +66,7 @@ export async function signupAction(
     name: formData.get("name"),
     identifier: formData.get("identifier"),
     password: formData.get("password"),
+    role: formData.get("role"),
   });
 
   if (!parsed.success) {
@@ -81,21 +82,47 @@ export async function signupAction(
       ? { email: id.email, password: parsed.data.password }
       : { phone: id.phone, password: parsed.data.password };
 
+  const { CANONICAL_ORIGIN } = await import("@/lib/seo/site");
   const { data, error } = await supabase.auth.signUp({
     ...credentials,
-    options: { data: { name: parsed.data.name } },
+    options: {
+      data: {
+        name: parsed.data.name,
+        role: parsed.data.role,
+      },
+      emailRedirectTo:
+        id.kind === "email" ? `${CANONICAL_ORIGIN}/login` : undefined,
+    },
   });
 
   if (error) {
     return { error: mapAuthError(error.message) };
   }
 
+  if (id.kind === "phone") {
+    const { requestPhoneOtpAction } = await import("@/lib/sms/otp-actions");
+    const otpForm = new FormData();
+    otpForm.set("phone", id.phone);
+    await requestPhoneOtpAction({}, otpForm);
+    return {
+      ok: true,
+      redirectTo: `/verify-phone?phone=${encodeURIComponent(id.phone)}`,
+    };
+  }
+
   if (!data.session) {
-    return { error: "অ্যাকাউন্ট তৈরি হয়েছে। এখন লগইন পেজ থেকে প্রবেশ করুন।" };
+    return {
+      ok: true,
+      redirectTo: `/verify-email?email=${encodeURIComponent(id.email)}`,
+    };
   }
 
   revalidatePath("/", "layout");
-  return { ok: true, redirectTo: "/onboarding/role" };
+  const { redirectPathForRole } = await import("@/lib/auth/jwt-claims");
+  return {
+    ok: true,
+    redirectTo: redirectPathForRole(parsed.data.role),
+  };
 }
 
 export async function requestPasswordResetAction(
@@ -153,6 +180,27 @@ export async function signOutAction() {
   await supabase.auth.signOut();
   revalidatePath("/", "layout");
   redirect("/");
+}
+
+export async function resendVerificationAction(
+  _state: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    return { error: "বৈধ ইমেইল দিন" };
+  }
+
+  const { CANONICAL_ORIGIN } = await import("@/lib/seo/site");
+  const supabase = await getSupabaseServerClient();
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email,
+    options: { emailRedirectTo: `${CANONICAL_ORIGIN}/login` },
+  });
+
+  if (error) return { error: mapAuthError(error.message) };
+  return { ok: true };
 }
 
 function flattenZodErrors(error: import("zod").ZodError) {

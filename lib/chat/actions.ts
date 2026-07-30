@@ -22,13 +22,13 @@ export async function openConversationWithLandlord(listingId: string) {
     .maybeSingle();
 
   if (listingError || !listing) {
-    redirect(`/listings/${listingId}`);
+    redirect(`/properties/${listingId}`);
   }
   if (listing.owner_id === tenantId) {
-    redirect(`/listings/${listingId}`);
+    redirect(`/properties/${listingId}`);
   }
   if (listing.status !== "approved") {
-    redirect(`/listings/${listingId}`);
+    redirect(`/properties/${listingId}`);
   }
 
   const { data: existing } = await supabase
@@ -55,7 +55,7 @@ export async function openConversationWithLandlord(listingId: string) {
 
   if (createError || !created) {
     console.error("[openConversation]", createError);
-    redirect(`/listings/${listingId}`);
+    redirect(`/properties/${listingId}`);
   }
 
   revalidatePath("/chat");

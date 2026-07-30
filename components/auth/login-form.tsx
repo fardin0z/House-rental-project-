@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { ArrowUpRightIcon, LockIcon, MailIcon } from "lucide-react";
+import { ArrowUpRightIcon, MailIcon } from "lucide-react";
 import { loginAction, type ActionState } from "@/lib/auth/actions";
+import { PasswordField } from "./password-field";
 
 const initial: ActionState = {};
 
@@ -41,23 +42,15 @@ export function LoginForm() {
         ) : null}
       </InputCard>
 
-      <InputCard
+      <PasswordField
         label={t("passwordLabel")}
-        icon={<LockIcon className="h-5 w-5 text-ink-500/40" />}
-      >
-        <input
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          placeholder="••••••••"
-          aria-invalid={Boolean(state.fieldErrors?.password)}
-          required
-          className="w-full border-0 bg-transparent text-[17px] font-semibold tracking-tight text-ink-900 outline-none placeholder:text-ink-500/35"
-        />
-        {state.fieldErrors?.password ? (
-          <FieldError message={state.fieldErrors.password} />
-        ) : null}
-      </InputCard>
+        name="password"
+        autoComplete="current-password"
+        invalid={Boolean(state.fieldErrors?.password)}
+      />
+      {state.fieldErrors?.password ? (
+        <FieldError message={state.fieldErrors.password} />
+      ) : null}
 
       <div className="flex items-center justify-end">
         <Link

@@ -1,18 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { ArrowUpRightIcon, LockIcon, MailIcon, UserIcon } from "lucide-react";
+import {
+  ArrowUpRightIcon,
+  KeyRoundIcon,
+  MailIcon,
+  SearchIcon,
+  UserIcon,
+} from "lucide-react";
 import { signupAction, type ActionState } from "@/lib/auth/actions";
+import { PasswordField } from "./password-field";
 
+type Role = "tenant" | "landlord";
 const initial: ActionState = {};
 
 export function SignupForm() {
   const t = useTranslations("auth");
   const router = useRouter();
   const [state, formAction, pending] = useActionState(signupAction, initial);
+  const [role, setRole] = useState<Role>("tenant");
 
   useEffect(() => {
     if (state.ok && state.redirectTo) {
@@ -22,6 +31,31 @@ export function SignupForm() {
 
   return (
     <form action={formAction} className="space-y-4">
+      <input type="hidden" name="role" value={role} />
+
+      <fieldset className="rounded-[18px] bg-white p-4">
+        <legend className="mb-3 block text-[12px] font-bold text-ink-500">
+          {t("roleSelectTitle")}
+        </legend>
+        <div className="grid grid-cols-2 gap-2">
+          <RoleOption
+            active={role === "tenant"}
+            icon={<SearchIcon className="h-5 w-5" />}
+            label={t("roleTenant")}
+            onClick={() => setRole("tenant")}
+          />
+          <RoleOption
+            active={role === "landlord"}
+            icon={<KeyRoundIcon className="h-5 w-5" />}
+            label={t("roleLandlord")}
+            onClick={() => setRole("landlord")}
+          />
+        </div>
+        {state.fieldErrors?.role ? (
+          <FieldError message={state.fieldErrors.role} />
+        ) : null}
+      </fieldset>
+
       <InputCard
         label={t("nameLabel")}
         icon={<UserIcon className="h-5 w-5 text-ink-500/40" />}
@@ -59,23 +93,16 @@ export function SignupForm() {
         ) : null}
       </InputCard>
 
-      <InputCard
+      <PasswordField
         label={t("passwordLabel")}
-        icon={<LockIcon className="h-5 w-5 text-ink-500/40" />}
-      >
-        <input
-          name="password"
-          type="password"
-          autoComplete="new-password"
-          placeholder={t("passwordHint")}
-          aria-invalid={Boolean(state.fieldErrors?.password)}
-          required
-          className="w-full border-0 bg-transparent text-[17px] font-semibold tracking-tight text-ink-900 outline-none placeholder:text-ink-500/35"
-        />
-        {state.fieldErrors?.password ? (
-          <FieldError message={state.fieldErrors.password} />
-        ) : null}
-      </InputCard>
+        name="password"
+        placeholder={t("passwordHint")}
+        autoComplete="new-password"
+        invalid={Boolean(state.fieldErrors?.password)}
+      />
+      {state.fieldErrors?.password ? (
+        <FieldError message={state.fieldErrors.password} />
+      ) : null}
 
       <p className="min-h-5 text-[13px] font-semibold leading-5 text-red-600">
         {state.error ?? ""}
@@ -97,6 +124,34 @@ export function SignupForm() {
         </Link>
       </p>
     </form>
+  );
+}
+
+function RoleOption({
+  active,
+  icon,
+  label,
+  onClick,
+}: {
+  active: boolean;
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={
+        active
+          ? "inline-flex items-center justify-center gap-2 rounded-full bg-ink-900 px-4 py-3 text-[13px] font-bold text-white shadow-[0_0_0_2px_#A4E861] transition"
+          : "inline-flex items-center justify-center gap-2 rounded-full bg-ink-50 px-4 py-3 text-[13px] font-bold text-ink-900 transition hover:bg-ink-100"
+      }
+    >
+      {icon}
+      {label}
+    </button>
   );
 }
 

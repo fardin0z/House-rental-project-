@@ -1,7 +1,6 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { requireUserId } from "@/lib/auth/guards";
 import { setRoleInput, submitNidInput } from "./onboarding-schema";
@@ -65,23 +64,6 @@ export async function submitNidAction(
   }
 
   redirect("/");
-}
-
-export async function switchRoleAction(role: "tenant" | "landlord") {
-  const userId = await requireUserId();
-  const supabase = await getSupabaseServerClient();
-
-  const { error } = await supabase
-    .from("profiles")
-    .update({ role })
-    .eq("id", userId);
-
-  if (error) {
-    console.error("[switchRole]", error);
-    throw new Error("ভূমিকা পরিবর্তন করা যায়নি। আবার চেষ্টা করুন।");
-  }
-
-  revalidatePath("/", "layout");
 }
 
 function flatten(error: import("zod").ZodError) {
