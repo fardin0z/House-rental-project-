@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { parseIdentifier } from "./identifier";
 import {
@@ -17,6 +18,20 @@ export type ActionState = {
   ok?: boolean;
   redirectTo?: string;
 };
+
+async function getRequestOrigin(): Promise<string> {
+  const h = await headers();
+  const forwardedProto = (h.get("x-forwarded-proto") ?? "").split(",")[0]?.trim();
+  const forwardedHost = (h.get("x-forwarded-host") ?? "").split(",")[0]?.trim();
+  const host = forwardedHost || h.get("host");
+  if (host) {
+    const isLocal = /^(localhost|127\.0\.0\.1|0\.0\.0\.0)/.test(host);
+    const proto = forwardedProto || (isLocal ? "http" : "https");
+    return `${proto}://${host}`;
+  }
+  const { CANONICAL_ORIGIN } = await import("@/lib/seo/site");
+  return CANONICAL_ORIGIN;
+}
 
 export async function loginAction(
   _state: ActionState,
@@ -44,6 +59,28 @@ export async function loginAction(
     await supabase.auth.signInWithPassword(credentials);
 
   if (error) {
+    const lower = error.message.toLowerCase();
+    if (
+      id.kind === "email" &&
+      (lower.includes("email not confirmed") ||
+        lower.includes("email not verified") ||
+        lower.includes("confirm your email"))
+    ) {
+      return {
+        ok: true,
+        redirectTo: `/verify-email?email=${encodeURIComponent(id.email)}&reason=unverified`,
+      };
+    }
+    if (
+      id.kind === "phone" &&
+      (lower.includes("phone not confirmed") ||
+        lower.includes("phone_not_confirmed"))
+    ) {
+      return {
+        ok: true,
+        redirectTo: `/verify-phone?phone=${encodeURIComponent(id.phone)}&reason=unverified`,
+      };
+    }
     return { error: mapAuthError(error.message) };
   }
 
@@ -82,7 +119,7 @@ export async function signupAction(
       ? { email: id.email, password: parsed.data.password }
       : { phone: id.phone, password: parsed.data.password };
 
-  const { CANONICAL_ORIGIN } = await import("@/lib/seo/site");
+  const origin = await getRequestOrigin();
   const { data, error } = await supabase.auth.signUp({
     ...credentials,
     options: {
@@ -91,7 +128,11 @@ export async function signupAction(
         role: parsed.data.role,
       },
       emailRedirectTo:
-        id.kind === "email" ? `${CANONICAL_ORIGIN}/login` : undefined,
+        id.kind === "email"
+          ? `${origin}/auth/confirm?next=${encodeURIComponent(
+              "/verify-email?status=verified",
+            )}`
+          : undefined,
     },
   });
 
@@ -137,10 +178,10 @@ export async function requestPasswordResetAction(
     return { fieldErrors: flattenZodErrors(parsed.error) };
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const origin = await getRequestOrigin();
   const supabase = await getSupabaseServerClient();
   const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
-    redirectTo: `${siteUrl}/reset-password`,
+    redirectTo: `${origin}/auth/confirm?next=${encodeURIComponent("/reset-password")}`,
   });
 
   if (error) {
@@ -191,12 +232,16 @@ export async function resendVerificationAction(
     return { error: "বৈধ ইমেইল দিন" };
   }
 
-  const { CANONICAL_ORIGIN } = await import("@/lib/seo/site");
+  const origin = await getRequestOrigin();
   const supabase = await getSupabaseServerClient();
   const { error } = await supabase.auth.resend({
     type: "signup",
     email,
-    options: { emailRedirectTo: `${CANONICAL_ORIGIN}/login` },
+    options: {
+      emailRedirectTo: `${origin}/auth/confirm?next=${encodeURIComponent(
+        "/verify-email?status=verified",
+      )}`,
+    },
   });
 
   if (error) return { error: mapAuthError(error.message) };
@@ -214,6 +259,19 @@ function flattenZodErrors(error: import("zod").ZodError) {
 
 function mapAuthError(message: string): string {
   const lower = message.toLowerCase();
+  if (
+    lower.includes("email not confirmed") ||
+    lower.includes("email not verified") ||
+    lower.includes("confirm your email")
+  ) {
+    return "ইমেইল যাচাই করা হয়নি। আপনার ইমেইলে পাঠানো লিংকে ক্লিক করে যাচাই সম্পন্ন করুন।";
+  }
+  if (
+    lower.includes("phone not confirmed") ||
+    lower.includes("phone_not_confirmed")
+  ) {
+    return "মোবাইল নম্বর যাচাই করা হয়নি। SMS-এ পাঠানো OTP দিয়ে যাচাই করুন।";
+  }
   if (lower.includes("invalid login") || lower.includes("invalid credentials")) {
     return "ভুল তথ্য। মোবাইল/ইমেইল বা পাসওয়ার্ড মিলছে না।";
   }

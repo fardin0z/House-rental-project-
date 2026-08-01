@@ -8,6 +8,31 @@ export async function proxy(request: NextRequest) {
   const host = (request.headers.get("host") ?? "").toLowerCase();
   const hostname = host.split(":")[0] ?? "";
 
+  if (request.nextUrl.pathname === "/") {
+    const params = request.nextUrl.searchParams;
+    const code = params.get("code");
+    const errorCode = params.get("error");
+    const errorDesc = params.get("error_description");
+
+    if (code) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/auth/confirm";
+      if (!url.searchParams.get("next")) {
+        url.searchParams.set("next", "/verify-email?status=verified");
+      }
+      return NextResponse.redirect(url);
+    }
+
+    if (errorCode || errorDesc) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/verify-email";
+      url.search = "";
+      url.searchParams.set("status", "error");
+      url.searchParams.set("reason", errorDesc ?? errorCode ?? "auth failed");
+      return NextResponse.redirect(url);
+    }
+  }
+
   if (hostname && !LOCAL_HOSTS.has(hostname)) {
     const targetHost = hostname.startsWith("www.")
       ? hostname.slice(4)

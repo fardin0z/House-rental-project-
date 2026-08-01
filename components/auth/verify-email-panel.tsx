@@ -3,23 +3,92 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { useTranslations } from "next-intl";
-import { MailIcon, RefreshCwIcon } from "lucide-react";
+import {
+  ArrowUpRightIcon,
+  CheckCircle2Icon,
+  MailIcon,
+  RefreshCwIcon,
+  XCircleIcon,
+} from "lucide-react";
 import {
   resendVerificationAction,
   type ActionState,
 } from "@/lib/auth/actions";
 
+type Status = "pending" | "verified" | "error";
+
 const initial: ActionState = {};
 
-export function VerifyEmailPanel({ email }: { email: string }) {
+export function VerifyEmailPanel({
+  email,
+  status = "pending",
+  reason = "",
+}: {
+  email: string;
+  status?: Status;
+  reason?: string;
+}) {
   const t = useTranslations("auth");
   const [state, formAction, pending] = useActionState(
     resendVerificationAction,
     initial,
   );
 
+  if (status === "verified") {
+    return (
+      <div className="space-y-4">
+        <div className="rounded-[18px] bg-emerald-50 p-4">
+          <div className="flex items-center gap-3">
+            <span className="grid size-11 place-items-center rounded-xl bg-emerald-500 text-white">
+              <CheckCircle2Icon className="h-5 w-5" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-[14px] font-bold text-emerald-800">
+                {t("verifyEmailSuccessTitle")}
+              </p>
+              <p className="mt-1 text-[13px] leading-relaxed text-emerald-700/85">
+                {t("verifyEmailSuccessBody")}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <Link
+          href="/login"
+          className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-full bg-lime-400 text-[15px] font-bold text-ink-900 transition hover:bg-lime-500"
+        >
+          {t("verifyEmailSuccessCta")}
+          <ArrowUpRightIcon className="ml-1 h-5 w-5" />
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
+      {status === "error" ? (
+        <div className="rounded-[18px] bg-red-50 p-4">
+          <div className="flex items-center gap-3">
+            <span className="grid size-11 place-items-center rounded-xl bg-red-500 text-white">
+              <XCircleIcon className="h-5 w-5" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-[14px] font-bold text-red-800">
+                {t("verifyEmailErrorTitle")}
+              </p>
+              <p className="mt-1 text-[13px] leading-relaxed text-red-700/85">
+                {t("verifyEmailErrorBody")}
+              </p>
+              {reason ? (
+                <p className="mt-2 text-[11px] font-medium text-red-700/70">
+                  {reason}
+                </p>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       <div className="rounded-[18px] bg-white p-4">
         <div className="flex items-center gap-3">
           <span className="grid size-11 place-items-center rounded-xl bg-lime-400/25 text-ink-900">
