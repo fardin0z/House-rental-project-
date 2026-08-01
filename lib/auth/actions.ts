@@ -278,8 +278,13 @@ function mapAuthError(message: string): string {
   if (lower.includes("already registered") || lower.includes("already exists")) {
     return "এই অ্যাকাউন্ট আগে থেকেই আছে। লগইন করুন।";
   }
-  if (lower.includes("rate limit")) {
-    return "অনেক বেশি অনুরোধ। কিছুক্ষণ পর আবার চেষ্টা করুন।";
+  if (
+    lower.includes("rate limit") ||
+    lower.includes("too many requests") ||
+    lower.includes("over_email_send_rate_limit") ||
+    lower.includes("email rate limit")
+  ) {
+    return "অনেক বেশি অনুরোধ। ১ ঘণ্টা পর আবার চেষ্টা করুন, অথবা অন্য ইমেইল ব্যবহার করুন।";
   }
   if (lower.includes("weak") || lower.includes("password")) {
     return "পাসওয়ার্ড দুর্বল। আরও শক্তিশালী পাসওয়ার্ড দিন।";
