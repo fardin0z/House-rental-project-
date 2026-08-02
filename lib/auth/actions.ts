@@ -244,7 +244,14 @@ export async function resendVerificationAction(
     },
   });
 
-  if (error) return { error: mapAuthError(error.message) };
+  if (error) {
+    console.error("[resendVerification]", {
+      code: (error as { code?: string }).code,
+      status: (error as { status?: number }).status,
+      message: error.message,
+    });
+    return { error: mapAuthError(error.message) };
+  }
   return { ok: true };
 }
 
@@ -282,9 +289,23 @@ function mapAuthError(message: string): string {
     lower.includes("rate limit") ||
     lower.includes("too many requests") ||
     lower.includes("over_email_send_rate_limit") ||
-    lower.includes("email rate limit")
+    lower.includes("email rate limit") ||
+    lower.includes("for security purposes")
   ) {
     return "অনেক বেশি অনুরোধ। ১ ঘণ্টা পর আবার চেষ্টা করুন, অথবা অন্য ইমেইল ব্যবহার করুন।";
+  }
+  if (
+    lower.includes("already confirmed") ||
+    lower.includes("already been registered") ||
+    lower.includes("user_already_confirmed")
+  ) {
+    return "এই ইমেইল ইতিমধ্যে যাচাই করা হয়েছে। লগইন করুন।";
+  }
+  if (lower.includes("user not found")) {
+    return "এই ইমেইলে কোনো অ্যাকাউন্ট নেই। প্রথমে অ্যাকাউন্ট তৈরি করুন।";
+  }
+  if (lower.includes("smtp") || lower.includes("email service")) {
+    return "মেইল পরিষেবায় সমস্যা। কিছুক্ষণ পর আবার চেষ্টা করুন।";
   }
   if (lower.includes("weak") || lower.includes("password")) {
     return "পাসওয়ার্ড দুর্বল। আরও শক্তিশালী পাসওয়ার্ড দিন।";
