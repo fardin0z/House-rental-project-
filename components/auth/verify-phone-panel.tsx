@@ -19,7 +19,13 @@ import { formatBdPhoneForDisplay } from "@/lib/auth/phone";
 
 const initial: ActionState = {};
 
-export function VerifyPhonePanel({ phone }: { phone: string }) {
+export function VerifyPhonePanel({
+  phone,
+  initialError = "",
+}: {
+  phone: string;
+  initialError?: string;
+}) {
   const t = useTranslations("auth");
   const router = useRouter();
   const [resendState, resendAction, resendPending] = useActionState(
@@ -41,6 +47,12 @@ export function VerifyPhonePanel({ phone }: { phone: string }) {
 
   return (
     <div className="space-y-4">
+      {initialError ? (
+        <div className="rounded-[18px] bg-red-50 p-4 text-[13px] font-semibold leading-relaxed text-red-700">
+          OTP পাঠানো যায়নি: {initialError}
+        </div>
+      ) : null}
+
       <div className="rounded-[18px] bg-white p-4">
         <div className="flex items-center gap-3">
           <span className="grid size-11 place-items-center rounded-xl bg-lime-400/25 text-ink-900">

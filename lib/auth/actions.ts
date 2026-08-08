@@ -144,10 +144,15 @@ export async function signupAction(
     const { requestPhoneOtpAction } = await import("@/lib/sms/otp-actions");
     const otpForm = new FormData();
     otpForm.set("phone", id.phone);
-    await requestPhoneOtpAction({}, otpForm);
+    const otpResult = await requestPhoneOtpAction({}, otpForm);
+    if (otpResult.error) {
+      console.error("[signup] OTP send failed", otpResult.error);
+    }
     return {
       ok: true,
-      redirectTo: `/verify-phone?phone=${encodeURIComponent(id.phone)}`,
+      redirectTo: `/verify-phone?phone=${encodeURIComponent(id.phone)}${
+        otpResult.error ? `&reason=${encodeURIComponent(otpResult.error)}` : ""
+      }`,
     };
   }
 

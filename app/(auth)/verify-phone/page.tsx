@@ -20,9 +20,9 @@ export const metadata: Metadata = {
 export default async function VerifyPhonePage({
   searchParams,
 }: {
-  searchParams: Promise<{ phone?: string }>;
+  searchParams: Promise<{ phone?: string; reason?: string }>;
 }) {
-  const { phone: rawPhone } = await searchParams;
+  const { phone: rawPhone, reason } = await searchParams;
   const phone = rawPhone ? normalizeBdPhone(rawPhone) : "";
   const t = await getTranslations("auth");
   const tCommon = await getTranslations("common");
@@ -62,7 +62,7 @@ export default async function VerifyPhonePage({
         icon: <ShieldCheckIcon className="h-5 w-5" />,
       }}
     >
-      <VerifyPhonePanel phone={phone} />
+      <VerifyPhonePanel phone={phone} initialError={reason ?? ""} />
     </AuthShell>
   );
 }

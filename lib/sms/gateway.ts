@@ -20,9 +20,11 @@ export async function sendSms(
     return { ok: false, error: "SMS পরিষেবা কনফিগার করা হয়নি" };
   }
 
+  const normalizedTo = to.replace(/^\+/, "");
+
   const body = new URLSearchParams();
   body.set("api_key", apiKey);
-  body.set("to", to);
+  body.set("to", normalizedTo);
   body.set("msg", message);
 
   const sender = process.env.SMS_NET_BD_SENDER_ID;
@@ -38,6 +40,7 @@ export async function sendSms(
     const json = (await res.json().catch(() => null)) as SendResponse | null;
 
     if (!res.ok || !json) {
+      console.error("[sms] http error", { status: res.status, body: json });
       return {
         ok: false,
         error: "SMS পাঠাতে সমস্যা হয়েছে",
@@ -46,12 +49,15 @@ export async function sendSms(
     }
 
     if (json.error && json.error !== 0) {
+      console.error("[sms] api error", json);
       return {
         ok: false,
         error: mapSmsError(json.error, json.msg),
         code: json.error,
       };
     }
+
+    console.log("[sms] sent", { to: normalizedTo, requestId: json.data?.request_id });
 
     return {
       ok: true,
