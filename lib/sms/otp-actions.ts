@@ -108,6 +108,10 @@ export async function requestPhoneOtpAction(
     return { error: "OTP তৈরিতে সমস্যা হয়েছে" };
   }
 
+  if (process.env.NODE_ENV !== "production") {
+    console.log(`[otp:dev] phone=${phone} code=${code}`);
+  }
+
   const sms = await sendSms(phone, buildOtpMessage(code));
   if (!sms.ok) return { error: sms.error };
 
@@ -167,6 +171,23 @@ export async function verifyPhoneOtpAction(
   await consume();
 
   const supabase = getSupabaseAdminClient();
+  const profilesRead = supabase as unknown as {
+    from: (t: string) => {
+      select: (cols: string) => {
+        eq: (col: string, val: string) => {
+          maybeSingle: () => Promise<{
+            data: { id: string; role: string | null } | null;
+          }>;
+        };
+      };
+    };
+  };
+  const { data: profile } = await profilesRead
+    .from("profiles")
+    .select("id, role")
+    .eq("phone", phone)
+    .maybeSingle();
+
   await (
     supabase as unknown as {
       from: (t: string) => {
@@ -180,5 +201,13 @@ export async function verifyPhoneOtpAction(
     .update({ phone_verified_at: new Date().toISOString() })
     .eq("phone", phone);
 
-  return { ok: true, redirectTo: "/" };
+  const { redirectPathForRole } = await import("@/lib/auth/jwt-claims");
+  const role =
+    profile?.role === "admin" ||
+    profile?.role === "landlord" ||
+    profile?.role === "tenant"
+      ? profile.role
+      : null;
+
+  return { ok: true, redirectTo: redirectPathForRole(role) };
 }

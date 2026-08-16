@@ -27,6 +27,11 @@ export async function updateSupabaseSession(request: NextRequest) {
   );
 
   const { data } = await supabase.auth.getClaims();
+  const claims = data?.claims ?? null;
 
-  return { response, userId: data?.claims?.sub ?? null };
+  return {
+    response,
+    userId: claims?.sub ?? null,
+    claims: claims as Record<string, unknown> | null,
+  };
 }

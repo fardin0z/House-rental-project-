@@ -137,6 +137,14 @@ export async function signupAction(
   });
 
   if (error) {
+    console.error("[signup] supabase.auth.signUp failed", {
+      identifierKind: id.kind,
+      identifier: id.kind === "email" ? id.email : id.phone,
+      code: (error as { code?: string }).code,
+      status: (error as { status?: number }).status,
+      name: error.name,
+      message: error.message,
+    });
     return { error: mapAuthError(error.message) };
   }
 
@@ -148,12 +156,11 @@ export async function signupAction(
     if (otpResult.error) {
       console.error("[signup] OTP send failed", otpResult.error);
     }
-    return {
-      ok: true,
-      redirectTo: `/verify-phone?phone=${encodeURIComponent(id.phone)}${
-        otpResult.error ? `&reason=${encodeURIComponent(otpResult.error)}` : ""
-      }`,
-    };
+    const redirectTo = `/verify-phone?phone=${encodeURIComponent(id.phone)}${
+      otpResult.error ? `&reason=${encodeURIComponent(otpResult.error)}` : ""
+    }`;
+    console.log("[signup] phone path returning", { ok: true, redirectTo });
+    return { ok: true, redirectTo };
   }
 
   if (!data.session) {
@@ -311,6 +318,13 @@ function mapAuthError(message: string): string {
   }
   if (lower.includes("smtp") || lower.includes("email service")) {
     return "মেইল পরিষেবায় সমস্যা। কিছুক্ষণ পর আবার চেষ্টা করুন।";
+  }
+  if (
+    lower.includes("phone signups are disabled") ||
+    lower.includes("phone_provider_disabled") ||
+    lower.includes("signup is disabled")
+  ) {
+    return "মোবাইল সাইনআপ এই মুহূর্তে বন্ধ আছে। ইমেইল দিয়ে চেষ্টা করুন অথবা একটু পরে আবার চেষ্টা করুন।";
   }
   if (lower.includes("weak") || lower.includes("password")) {
     return "পাসওয়ার্ড দুর্বল। আরও শক্তিশালী পাসওয়ার্ড দিন।";
