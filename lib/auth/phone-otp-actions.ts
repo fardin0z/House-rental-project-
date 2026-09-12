@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { normalizeBdPhone, isValidBdPhone } from "./phone";
 import { roleFromJwt, redirectPathForRole } from "./jwt-claims";
-import { mapAuthError, type ActionState } from "./actions";
+import { mapAuthError } from "./auth-errors";
+import type { ActionState } from "./actions";
 
 export async function resendPhoneOtpAction(
   _state: ActionState,
