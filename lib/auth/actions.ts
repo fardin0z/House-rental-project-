@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { parseIdentifier } from "./identifier";
+import { mapAuthError } from "./auth-errors";
 import {
   loginInput,
   signupInput,
@@ -76,6 +77,13 @@ export async function loginAction(
       (lower.includes("phone not confirmed") ||
         lower.includes("phone_not_confirmed"))
     ) {
+      const { error: resendError } = await supabase.auth.resend({
+        type: "sms",
+        phone: id.phone,
+      });
+      if (resendError) {
+        console.error("[login] phone otp resend failed", resendError.message);
+      }
       return {
         ok: true,
         redirectTo: `/verify-phone?phone=${encodeURIComponent(id.phone)}&reason=unverified`,
@@ -149,18 +157,10 @@ export async function signupAction(
   }
 
   if (id.kind === "phone") {
-    const { requestPhoneOtpAction } = await import("@/lib/sms/otp-actions");
-    const otpForm = new FormData();
-    otpForm.set("phone", id.phone);
-    const otpResult = await requestPhoneOtpAction({}, otpForm);
-    if (otpResult.error) {
-      console.error("[signup] OTP send failed", otpResult.error);
-    }
-    const redirectTo = `/verify-phone?phone=${encodeURIComponent(id.phone)}${
-      otpResult.error ? `&reason=${encodeURIComponent(otpResult.error)}` : ""
-    }`;
-    console.log("[signup] phone path returning", { ok: true, redirectTo });
-    return { ok: true, redirectTo };
+    return {
+      ok: true,
+      redirectTo: `/verify-phone?phone=${encodeURIComponent(id.phone)}`,
+    };
   }
 
   if (!data.session) {
@@ -276,58 +276,3 @@ function flattenZodErrors(error: import("zod").ZodError) {
   return out;
 }
 
-function mapAuthError(message: string): string {
-  const lower = message.toLowerCase();
-  if (
-    lower.includes("email not confirmed") ||
-    lower.includes("email not verified") ||
-    lower.includes("confirm your email")
-  ) {
-    return "ইমেইল যাচাই করা হয়নি। আপনার ইমেইলে পাঠানো লিংকে ক্লিক করে যাচাই সম্পন্ন করুন।";
-  }
-  if (
-    lower.includes("phone not confirmed") ||
-    lower.includes("phone_not_confirmed")
-  ) {
-    return "মোবাইল নম্বর যাচাই করা হয়নি। SMS-এ পাঠানো OTP দিয়ে যাচাই করুন।";
-  }
-  if (lower.includes("invalid login") || lower.includes("invalid credentials")) {
-    return "ভুল তথ্য। মোবাইল/ইমেইল বা পাসওয়ার্ড মিলছে না।";
-  }
-  if (lower.includes("already registered") || lower.includes("already exists")) {
-    return "এই অ্যাকাউন্ট আগে থেকেই আছে। লগইন করুন।";
-  }
-  if (
-    lower.includes("rate limit") ||
-    lower.includes("too many requests") ||
-    lower.includes("over_email_send_rate_limit") ||
-    lower.includes("email rate limit") ||
-    lower.includes("for security purposes")
-  ) {
-    return "অনেক বেশি অনুরোধ। ১ ঘণ্টা পর আবার চেষ্টা করুন, অথবা অন্য ইমেইল ব্যবহার করুন।";
-  }
-  if (
-    lower.includes("already confirmed") ||
-    lower.includes("already been registered") ||
-    lower.includes("user_already_confirmed")
-  ) {
-    return "এই ইমেইল ইতিমধ্যে যাচাই করা হয়েছে। লগইন করুন।";
-  }
-  if (lower.includes("user not found")) {
-    return "এই ইমেইলে কোনো অ্যাকাউন্ট নেই। প্রথমে অ্যাকাউন্ট তৈরি করুন।";
-  }
-  if (lower.includes("smtp") || lower.includes("email service")) {
-    return "মেইল পরিষেবায় সমস্যা। কিছুক্ষণ পর আবার চেষ্টা করুন।";
-  }
-  if (
-    lower.includes("phone signups are disabled") ||
-    lower.includes("phone_provider_disabled") ||
-    lower.includes("signup is disabled")
-  ) {
-    return "মোবাইল সাইনআপ এই মুহূর্তে বন্ধ আছে। ইমেইল দিয়ে চেষ্টা করুন অথবা একটু পরে আবার চেষ্টা করুন।";
-  }
-  if (lower.includes("weak") || lower.includes("password")) {
-    return "পাসওয়ার্ড দুর্বল। আরও শক্তিশালী পাসওয়ার্ড দিন।";
-  }
-  return "সমস্যা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।";
-}

@@ -266,7 +266,8 @@
     "verifyPhoneCodeLabel": "যাচাইকরণ কোড",
     "verifyPhoneCta": "যাচাই করুন",
     "verifyPhoneResend": "কোড আবার পাঠান",
-    "verifyPhoneResent": "নতুন কোড পাঠানো হয়েছে।"
+    "verifyPhoneResent": "নতুন কোড পাঠানো হয়েছে।",
+    "verifyPhoneUnverifiedNotice": "লগইন করার আগে আপনার মোবাইল নম্বর যাচাই করতে হবে। আমরা একটি নতুন কোড পাঠিয়েছি।"
   },
   "listings": {
     "title": "বাসার তালিকা",

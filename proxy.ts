@@ -55,64 +55,7 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  const { response, userId, claims } = await updateSupabaseSession(request);
-
-  if (userId) {
-    const pathname = request.nextUrl.pathname;
-    const isAllowedWhileUnverified =
-      pathname === "/" ||
-      pathname === "/verify-phone" ||
-      pathname.startsWith("/verify-phone/") ||
-      pathname.startsWith("/auth/") ||
-      pathname === "/logout" ||
-      pathname === "/api/auth/signout";
-
-    if (!isAllowedWhileUnverified) {
-      const appMeta = (claims?.app_metadata ?? {}) as {
-        phone_verified?: boolean;
-      };
-      const phoneVerifiedClaim = appMeta.phone_verified;
-
-      let mustVerify = false;
-      let phoneForRedirect = "";
-
-      if (phoneVerifiedClaim === false) {
-        mustVerify = true;
-        const phoneClaim = (claims?.phone ?? "") as string;
-        phoneForRedirect = phoneClaim;
-      } else if (phoneVerifiedClaim === undefined) {
-        try {
-          const { getSupabaseAdminClient } = await import(
-            "@/lib/supabase/admin"
-          );
-          const admin = getSupabaseAdminClient();
-          const { data } = await admin
-            .from("profiles")
-            .select("phone, phone_verified_at")
-            .eq("id", userId)
-            .maybeSingle();
-          const row = data as
-            | { phone: string | null; phone_verified_at: string | null }
-            | null;
-          if (row?.phone && !row.phone_verified_at) {
-            mustVerify = true;
-            phoneForRedirect = row.phone;
-          }
-        } catch (e) {
-          console.error("[proxy] phone-verify check failed", e);
-        }
-      }
-
-      if (mustVerify) {
-        const url = request.nextUrl.clone();
-        url.pathname = "/verify-phone";
-        url.search = "";
-        if (phoneForRedirect) url.searchParams.set("phone", phoneForRedirect);
-        return NextResponse.redirect(url);
-      }
-    }
-  }
-
+  const { response } = await updateSupabaseSession(request);
   return response;
 }
 

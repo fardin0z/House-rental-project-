@@ -11,9 +11,9 @@ import {
   SmartphoneIcon,
 } from "lucide-react";
 import {
-  requestPhoneOtpAction,
+  resendPhoneOtpAction,
   verifyPhoneOtpAction,
-} from "@/lib/sms/otp-actions";
+} from "@/lib/auth/phone-otp-actions";
 import type { ActionState } from "@/lib/auth/actions";
 import { formatBdPhoneForDisplay } from "@/lib/auth/phone";
 
@@ -21,15 +21,15 @@ const initial: ActionState = {};
 
 export function VerifyPhonePanel({
   phone,
-  initialError = "",
+  unverifiedNotice = false,
 }: {
   phone: string;
-  initialError?: string;
+  unverifiedNotice?: boolean;
 }) {
   const t = useTranslations("auth");
   const router = useRouter();
   const [resendState, resendAction, resendPending] = useActionState(
-    requestPhoneOtpAction,
+    resendPhoneOtpAction,
     initial,
   );
   const [verifyState, verifyAction, verifyPending] = useActionState(
@@ -47,9 +47,9 @@ export function VerifyPhonePanel({
 
   return (
     <div className="space-y-4">
-      {initialError ? (
-        <div className="rounded-[18px] bg-red-50 p-4 text-[13px] font-semibold leading-relaxed text-red-700">
-          OTP পাঠানো যায়নি: {initialError}
+      {unverifiedNotice ? (
+        <div className="rounded-[18px] bg-amber-50 p-4 text-[13px] font-semibold leading-relaxed text-amber-800">
+          {t("verifyPhoneUnverifiedNotice")}
         </div>
       ) : null}
 

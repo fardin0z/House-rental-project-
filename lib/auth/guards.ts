@@ -37,20 +37,6 @@ export async function getCurrentProfile(): Promise<ProfileRow | null> {
   return data;
 }
 
-export function isPhoneUserUnverified(profile: ProfileRow): boolean {
-  const p = profile as ProfileRow & { phone_verified_at?: string | null };
-  return Boolean(profile.phone) && !p.phone_verified_at;
-}
-
-export async function pendingVerificationRedirect(): Promise<string | null> {
-  const profile = await getCurrentProfile();
-  if (!profile) return null;
-  if (isPhoneUserUnverified(profile)) {
-    return `/verify-phone?phone=${encodeURIComponent(profile.phone ?? "")}`;
-  }
-  return null;
-}
-
 export async function requireUserId(): Promise<string> {
   const userId = await getCurrentUserId();
   if (!userId) redirect("/login");
@@ -60,9 +46,6 @@ export async function requireUserId(): Promise<string> {
 export async function requireProfile(): Promise<ProfileRow> {
   const profile = await getCurrentProfile();
   if (!profile) redirect("/login");
-  if (isPhoneUserUnverified(profile)) {
-    redirect(`/verify-phone?phone=${encodeURIComponent(profile.phone ?? "")}`);
-  }
   return profile;
 }
 

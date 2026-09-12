@@ -9,10 +9,7 @@ import {
 } from "lucide-react";
 import { SignupForm } from "@/components/auth/signup-form";
 import { AuthShell } from "@/components/auth/auth-shell";
-import {
-  getCurrentSession,
-  pendingVerificationRedirect,
-} from "@/lib/auth/guards";
+import { getCurrentSession } from "@/lib/auth/guards";
 import { redirectPathForRole } from "@/lib/auth/jwt-claims";
 
 export const metadata: Metadata = {
@@ -24,10 +21,7 @@ export const metadata: Metadata = {
 
 export default async function SignupPage() {
   const session = await getCurrentSession();
-  if (session) {
-    const pending = await pendingVerificationRedirect();
-    redirect(pending ?? redirectPathForRole(session.role));
-  }
+  if (session) redirect(redirectPathForRole(session.role));
 
   const t = await getTranslations("auth");
   const tCommon = await getTranslations("common");

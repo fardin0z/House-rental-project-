@@ -62,7 +62,7 @@ export default async function VerifyPhonePage({
         icon: <ShieldCheckIcon className="h-5 w-5" />,
       }}
     >
-      <VerifyPhonePanel phone={phone} initialError={reason ?? ""} />
+      <VerifyPhonePanel phone={phone} unverifiedNotice={reason === "unverified"} />
     </AuthShell>
   );
 }

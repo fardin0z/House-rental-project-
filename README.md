@@ -52,6 +52,12 @@ NEXT_PUBLIC_MAPBOX_TOKEN=pk.eyJ...
 AAMARPAY_STORE_ID=aamarpaytest
 AAMARPAY_SIGNATURE_KEY=dbb74894e82415a2f7ff0ec3a97e4183
 AAMARPAY_BASE_URL=https://sandbox.aamarpay.com
+
+# Phone OTP — SMS.NET.BD delivers the code, Supabase generates and verifies it
+SMS_NET_BD_API_KEY=
+SMS_NET_BD_SENDER_ID=            # leave empty on a non-masking plan
+SMS_NET_BD_BRAND_NAME=ToletZoo   # inserted into the SMS body (non-masking policy)
+SUPABASE_SEND_SMS_HOOK_SECRET=   # from Supabase → Auth → Hooks → Send SMS
 ```
 
 ---
@@ -60,13 +66,17 @@ AAMARPAY_BASE_URL=https://sandbox.aamarpay.com
 
 1. **Apply migrations.** Either:
    - Supabase CLI: `supabase link --project-ref YOUR_REF && supabase db push`, or
-   - Paste each file in `supabase/migrations/` into the SQL Editor in order (`0001` through `0014`)
+   - Paste each file in `supabase/migrations/` into the SQL Editor in order (`0001` through `0018`)
 
 2. **Enable the JWT role claim hook** (required for role-based routing):
    - Supabase Dashboard → Authentication → Hooks → Add hook
    - "Customize Access Token (JWT) Claims" → Postgres Function → `public.custom_access_token_hook` → Enable
 
-3. **Auth settings**: disable "Confirm email" and "Confirm phone" so signup creates a session immediately (Auth → Sign In / Up).
+3. **Auth settings** (Authentication → Providers):
+   - **Email**: enable, turn **Confirm email ON**. Set custom SMTP (Resend) under Authentication → Emails → SMTP Settings so verification mail is not capped at 2/hour.
+   - **Phone**: enable, turn **Confirm phone ON**. The Twilio fields can hold placeholder values; the Send SMS hook below overrides them. Raise **SMS OTP Expiry** to `300` seconds.
+   - **Send SMS hook** (Authentication → Hooks → Send SMS): enable, type **HTTPS**, URL `https://toletzoo.com/api/auth/send-sms`. Copy the generated secret into `SUPABASE_SEND_SMS_HOOK_SECRET` on Vercel. Supabase generates and verifies the OTP; this hook only delivers it through SMS.NET.BD.
+   - **URL Configuration**: Site URL `https://toletzoo.com`; Redirect URLs `https://toletzoo.com/**` and `http://localhost:3000/**`.
 
 4. **Storage buckets**:
 
