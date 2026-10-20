@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { ArrowUpRightIcon, MailIcon } from "lucide-react";
 import { loginAction, type ActionState } from "@/lib/auth/actions";
 import { PasswordField } from "./password-field";
+import { SocialAuthButtons } from "./social-auth-buttons";
 
 const initial: ActionState = {};
 
@@ -22,7 +23,9 @@ export function LoginForm() {
   }, [state, router]);
 
   return (
-    <form action={formAction} className="space-y-4">
+    <div className="space-y-4">
+      <SocialAuthButtons />
+      <form action={formAction} className="space-y-4">
       <InputCard
         label={t("identifierLabel")}
         icon={<MailIcon className="h-5 w-5 text-ink-500/40" />}
@@ -75,12 +78,13 @@ export function LoginForm() {
       </button>
 
       <p className="pt-2 text-center text-[14px] font-medium text-ink-500">
-        {t("noAccount")}{" "}
+        {t("noAccount")} {" "}
         <Link href="/signup" className="font-bold text-ink-900 hover:underline">
           {t("signupCta")}
         </Link>
       </p>
-    </form>
+      </form>
+    </div>
   );
 }
 
