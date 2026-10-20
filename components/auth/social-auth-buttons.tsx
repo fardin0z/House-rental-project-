@@ -17,7 +17,7 @@ export function SocialAuthButtons({ role: initialRole = "tenant" }: Props) {
       provider,
       options: {
         redirectTo: callback.toString(),
-        ...(provider === "facebook" ? { queryParams: { scope: "public_profile,email" } } : {}),
+        ...(provider === "facebook" ? { queryParams: { scope: "public_profile" } } : {}),
       },
     });
     if (authError) { setError(authError.message); setPending(null); }
