@@ -1,0 +1,17 @@
+"use client";
+import Link from "next/link";
+import { createElement, useEffect, useState, type ReactNode } from "react";
+import { Building2Icon, SearchIcon, XIcon } from "lucide-react";
+import { SocialAuthButtons, type SocialRole } from "@/components/auth/social-auth-buttons";
+const SEEN_KEY = "toletzoo-new-user-gate-seen";
+type Step = "choose" | SocialRole;
+export function NewUserGate() {
+ const [visible,setVisible]=useState(false); const [step,setStep]=useState<Step>("choose");
+ useEffect(()=>{try{if(window.localStorage.getItem(SEEN_KEY)!=="1")setVisible(true)}catch{setVisible(true)}},[]);
+ function close(){try{window.localStorage.setItem(SEEN_KEY,"1")}catch{} setVisible(false)}
+ if(!visible)return null;
+ const card=(icon:ReactNode,title:string,body:string,role:SocialRole)=>createElement("button",{type:"button",onClick:()=>setStep(role),className:"group rounded-2xl border border-black/10 bg-white p-5 text-left transition hover:border-lime-400 hover:shadow-lg"},createElement("span",{className:"grid h-12 w-12 place-items-center rounded-2xl bg-lime-200 text-[#17251a]"},icon),createElement("span",{className:"mt-5 block text-lg font-bold text-black"},title),createElement("span",{className:"mt-1 block text-sm leading-6 text-black/55"},body),createElement("span",{className:"mt-5 block text-sm font-bold text-[#4a8927]"},"চালিয়ে যান →"));
+ const choose=createElement("div",{className:"grid gap-3 sm:grid-cols-2"},card(createElement(SearchIcon,{className:"h-7 w-7"}),"আমি বাসা খুঁজছি","এলাকা, বাজেট ও বাসার ধরন দিয়ে খুঁজুন","tenant"),card(createElement(Building2Icon,{className:"h-7 w-7"}),"আমি বাসা ভাড়া দিতে চাই","বাসার বিজ্ঞাপন দিন ও ভাড়াটিয়া খুঁজুন","landlord"));
+ const account=createElement("div",null,createElement("button",{type:"button",onClick:()=>setStep("choose"),className:"mb-4 text-sm font-semibold text-black/55"},"← অন্য option বেছে নিন"),createElement("div",{className:"mb-4 rounded-2xl bg-white px-4 py-3 text-sm font-bold text-black"},step==="tenant"?"ভাড়াটিয়া হিসেবে account তৈরি":"মালিক হিসেবে account তৈরি"),createElement(SocialAuthButtons,{role:step,showRoleSelector:false}),createElement(Link,{href:"/signup?role="+step,className:"mt-2 inline-flex h-12 w-full items-center justify-center rounded-full border border-black/10 bg-white text-sm font-bold text-black"},"মোবাইল বা email দিয়ে account তৈরি করুন"));
+ return createElement("div",{className:"fixed inset-0 z-[80] flex items-end justify-center bg-black/55 p-3 backdrop-blur-sm sm:items-center"},createElement("section",{className:"relative w-full max-w-xl overflow-hidden rounded-[28px] bg-[#f7faf3] shadow-2xl"},createElement("button",{type:"button",onClick:close,ariaLabel:"বন্ধ করুন",className:"absolute right-4 top-4 z-10 grid h-10 w-10 place-items-center rounded-full bg-white/80 text-black/60"},createElement(XIcon,{className:"h-5 w-5"})),createElement("div",{className:"bg-[#17251a] px-6 pb-8 pt-10 text-white sm:px-10"},createElement("p",{className:"text-sm font-semibold text-lime-300"},"ToletZoo-তে স্বাগতম"),createElement("h2",{className:"mt-2 max-w-md text-3xl font-bold leading-tight sm:text-4xl"},"শুরু করতে আপনার উদ্দেশ্য বেছে নিন"),createElement("p",{className:"mt-3 text-sm leading-6 text-white/75"},"দীর্ঘ form নয়—আগে role বেছে নিন, তারপর Google বা Facebook দিয়ে সহজে account তৈরি করুন।")),createElement("div",{className:"p-5 sm:p-8"},step==="choose"?choose:account,createElement("button",{type:"button",onClick:close,className:"mt-5 w-full text-center text-sm font-semibold text-black/50"},"আগে website দেখে নিই"))));
+}
