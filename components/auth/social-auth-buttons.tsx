@@ -13,7 +13,13 @@ export function SocialAuthButtons({ role: initialRole = "tenant" }: Props) {
     setError(""); setPending(provider);
     const callback = new URL("/auth/confirm", window.location.origin);
     callback.searchParams.set("role", role);
-    const { error: authError } = await getSupabaseBrowserClient().auth.signInWithOAuth({ provider, options: { redirectTo: callback.toString() } });
+    const { error: authError } = await getSupabaseBrowserClient().auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: callback.toString(),
+        ...(provider === "facebook" ? { queryParams: { scope: "public_profile,email" } } : {}),
+      },
+    });
     if (authError) { setError(authError.message); setPending(null); }
   }
   return <div className="space-y-3">
