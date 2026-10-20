@@ -22,6 +22,7 @@ export const BD_AREAS: AreaEntry[] = [
   { bn: "লালবাগ", en: "Lalbagh" },
   { bn: "পুরান ঢাকা", en: "Old Dhaka" },
   { bn: "যাত্রাবাড়ী", en: "Jatrabari" },
+  { bn: "ডেমরা", en: "Demra" },
   { bn: "কেরানীগঞ্জ", en: "Keraniganj" },
   { bn: "সাভার", en: "Savar" },
   { bn: "গাজীপুর", en: "Gazipur" },
