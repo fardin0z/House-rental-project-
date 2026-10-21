@@ -41,4 +41,3 @@ export function SocialAuthButtons({ role: initialRole = "tenant" }: Props) {
 const selectedClass = "rounded-full bg-ink-900 px-3 py-2 text-[12px] font-bold text-white shadow-[0_0_0_2px_#A4E861]";
 const unselectedClass = "rounded-full bg-ink-50 px-3 py-2 text-[12px] font-bold text-ink-900";
 const socialButtonClass = "inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-3 text-[13px] font-bold text-ink-900 transition hover:bg-white/70 disabled:cursor-not-allowed disabled:opacity-60";
-

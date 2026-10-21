@@ -12,7 +12,6 @@ import {
 import { requireProfile } from "@/lib/auth/guards";
 import { getListingById } from "@/lib/listings/queries";
 import { openConversationWithLandlord } from "@/lib/chat/actions";
-import { hasActivePremium } from "@/lib/payments/queries";
 import { LISTING_BUCKET, publicStorageUrl } from "@/lib/storage/paths";
 import { PremiumLock } from "@/components/listings/premium-lock";
 
@@ -30,10 +29,8 @@ export default async function ListingDetailPage(
     redirect("/listings");
   }
 
-  const canViewPremium =
-    isOwner ||
-    profile.role === "admin" ||
-    (await hasActivePremium(profile.id));
+  // Payment is hidden for now; all signed-in users can view listing details.
+  const canViewPremium = true;
 
   const t = await getTranslations("listings");
   const tChat = await getTranslations("chat");

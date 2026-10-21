@@ -8,7 +8,6 @@ import {
   type PublicListing,
 } from "@/lib/listings/public-queries";
 import { PropertyCard } from "@/components/properties/property-card";
-import { PropertiesMap } from "@/components/properties/properties-map";
 import { PropertiesSearch } from "@/components/properties/properties-search";
 import { getCurrentSession } from "@/lib/auth/guards";
 import type { RentalType } from "@/types/database.types";
@@ -108,7 +107,7 @@ export default async function PropertiesSearchPage({
 
       <section
         aria-labelledby="properties-results-title"
-        className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-6 pb-10 lg:grid-cols-[420px_1fr]"
+        className="mx-auto max-w-7xl px-6 pb-10"
       >
         <SidebarList
           listings={listings}
@@ -125,15 +124,6 @@ export default async function PropertiesSearchPage({
           }}
         />
 
-        <PropertiesMap
-          listings={listings}
-          labels={{
-            verifiedLabel: t("verified"),
-            viewListing: t("viewListing"),
-            noLocations: t("noLocations"),
-            missingToken: t("missingMapToken"),
-          }}
-        />
       </section>
     </main>
   );

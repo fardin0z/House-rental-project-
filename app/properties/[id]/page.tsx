@@ -379,7 +379,7 @@ function DescriptionSection({
           </div>
         </div>
         <Link
-          href="/subscription"
+          href="/login"
           className="mt-5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-lime-400 px-6 text-[14px] font-bold text-ink-900 md:mt-0 md:w-auto"
         >
           {t("lockedCta")}

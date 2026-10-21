@@ -8,9 +8,6 @@ import { ListingForm } from "@/components/listings/listing-form";
 import { ListingImageUploader } from "@/components/listings/image-uploader";
 import { ListingVideoUploader } from "@/components/listings/video-uploader";
 
-
-
-
 const STATUS_PILL: Record<string, string> = {
   approved: "bg-lime-50 text-lime-600",
   pending: "bg-[#FFF6E1] text-[#A07A1F]",
@@ -19,30 +16,18 @@ const STATUS_PILL: Record<string, string> = {
   archived: "bg-ink-900 text-white",
 };
 
-
-
-
 export default async function EditListingPage(
   props: PageProps<"/listings/[id]/edit">,
 ) {
   const profile = await requireProfile();
   const { id } = await props.params;
 
-
-
-
   const listing = await getListingById(id);
   if (!listing) notFound();
   if (listing.owner_id !== profile.id) redirect("/listings");
 
-
-
-
   const t = await getTranslations("listings");
   const statusLabel = t(`statusLabel.${listing.status}`);
-
-
-
 
   return (
     <div className="pb-16">
@@ -55,9 +40,6 @@ export default async function EditListingPage(
           {t("backToListings")}
         </Link>
       </section>
-
-
-
 
       <section className="mx-auto max-w-7xl px-6 pt-6">
         <div className="rounded-[24px] bg-white p-6 md:p-8">
@@ -79,9 +61,6 @@ export default async function EditListingPage(
           ) : null}
         </div>
       </section>
-
-
-
 
       <section className="mx-auto max-w-7xl px-6 pt-6">
         <div className="rounded-[24px] bg-white p-6 md:p-8">
@@ -105,9 +84,6 @@ export default async function EditListingPage(
         </div>
       </section>
 
-
-
-
       <section className="mx-auto max-w-7xl px-6 pt-6">
         <div className="rounded-[24px] bg-white p-6 md:p-8">
           <h2 className="font-display text-[28px] italic leading-tight tracking-tight text-ink-900 md:text-[32px]">
@@ -122,9 +98,6 @@ export default async function EditListingPage(
           </div>
         </div>
       </section>
-
-
-
 
       <section className="mx-auto max-w-7xl px-6 pt-6">
         <div className="rounded-[24px] bg-white p-6 md:p-8">
@@ -142,6 +115,3 @@ export default async function EditListingPage(
     </div>
   );
 }
-
-
-

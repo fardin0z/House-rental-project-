@@ -84,6 +84,27 @@ export function PropertiesSearch() {
 
   return (
     <div className="rounded-[26px] bg-white p-3">
+      <div className="scroll-soft mb-3 flex gap-2 overflow-x-auto px-1 pb-1">
+        <CategoryChip
+          active={!type}
+          label="সব"
+          onClick={() => {
+            setType("");
+            commit({ type: "" });
+          }}
+        />
+        {TYPE_VALUES.map((value) => (
+          <CategoryChip
+            key={value}
+            active={type === value}
+            label={tListings(`rentalType.${value}`)}
+            onClick={() => {
+              setType(value);
+              commit({ type: value });
+            }}
+          />
+        ))}
+      </div>
       <form
         onSubmit={onSubmit}
         className="grid grid-cols-1 gap-3 md:grid-cols-[1.4fr_1fr_1fr_1fr_auto]"
@@ -163,6 +184,30 @@ export function PropertiesSearch() {
         </div>
       ) : null}
     </div>
+  );
+}
+
+function CategoryChip({
+  active,
+  label,
+  onClick,
+}: {
+  active: boolean;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`shrink-0 rounded-full border px-5 py-3 text-[14px] font-bold transition ${
+        active
+          ? "border-lime-500 bg-lime-400 text-ink-900"
+          : "border-ink-100 bg-white text-ink-700 hover:border-lime-400"
+      }`}
+    >
+      {label}
+    </button>
   );
 }
 

@@ -1,7 +1,6 @@
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getCurrentSession } from "@/lib/auth/guards";
-import { hasActivePremium } from "@/lib/payments/queries";
 import { expandAreaQuery } from "./area-index";
 import type {
   ListingImageRow,
@@ -75,9 +74,8 @@ async function viewerAccess(): Promise<{
   const session = await getCurrentSession();
   const userId = session?.userId ?? null;
   const isAdmin = session?.role === "admin";
-  const premium = userId
-    ? isAdmin || (await hasActivePremium(userId))
-    : false;
+  // Payment is hidden for now; signed-in users can view normal listing details.
+  const premium = Boolean(userId) || isAdmin;
   return { userId, premium, isAdmin };
 }
 
