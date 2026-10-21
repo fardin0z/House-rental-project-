@@ -1,11 +1,11 @@
 "use client";
 
+
 import Link from "next/link";
 import { useTransition } from "react";
 import { useTranslations } from "next-intl";
 import {
-  CrownIcon,
-  FileTextIcon,
+    FileTextIcon,
   HomeIcon,
   LayoutListIcon,
   LifeBuoyIcon,
@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { signOutAction } from "@/lib/auth/actions";
 
+
 export function MainMenu({
   isAuthed,
   role,
@@ -35,6 +36,7 @@ export function MainMenu({
 }) {
   const t = useTranslations("menu");
   const [, startTransition] = useTransition();
+
 
   return (
     <DropdownMenu>
@@ -61,6 +63,7 @@ export function MainMenu({
           <HomeIcon className="size-4" />
           {t("home")}
         </DropdownMenuItem>
+
 
         {isAuthed ? (
           <>
@@ -95,13 +98,6 @@ export function MainMenu({
               {t("chat")}
             </DropdownMenuItem>
             <DropdownMenuItem
-              render={<Link href="/subscription" />}
-              className="gap-2 rounded-xl px-3 py-2"
-            >
-              <CrownIcon className="size-4" />
-              {t("subscription")}
-            </DropdownMenuItem>
-            <DropdownMenuItem
               render={<Link href="/moving" />}
               className="gap-2 rounded-xl px-3 py-2"
             >
@@ -111,7 +107,9 @@ export function MainMenu({
           </>
         ) : null}
 
+
         <DropdownMenuSeparator className="my-1" />
+
 
         <DropdownMenuItem
           render={<Link href="/support" />}
@@ -135,7 +133,9 @@ export function MainMenu({
           {t("terms")}
         </DropdownMenuItem>
 
+
         <DropdownMenuSeparator className="my-1" />
+
 
         {isAuthed ? (
           <DropdownMenuItem
@@ -159,3 +159,4 @@ export function MainMenu({
     </DropdownMenu>
   );
 }
+
