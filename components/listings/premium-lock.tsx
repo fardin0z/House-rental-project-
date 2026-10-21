@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowUpRightIcon, LockIcon } from "lucide-react";
 
+
 export function PremiumLock({
   label,
   cta,
@@ -22,7 +23,7 @@ export function PremiumLock({
       </div>
       {!compact ? (
         <Link
-          href="/subscription"
+          href="/login"
           className="mt-4 inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-ink-900 px-5 text-[13px] font-bold text-white transition hover:bg-ink-700"
         >
           {cta}
@@ -32,3 +33,4 @@ export function PremiumLock({
     </div>
   );
 }
+
