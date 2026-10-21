@@ -89,7 +89,9 @@ export async function getPublicListings(
   let query = supabase
     .from("listings")
     .select("*, images:listing_images(path, sort_order)")
-    .eq("status", "approved");
+    .eq("status", "approved")
+    .not("title", "is", null)
+    .neq("title", "");
 
   if (area?.trim()) {
     const variants = expandAreaQuery(area).map((v) => escape(v));
@@ -122,7 +124,9 @@ export async function getPublicListings(
   type Row = ListingRow & {
     images: { path: string; sort_order: number }[];
   };
-  return ((data ?? []) as Row[]).map((row) => {
+  return ((data ?? []) as Row[])
+    .filter((row) => row.title?.trim() && row.title.trim() !== "নামহীন বিজ্ঞাপন")
+    .map((row) => {
     const cover = row.images
       ?.slice()
       .sort((a, b) => a.sort_order - b.sort_order)[0];
@@ -145,7 +149,7 @@ export async function getPublicListings(
       is_premium_viewer: canSeeExact,
       is_owner: isOwner,
     };
-  });
+    });
 }
 
 export async function getPublicListingDetail(

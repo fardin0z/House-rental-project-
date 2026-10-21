@@ -107,7 +107,7 @@ export function PropertiesSearch() {
       </div>
       <form
         onSubmit={onSubmit}
-        className="grid grid-cols-1 gap-3 md:grid-cols-[1.4fr_1fr_1fr_1fr_auto]"
+        className="grid grid-cols-1 gap-3 md:grid-cols-[1.6fr_1fr_1fr_auto]"
       >
         <Cell label={t("locationLabel")}>
           <MapPinIcon className="h-5 w-5 text-ink-500/45" />
@@ -118,20 +118,6 @@ export function PropertiesSearch() {
             className="w-full border-0 bg-transparent text-[15px] font-bold text-ink-900 outline-none placeholder:text-ink-500/40"
           />
         </Cell>
-
-        <CellSelect
-          label={t("typeLabel")}
-          value={type}
-          anyLabel={t("filterAny")}
-          options={TYPE_VALUES.map((v) => ({
-            value: v,
-            label: tListings(`rentalType.${v}`),
-          }))}
-          onChange={(v) => {
-            setType(v);
-            commit({ type: v });
-          }}
-        />
 
         <CellSelect
           label={t("rentRangeLabel")}
