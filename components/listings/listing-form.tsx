@@ -147,7 +147,7 @@ export function ListingForm({
         </Field>
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-3">
+      <div className="grid gap-5 sm:grid-cols-2">
         <Field label={tForm("beds")} error={state.fieldErrors?.beds}>
           <Input
             name="beds"
@@ -168,17 +168,6 @@ export function ListingForm({
             defaultValue={listing.baths ?? ""}
             min={0}
             max={20}
-            disabled={readonly}
-            className="h-12 rounded-2xl border-rule bg-paper px-4 text-base"
-          />
-        </Field>
-        <Field label={tForm("areaSqft")} error={state.fieldErrors?.area_sqft}>
-          <Input
-            name="area_sqft"
-            type="number"
-            inputMode="numeric"
-            defaultValue={listing.area_sqft ?? ""}
-            min={0}
             disabled={readonly}
             className="h-12 rounded-2xl border-rule bg-paper px-4 text-base"
           />
