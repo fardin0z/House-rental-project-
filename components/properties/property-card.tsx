@@ -51,7 +51,7 @@ export function PropertyCard({
           <div className="min-w-0 flex-1 py-1">
             <h3
               id={titleId}
-              className="font-display truncate text-[28px] italic leading-none tracking-tight"
+              className="truncate text-[19px] font-bold leading-tight tracking-tight"
             >
               {listing.title}
             </h3>
@@ -76,7 +76,7 @@ export function PropertyCard({
               ) : null}
             </ul>
             <p className="mt-4 flex items-center justify-between gap-2">
-              <span className="font-display text-[28px] italic leading-none tracking-tight">
+              <span className="text-[20px] font-bold leading-tight tracking-tight">
                 {listing.rent
                   ? `৳ ${listing.rent.toLocaleString("bn-BD")}`
                   : "—"}

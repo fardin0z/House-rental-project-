@@ -79,10 +79,10 @@ export default async function PropertiesSearchPage({
       <header className="mx-auto max-w-7xl px-6 pb-6 pt-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="font-display text-[22px] italic leading-none text-lime-600">
+            <p className="font-sans text-[18px] font-semibold leading-tight text-lime-600">
               {isLandlord ? t("landlordEyebrow") : t("eyebrow")}
             </p>
-            <h1 className="font-display mt-6 text-[48px] italic leading-[.9] tracking-tight text-ink-900 md:text-[72px]">
+            <h1 className="font-sans mt-3 text-[36px] font-bold leading-tight tracking-tight text-ink-900 md:text-[48px]">
               {isLandlord ? t("landlordHeading") : t("heading")}
             </h1>
             <p className="mt-6 max-w-[520px] text-[15px] font-medium leading-relaxed text-ink-500">

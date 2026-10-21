@@ -41,7 +41,7 @@ const SAMPLE_IMAGES = [
 
 async function loadFeatured(): Promise<ListingWithImages[]> {
   try {
-    return await getApprovedListings({ limit: 6 });
+    return await getApprovedListings({ limit: 60 });
   } catch {
     return [];
   }
@@ -173,6 +173,8 @@ export default async function HomePage() {
       />
 
       <StatsRow stats={stats} />
+
+      <CategoryStrip />
 
       <FeaturedSection
         title={t("featuredTitle")}
@@ -396,6 +398,36 @@ type FeaturedCard = {
   accent: boolean;
   spec: string;
 };
+
+function CategoryStrip() {
+  const categories = [
+    { label: "সব বিজ্ঞাপন", href: "/properties" },
+    { label: "ফ্যামিলি", href: "/properties?type=family_flat" },
+    { label: "ব্যাচেলর", href: "/properties?type=bachelor" },
+    { label: "অফিস", href: "/properties?type=office" },
+    { label: "সাবলেট", href: "/properties?type=sublet" },
+  ];
+
+  return (
+    <section className="mx-auto max-w-7xl px-4 pt-6 md:px-6">
+      <div className="scroll-soft flex gap-3 overflow-x-auto pb-2" aria-label="বিজ্ঞাপনের ধরন">
+        {categories.map((category, index) => (
+          <Link
+            key={category.href}
+            href={category.href}
+            className={`shrink-0 rounded-full border px-6 py-3 text-[15px] font-bold transition ${
+              index === 0
+                ? "border-lime-500 bg-lime-400 text-ink-900"
+                : "border-ink-100 bg-white text-ink-700 hover:border-lime-400"
+            }`}
+          >
+            {category.label}
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
 
 function FeaturedSection({
   title,
