@@ -7,7 +7,9 @@ import { getListingById } from "@/lib/listings/queries";
 import { ListingForm } from "@/components/listings/listing-form";
 import { ListingImageUploader } from "@/components/listings/image-uploader";
 import { ListingVideoUploader } from "@/components/listings/video-uploader";
-import { LocationPicker } from "@/components/map/location-picker";
+
+
+
 
 const STATUS_PILL: Record<string, string> = {
   approved: "bg-lime-50 text-lime-600",
@@ -17,18 +19,30 @@ const STATUS_PILL: Record<string, string> = {
   archived: "bg-ink-900 text-white",
 };
 
+
+
+
 export default async function EditListingPage(
   props: PageProps<"/listings/[id]/edit">,
 ) {
   const profile = await requireProfile();
   const { id } = await props.params;
 
+
+
+
   const listing = await getListingById(id);
   if (!listing) notFound();
   if (listing.owner_id !== profile.id) redirect("/listings");
 
+
+
+
   const t = await getTranslations("listings");
   const statusLabel = t(`statusLabel.${listing.status}`);
+
+
+
 
   return (
     <div className="pb-16">
@@ -41,6 +55,9 @@ export default async function EditListingPage(
           {t("backToListings")}
         </Link>
       </section>
+
+
+
 
       <section className="mx-auto max-w-7xl px-6 pt-6">
         <div className="rounded-[24px] bg-white p-6 md:p-8">
@@ -62,6 +79,9 @@ export default async function EditListingPage(
           ) : null}
         </div>
       </section>
+
+
+
 
       <section className="mx-auto max-w-7xl px-6 pt-6">
         <div className="rounded-[24px] bg-white p-6 md:p-8">
@@ -85,6 +105,9 @@ export default async function EditListingPage(
         </div>
       </section>
 
+
+
+
       <section className="mx-auto max-w-7xl px-6 pt-6">
         <div className="rounded-[24px] bg-white p-6 md:p-8">
           <h2 className="font-display text-[28px] italic leading-tight tracking-tight text-ink-900 md:text-[32px]">
@@ -100,30 +123,8 @@ export default async function EditListingPage(
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 pt-6">
-        <div className="rounded-[24px] bg-white p-6 md:p-8">
-          <h2 className="font-display text-[28px] italic leading-tight tracking-tight text-ink-900 md:text-[32px]">
-            {t("locationTitle")}
-          </h2>
-          <div className="mt-6">
-            <LocationPicker
-              listingId={listing.id}
-              initialLat={listing.lat}
-              initialLng={listing.lng}
-              labels={{
-                title: t("locationPickerTitle"),
-                hint: t("locationPickerHint"),
-                searchPlaceholder: t("locationSearchPlaceholder"),
-                saveCta: t("locationSaveCta"),
-                saved: t("locationSaved"),
-                saving: t("locationSaving"),
-                saveError: t("locationSaveError"),
-                noResults: t("locationNoResults"),
-              }}
-            />
-          </div>
-        </div>
-      </section>
+
+
 
       <section className="mx-auto max-w-7xl px-6 pt-6">
         <div className="rounded-[24px] bg-white p-6 md:p-8">
@@ -141,3 +142,6 @@ export default async function EditListingPage(
     </div>
   );
 }
+
+
+
