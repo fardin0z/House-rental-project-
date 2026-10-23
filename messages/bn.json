@@ -385,7 +385,8 @@
       "title": "শিরোনাম",
       "titlePlaceholder": "যেমন: মিরপুর ১১তে নতুন ফ্ল্যাট",
       "description": "বিবরণ",
-      "descriptionPlaceholder": "বাসা সম্পর্কে বিস্তারিত লিখুন...",
+      "descriptionPlaceholder": "বাসা ও location সম্পর্কে বিস্তারিত লিখুন...",
+      "descriptionHint": "বাসার location সম্পর্কে লিখুন",
       "rentalType": "ধরন",
       "rentalTypes": {
         "family_flat": "ফ্যামিলি ফ্ল্যাট",
@@ -405,7 +406,7 @@
       "division": "বিভাগ",
       "divisionPlaceholder": "ঢাকা",
       "save": "সংরক্ষণ",
-      "submitForReview": "যাচাইয়ের জন্য জমা দিন",
+      "submitForReview": "বিজ্ঞাপন দিন",
       "delete": "মুছে ফেলুন",
       "readonlyPending": "এই বিজ্ঞাপন এখন যাচাইয়ের অপেক্ষায়। অ্যাডমিন পর্যালোচনা শেষে সম্পাদনা করতে পারবেন।",
       "readonlyApproved": "এই বিজ্ঞাপন প্রকাশিত। পরিবর্তন করতে আগে আর্কাইভ করুন।"

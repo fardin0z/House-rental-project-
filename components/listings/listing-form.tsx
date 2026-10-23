@@ -106,7 +106,11 @@ export function ListingForm({
         />
       </Field>
 
-      <Field label={tForm("description")} error={state.fieldErrors?.description}>
+      <Field
+        label={tForm("description")}
+        hint={tForm("descriptionHint")}
+        error={state.fieldErrors?.description}
+      >
         <textarea
           name="description"
           defaultValue={listing.description ?? ""}
@@ -292,18 +296,23 @@ export function ListingForm({
 
 function Field({
   label,
+  hint,
   error,
   children,
 }: {
   label: string;
+  hint?: string;
   error?: string;
   children: React.ReactNode;
 }) {
   return (
     <div className="flex flex-col gap-2">
-      <Label className="text-[0.95rem] font-medium leading-relaxed text-ink-soft">
-        {label}
-      </Label>
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+        <Label className="text-[0.95rem] font-medium leading-relaxed text-ink-soft">
+          {label}
+        </Label>
+        {hint ? <span className="text-xs text-ink-500">{hint}</span> : null}
+      </div>
       {children}
       {error ? <p className="text-xs text-destructive">{error}</p> : null}
     </div>
