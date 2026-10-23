@@ -75,8 +75,9 @@ async function viewerAccess(): Promise<{
   const session = await getCurrentSession();
   const userId = session?.userId ?? null;
   const isAdmin = session?.role === "admin";
-  // Payment is hidden for now; signed-in users can view normal listing details.
-  const premium = Boolean(userId) || isAdmin;
+  // Premium remains implemented for the future, but all approved listing
+  // details are temporarily public while the payment system is paused.
+  const premium = true;
   return { userId, premium, isAdmin };
 }
 
