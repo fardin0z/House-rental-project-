@@ -11,6 +11,7 @@ import type {
 export type PublicListing = {
   id: string;
   title: string;
+  description: string | null;
   rental_type: RentalType;
   rent: number | null;
   beds: number | null;
@@ -135,6 +136,7 @@ export async function getPublicListings(
     return {
       id: row.id,
       title: row.title,
+      description: row.description,
       rental_type: row.rental_type,
       rent: row.rent,
       beds: row.beds,

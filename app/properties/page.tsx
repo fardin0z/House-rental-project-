@@ -183,7 +183,7 @@ function SidebarList({
           </p>
         </div>
       ) : (
-        <ul className="scroll-soft mt-4 max-h-190 list-none space-y-3 overflow-auto pr-1 ps-0">
+        <ul className="mt-4 grid list-none grid-cols-1 gap-4 ps-0 sm:grid-cols-2">
           {listings.map((l, i) => (
             <li key={l.id}>
               <PropertyCard
