@@ -186,7 +186,7 @@ export default async function PropertyDetailPage(
               {t("rentLabel")}
             </p>
             <p className="font-display mt-4 text-[44px] italic leading-none tracking-tight text-ink-900 md:text-[54px]">
-              ৳ {listing.rent ? listing.rent.toLocaleString("bn-BD") : "—"}
+              ৳ {listing.rent ? listing.rent.toLocaleString("en-BD") : "—"}
             </p>
             <p className="mt-3 text-[13px] font-semibold text-ink-500">
               {t("rentSuffix")}

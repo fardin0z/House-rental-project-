@@ -84,7 +84,7 @@ export function PropertyCard({
             <div className="mt-5 flex items-center justify-between gap-3 border-t border-ink-100 pt-4">
               <span className="text-[19px] font-bold leading-tight tracking-tight text-ink-900">
                 {listing.rent
-                  ? `৳ ${listing.rent.toLocaleString("bn-BD")}`
+                  ? `৳ ${listing.rent.toLocaleString("en-BD")}`
                   : "—"}
               </span>
               <span aria-hidden className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-lime-400 text-ink-900 transition group-hover:bg-ink-900 group-hover:text-white">
