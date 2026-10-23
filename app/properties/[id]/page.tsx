@@ -16,7 +16,6 @@ import {
 import { getCurrentUserId } from "@/lib/auth/guards";
 import { getPublicListingDetail } from "@/lib/listings/public-queries";
 import { PropertyMediaCarousel } from "@/components/properties/property-media-carousel";
-import { PropertyLocationMap } from "@/components/properties/property-location-map";
 import { ContactLandlordButton } from "@/components/properties/contact-button";
 import { PremiumLock } from "@/components/listings/premium-lock";
 import { LISTING_BUCKET, publicStorageUrl } from "@/lib/storage/paths";
@@ -179,27 +178,6 @@ export default async function PropertyDetailPage(
             t={t}
           />
 
-          <section aria-labelledby="location-heading">
-            <h2
-              id="location-heading"
-              className="font-space mb-3 ml-2 text-[12px] font-bold uppercase tracking-[.18em] text-ink-500/70"
-            >
-              {t("locationTitle")}
-            </h2>
-            <PropertyLocationMap
-              lat={listing.lat}
-              lng={listing.lng}
-              premium={listing.is_premium_viewer}
-              approxLabel={t("approxLocation")}
-              exactLabel={t("exactLocation")}
-              missingHeading={t("missingMapToken")}
-            />
-            {!listing.is_premium_viewer ? (
-              <p className="mt-3 ml-2 text-[12px] font-semibold text-ink-500">
-                {t("approxNote")}
-              </p>
-            ) : null}
-          </section>
         </article>
 
         <aside className="space-y-6 lg:sticky lg:top-6 lg:self-start">
