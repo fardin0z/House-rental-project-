@@ -24,7 +24,6 @@ export default async function ListingsIndexPage() {
     noImage: t("noImage"),
     beds: t("beds"),
     baths: t("baths"),
-    sqft: t("sqft"),
     edit: t("edit"),
     view: t("view"),
   };

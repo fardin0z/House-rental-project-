@@ -6,7 +6,6 @@ import {
   BedDoubleIcon,
   BathIcon,
   MessageCircleIcon,
-  RulerIcon,
   MapPinIcon,
 } from "lucide-react";
 import { requireProfile } from "@/lib/auth/guards";
@@ -106,12 +105,6 @@ export default async function ListingDetailPage(
               <span className="inline-flex items-center gap-2 rounded-full border border-rule bg-paper px-4 py-2">
                 <BathIcon className="size-4" />
                 {listing.baths} {t("baths")}
-              </span>
-            ) : null}
-            {listing.area_sqft != null ? (
-              <span className="inline-flex items-center gap-2 rounded-full border border-rule bg-paper px-4 py-2">
-                <RulerIcon className="size-4" />
-                {listing.area_sqft} {t("sqft")}
               </span>
             ) : null}
           </div>

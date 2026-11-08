@@ -9,7 +9,6 @@ import {
   BathIcon,
   BedDoubleIcon,
   MapPinIcon,
-  RulerIcon,
   ShieldCheckIcon,
 } from "lucide-react";
 import {
@@ -175,9 +174,7 @@ function PopupCard({
           </p>
         ) : null}
 
-        {(listing.beds != null ||
-          listing.baths != null ||
-          listing.area_sqft != null) && (
+        {(listing.beds != null || listing.baths != null) && (
           <div className="mt-2.5 flex items-center gap-3 text-[11px] font-semibold text-ink-500">
             {listing.beds != null ? (
               <span className="inline-flex items-center gap-1">
@@ -189,12 +186,6 @@ function PopupCard({
               <span className="inline-flex items-center gap-1">
                 <BathIcon className="h-3.5 w-3.5" />
                 {listing.baths}
-              </span>
-            ) : null}
-            {listing.area_sqft != null ? (
-              <span className="inline-flex items-center gap-1">
-                <RulerIcon className="h-3.5 w-3.5" />
-                {listing.area_sqft}
               </span>
             ) : null}
           </div>

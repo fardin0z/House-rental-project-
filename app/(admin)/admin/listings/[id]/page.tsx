@@ -12,7 +12,6 @@ import {
   MapPinIcon,
   PhoneIcon,
   PlayCircleIcon,
-  RulerIcon,
   UserIcon,
 } from "lucide-react";
 import {
@@ -121,13 +120,6 @@ export default async function AdminListingDetailPage(
                 icon={<BathIcon className="h-4 w-4 text-lime-600" />}
                 value={listing.baths != null ? String(listing.baths) : "—"}
                 label={t("listingsBaths")}
-              />
-              <Stat
-                icon={<RulerIcon className="h-4 w-4 text-lime-600" />}
-                value={
-                  listing.area_sqft != null ? String(listing.area_sqft) : "—"
-                }
-                label={t("listingsSqft")}
               />
               <Stat
                 icon={<CalendarDaysIcon className="h-4 w-4 text-lime-600" />}

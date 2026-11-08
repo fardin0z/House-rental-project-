@@ -9,14 +9,12 @@ export function PropertyCard({
   verifiedLabel,
   bedsLabel,
   bathsLabel,
-  sqftLabel,
 }: {
   listing: PublicListing;
   active?: boolean;
   verifiedLabel: string;
   bedsLabel: string;
   bathsLabel: string;
-  sqftLabel: string;
 }) {
   const titleId = `listing-${listing.id}-title`;
   const location = [listing.area_name, listing.district]
@@ -73,11 +71,6 @@ export function PropertyCard({
               {listing.baths != null ? (
                 <li className="rounded-full bg-ink-50 px-3 py-1 text-[11px] font-bold text-ink-600">
                   {listing.baths} {bathsLabel}
-                </li>
-              ) : null}
-              {listing.area_sqft != null ? (
-                <li className="rounded-full bg-ink-50 px-3 py-1 text-[11px] font-bold text-ink-600">
-                  {listing.area_sqft} {sqftLabel}
                 </li>
               ) : null}
             </ul>

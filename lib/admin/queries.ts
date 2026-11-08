@@ -367,7 +367,6 @@ export type AdminListingDetail = AdminListing & {
   description: string | null;
   beds: number | null;
   baths: number | null;
-  area_sqft: number | null;
   division: string | null;
   lat: number | null;
   lng: number | null;
@@ -402,8 +401,7 @@ export async function getAdminListingDetail(
     rent: number;
     beds: number | null;
     baths: number | null;
-    area_sqft: number | null;
-    area_name: string;
+      area_name: string;
     division: string | null;
     district: string | null;
     lat: number | null;
@@ -435,7 +433,6 @@ export async function getAdminListingDetail(
     rental_type: row.rental_type,
     beds: row.beds,
     baths: row.baths,
-    area_sqft: row.area_sqft,
     area_name: row.area_name,
     district: row.district,
     division: row.division,

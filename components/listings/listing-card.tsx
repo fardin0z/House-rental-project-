@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRightIcon, BedDoubleIcon, BathIcon, RulerIcon } from "lucide-react";
+import { ArrowUpRightIcon, BedDoubleIcon, BathIcon } from "lucide-react";
 import { LISTING_BUCKET, publicStorageUrl } from "@/lib/storage/paths";
 import type { ListingWithImages } from "@/lib/listings/queries";
 
@@ -13,7 +13,6 @@ type Labels = {
   noImage: string;
   beds: string;
   baths: string;
-  sqft: string;
   edit: string;
   view: string;
 };
@@ -114,12 +113,6 @@ export function ListingCard({
             <span className="inline-flex items-center gap-1">
               <BathIcon className="h-4 w-4" />
               {listing.baths}
-            </span>
-          ) : null}
-          {listing.area_sqft != null ? (
-            <span className="inline-flex items-center gap-1">
-              <RulerIcon className="h-4 w-4" />
-              {listing.area_sqft}
             </span>
           ) : null}
         </div>

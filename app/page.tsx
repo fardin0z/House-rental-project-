@@ -65,18 +65,15 @@ function bn(n: number | null | undefined): string {
 function buildSpec(listing: ListingWithImages, t: {
   beds: string;
   baths: string;
-  sqft: string;
 }): string {
   const parts: string[] = [];
   if (listing.beds != null) parts.push(`${bn(listing.beds)} ${t.beds}`);
   if (listing.baths != null) parts.push(`${bn(listing.baths)} ${t.baths}`);
-  if (listing.area_sqft != null) parts.push(`${bn(listing.area_sqft)} ${t.sqft}`);
   return parts.join("  |  ");
 }
 
 export default async function HomePage() {
   const t = await getTranslations("landing");
-  const tCommon = await getTranslations("common");
   const tListings = await getTranslations("listings");
   const session = await getCurrentSession();
   const isAuthed = Boolean(session);
@@ -86,7 +83,6 @@ export default async function HomePage() {
   const specWords = {
     beds: tListings("beds"),
     baths: tListings("baths"),
-    sqft: tListings("sqft"),
   };
 
   const navLinks = [

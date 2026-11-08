@@ -10,7 +10,6 @@ import {
   CalendarDaysIcon,
   LockIcon,
   LockKeyholeIcon,
-  RulerIcon,
   ShieldCheckIcon,
 } from "lucide-react";
 import { getCurrentUserId } from "@/lib/auth/guards";
@@ -156,13 +155,6 @@ export default async function PropertyDetailPage(
                 icon={<BathIcon className="h-5 w-5 text-lime-600" />}
                 value={listing.baths != null ? String(listing.baths) : "—"}
                 label={t("bathrooms")}
-              />
-              <StatTile
-                icon={<RulerIcon className="h-5 w-5 text-lime-600" />}
-                value={
-                  listing.area_sqft != null ? String(listing.area_sqft) : "—"
-                }
-                label={t("sqftLabel")}
               />
               <StatTile
                 icon={<CalendarDaysIcon className="h-5 w-5 text-lime-600" />}
@@ -408,13 +400,6 @@ function buildListingJsonLd(
     address,
     numberOfRooms: listing.beds ?? undefined,
     numberOfBathroomsTotal: listing.baths ?? undefined,
-    floorSize: listing.area_sqft
-      ? {
-          "@type": "QuantitativeValue",
-          value: listing.area_sqft,
-          unitCode: "FTK",
-        }
-      : undefined,
     geo:
       listing.is_premium_viewer && listing.lat != null && listing.lng != null
         ? {

@@ -118,7 +118,6 @@ export default async function PropertiesSearchPage({
             verified: t("verified"),
             beds: t("beds"),
             baths: t("baths"),
-            sqft: t("sqft"),
             noResultsTitle: t("noResultsTitle"),
             noResultsBody: t("noResultsBody"),
           }}
@@ -142,7 +141,6 @@ function SidebarList({
     verified: string;
     beds: string;
     baths: string;
-    sqft: string;
     noResultsTitle: string;
     noResultsBody: string;
   };
@@ -192,7 +190,6 @@ function SidebarList({
                 verifiedLabel={labels.verified}
                 bedsLabel={labels.beds}
                 bathsLabel={labels.baths}
-                sqftLabel={labels.sqft}
               />
             </li>
           ))}
