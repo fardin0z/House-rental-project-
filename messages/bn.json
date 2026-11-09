@@ -395,6 +395,9 @@
         "office": "অফিস"
       },
       "rent": "মাসিক ভাড়া (৳)",
+      "contactPhone": "যোগাযোগের মোবাইল নম্বর",
+      "contactPhoneHint": "এই নম্বরে ভাড়াটিয়া কল করবে",
+      "contactPhonePlaceholder": "০১৭১২৩৪৫৬৭৮",
       "beds": "বেডরুম",
       "baths": "বাথরুম",
       "areaName": "এলাকা",
@@ -463,6 +466,8 @@
     "ownerLabel": "মালিক",
     "ownerVerified": "যাচাইকৃত মালিক",
     "ownerNote": "এই প্রোফাইলটি NID যাচাইকৃত। তবু পেমেন্টের আগে বাসা সরেজমিনে দেখে নিন।",
+    "callLandlord": "মালিককে কল করুন",
+    "listingContactPhone": "যোগাযোগের নম্বর",
     "safetyTitle": "নিরাপত্তা নোট",
     "safetyBody": "বাসা ও মালিকের তথ্য নিজে যাচাই না করে কখনো আগাম টাকা দেবেন না।",
     "overviewEyebrow": "বাসার সারাংশ",

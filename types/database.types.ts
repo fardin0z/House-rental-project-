@@ -131,6 +131,7 @@ export type Database = {
           rent: number;
           beds: number | null;
           baths: number | null;
+          contact_phone: string | null;
           area_name: string;
           division: string | null;
           district: string | null;
@@ -151,6 +152,7 @@ export type Database = {
           rent?: number;
           beds?: number | null;
           baths?: number | null;
+          contact_phone?: string | null;
           area_name?: string;
           division?: string | null;
           district?: string | null;
@@ -171,6 +173,7 @@ export type Database = {
           rent?: number;
           beds?: number | null;
           baths?: number | null;
+          contact_phone?: string | null;
           area_name?: string;
           division?: string | null;
           district?: string | null;

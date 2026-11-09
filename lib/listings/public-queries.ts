@@ -16,6 +16,7 @@ export type PublicListing = {
   rent: number | null;
   beds: number | null;
   baths: number | null;
+  contact_phone: string | null;
   area_name: string;
   district: string | null;
   division: string | null;
@@ -141,6 +142,7 @@ export async function getPublicListings(
       rent: row.rent,
       beds: row.beds,
       baths: row.baths,
+      contact_phone: row.contact_phone,
       area_name: row.area_name,
       district: row.district,
       division: row.division,
@@ -208,6 +210,7 @@ export async function getPublicListingDetail(
     rent: listing.rent,
     beds: listing.beds,
     baths: listing.baths,
+    contact_phone: listing.contact_phone,
     area_name: listing.area_name,
     district: listing.district,
     division: listing.division,

@@ -178,6 +178,22 @@ export function ListingForm({
         </Field>
       </div>
 
+      <Field
+        label={tForm("contactPhone")}
+        hint={tForm("contactPhoneHint")}
+        error={state.fieldErrors?.contact_phone}
+      >
+        <Input
+          name="contact_phone"
+          type="tel"
+          inputMode="tel"
+          defaultValue={listing.contact_phone ?? ""}
+          placeholder={tForm("contactPhonePlaceholder")}
+          disabled={readonly}
+          className="h-12 rounded-2xl border-rule bg-paper px-4 text-base"
+        />
+      </Field>
+
       <div className="grid gap-5 sm:grid-cols-3">
         <Field label={tForm("areaName")} error={state.fieldErrors?.area_name}>
           <Input

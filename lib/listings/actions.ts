@@ -6,6 +6,7 @@ import { requireProfile } from "@/lib/auth/guards";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { rentalTypeSchema } from "./schema";
 import { parseBengaliInt } from "@/lib/utils/bengali-number";
+import { isValidBdPhone, normalizeBdPhone } from "@/lib/auth/phone";
 import type { ActionState } from "@/lib/auth/actions";
 
 function parseFloatOrNull(v: FormDataEntryValue | null): number | null {
@@ -27,6 +28,7 @@ function readListingForm(formData: FormData) {
     rent: parseBengaliInt(formData.get("rent")),
     beds: parseBengaliInt(formData.get("beds")),
     baths: parseBengaliInt(formData.get("baths")),
+    contact_phone: normalizeBdPhone(String(formData.get("contact_phone") ?? "").trim()),
     area_name: String(formData.get("area_name") ?? "").trim(),
     division: String(formData.get("division") ?? "").trim(),
     district: String(formData.get("district") ?? "").trim(),
@@ -40,6 +42,9 @@ function validateForSubmit(v: ReturnType<typeof readListingForm>): Record<string
   if (v.title.length < 4) errors.title = "শিরোনাম কমপক্ষে ৪ অক্ষরের হতে হবে";
   if (!v.rent || v.rent < 500) errors.rent = "ভাড়া কমপক্ষে ৫০০ টাকা দিন";
   if (v.area_name.length < 2) errors.area_name = "এলাকার নাম দিন";
+  if (!isValidBdPhone(v.contact_phone)) {
+    errors.contact_phone = "সঠিক বাংলাদেশি মোবাইল নম্বর দিন (যেমন 01712345678)";
+  }
   return errors;
 }
 
@@ -90,6 +95,7 @@ export async function updateListingAction(
       rent: v.rent ?? 0,
       beds: v.beds,
       baths: v.baths,
+      contact_phone: v.contact_phone,
       area_name: v.area_name,
       division: v.division ? v.division : null,
       district: v.district ? v.district : null,

@@ -19,6 +19,7 @@ import { ContactLandlordButton } from "@/components/properties/contact-button";
 import { PremiumLock } from "@/components/listings/premium-lock";
 import { LISTING_BUCKET, publicStorageUrl } from "@/lib/storage/paths";
 import { SITE_NAME, getSiteUrl } from "@/lib/seo/site";
+import { formatBdPhoneForDisplay } from "@/lib/auth/phone";
 
 export async function generateMetadata(
   props: PageProps<"/properties/[id]">,
@@ -183,6 +184,26 @@ export default async function PropertyDetailPage(
             <p className="mt-3 text-[13px] font-semibold text-ink-500">
               {t("rentSuffix")}
             </p>
+
+            {listing.contact_phone ? (
+              <div className="mt-6 rounded-[18px] bg-ink-50 p-4">
+                <p className="text-[12px] font-bold text-ink-500">
+                  {t("listingContactPhone")}
+                </p>
+                <a
+                  href={`tel:${listing.contact_phone}`}
+                  className="mt-2 block text-[20px] font-bold tracking-tight text-ink-900 underline decoration-lime-500 decoration-2 underline-offset-4"
+                >
+                  {formatBdPhoneForDisplay(listing.contact_phone)}
+                </a>
+                <a
+                  href={`tel:${listing.contact_phone}`}
+                  className="mt-3 inline-flex h-11 w-full items-center justify-center rounded-full bg-lime-400 px-5 text-[14px] font-bold text-ink-900 transition hover:bg-lime-300"
+                >
+                  {t("callLandlord")}
+                </a>
+              </div>
+            ) : null}
 
             <div className="mt-6">
               <ContactLandlordButton
