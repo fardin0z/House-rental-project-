@@ -2,15 +2,12 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import {
   ArrowUpRightIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
   MailIcon,
   PhoneIcon,
 } from "lucide-react";
 import { getCurrentSession } from "@/lib/auth/guards";
 import {
   getApprovedListings,
-  getLandingStats,
   type ListingWithImages,
 } from "@/lib/listings/queries";
 import { LISTING_BUCKET, publicStorageUrl } from "@/lib/storage/paths";
@@ -21,14 +18,6 @@ import { NewUserGate } from "@/components/landing/new-user-gate";
 
 const HERO_IMAGE =
   "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=2200&q=90&auto=format&fit=crop";
-const HELP_IMAGE =
-  "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&q=90&auto=format&fit=crop";
-const TESTIMONIAL_IMAGE =
-  "https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=1800&q=90&auto=format&fit=crop";
-const REVIEW_AVATAR_1 =
-  "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=90&auto=format&fit=crop&crop=faces";
-const REVIEW_AVATAR_2 =
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&q=90&auto=format&fit=crop&crop=faces";
 
 const SAMPLE_IMAGES = [
   "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=900&q=90&auto=format&fit=crop",
@@ -47,13 +36,7 @@ async function loadFeatured(): Promise<ListingWithImages[]> {
   }
 }
 
-async function loadStats(): Promise<{ activeListings: number; cities: number }> {
-  try {
-    return await getLandingStats();
-  } catch {
-    return { activeListings: 0, cities: 0 };
-  }
-}
+
 
 const BN_FMT = new Intl.NumberFormat("bn-BD");
 
@@ -78,7 +61,7 @@ export default async function HomePage() {
   const session = await getCurrentSession();
   const isAuthed = Boolean(session);
   const browseHref = "/properties";
-  const [featured, liveStats] = await Promise.all([loadFeatured(), loadStats()]);
+  const featured = await loadFeatured();
 
   const specWords = {
     beds: tListings("beds"),
@@ -106,19 +89,6 @@ export default async function HomePage() {
     { value: "10000-20000", label: "১০,০০০ — ২০,০০০" },
     { value: "20000-40000", label: "২০,০০০ — ৪০,০০০" },
     { value: "40000-", label: "৪০,০০০+" },
-  ];
-
-  const stats = [
-    {
-      value: liveStats.activeListings > 0 ? bn(liveStats.activeListings) : t("stat1Value"),
-      label: t("stat1Label"),
-    },
-    { value: t("stat2Value"), label: t("stat2Label") },
-    {
-      value: liveStats.cities > 0 ? bn(liveStats.cities) : t("stat3Value"),
-      label: t("stat3Label"),
-    },
-    { value: t("stat4Value"), label: t("stat4Label") },
   ];
 
   const featuredCards: FeaturedCard[] = featured.map((l, i) => ({
@@ -150,25 +120,34 @@ export default async function HomePage() {
         }}
         typeOptions={typeOptions}
         priceOptions={priceOptions}
-        primaryCta={{ label: t("ctaPrimary"), href: browseHref }}
-        secondaryCta={{
+        primaryCta={{
           label: t("ctaSecondary"),
-          href: isAuthed ? "/listings/new" : "/signup",
+          href: isAuthed ? "/listings/new" : "/signup?role=landlord",
+        }}
+        secondaryCta={{
+          label: t("ctaPrimary"),
+          href: browseHref,
         }}
       />
 
-      <HelpSection
+      <LandlordIntroSection
         title={t("helpTitle")}
-        verifiedValue={t("verifiedBadgeValue")}
-        verifiedLabel={t("verifiedBadgeLabel")}
-        leftTitle={t("helpLeftTitle")}
-        leftBody={t("helpLeftBody")}
-        centerBadge={t("helpCenterBadge")}
-        rightTitle={t("helpRightTitle")}
-        rightBody={t("helpRightBody")}
+        body={t("helpLeftBody")}
+        badge={t("helpCenterBadge")}
+        stepsTitle={t("helpRightTitle")}
+        stepsBody={t("helpRightBody")}
+        cta={t("ctaSecondary")}
+        href={isAuthed ? "/listings/new" : "/signup?role=landlord"}
       />
 
-      <StatsRow stats={stats} />
+      <LandlordSteps
+        title={t("stepsTitle")}
+        items={[
+          { title: t("step1Title"), body: t("step1Body") },
+          { title: t("step2Title"), body: t("step2Body") },
+          { title: t("step3Title"), body: t("step3Body") },
+        ]}
+      />
 
       <CategoryStrip />
 
@@ -186,29 +165,18 @@ export default async function HomePage() {
         cards={featuredCards}
       />
 
-      <Testimonials
-        title={t("reviewsTitle")}
-        subtitle={t("reviewsSubtitle")}
-        t1={{
-          title: t("review1Title"),
-          body: t("review1Body"),
-          name: t("review1Name"),
-          role: t("review1Role"),
-          avatar: REVIEW_AVATAR_1,
-        }}
-        t2={{
-          title: t("review2Title"),
-          body: t("review2Body"),
-          name: t("review2Name"),
-          role: t("review2Role"),
-          avatar: REVIEW_AVATAR_2,
-        }}
+      <TrustSection
+        title={t("trustTitle")}
+        body={t("trustBody")}
+        items={[t("trust1"), t("trust2"), t("trust3")]}
+        cta={t("ctaSecondary")}
+        href={isAuthed ? "/listings/new" : "/signup?role=landlord"}
       />
 
       <JoinSection
         line1={t("joinTitle1")}
         line2={t("joinTitle2")}
-        href={browseHref}
+        href={isAuthed ? "/listings/new" : "/signup?role=landlord"}
       />
 
       <SiteFooter
@@ -294,95 +262,78 @@ async function Hero(props: {
   );
 }
 
-function HelpSection({
+function LandlordIntroSection({
   title,
-  verifiedValue,
-  verifiedLabel,
-  leftTitle,
-  leftBody,
-  centerBadge,
-  rightTitle,
-  rightBody,
+  body,
+  badge,
+  stepsTitle,
+  stepsBody,
+  cta,
+  href,
 }: {
   title: string;
-  verifiedValue: string;
-  verifiedLabel: string;
-  leftTitle: string;
-  leftBody: string;
-  centerBadge: string;
-  rightTitle: string;
-  rightBody: string;
+  body: string;
+  badge: string;
+  stepsTitle: string;
+  stepsBody: string;
+  cta: string;
+  href: string;
 }) {
   return (
-    <section id="help" className="mx-auto max-w-7xl px-6 pb-16 pt-24 md:pt-28">
-      <h2 className="mx-auto max-w-[520px] text-center text-[28px] font-semibold leading-[1.15] tracking-tight md:text-[38px]">
-        {renderLines(title)}
-      </h2>
-
-      <div className="mt-12 grid grid-cols-1 items-center gap-10 md:grid-cols-[1fr_1.05fr_1fr]">
+    <section className="mx-auto max-w-7xl px-6 pb-12 pt-24 md:pt-28">
+      <div className="grid items-center gap-10 rounded-[24px] bg-[#f2f7ee] p-7 md:grid-cols-[1.05fr_.95fr] md:p-12">
         <div>
-          <div className="mx-auto flex h-[126px] w-[140px] flex-col items-center justify-center rounded-xl border border-black/10 md:mx-0">
-            <div className="text-[36px] font-bold leading-none tracking-tight text-greenx">
-              {verifiedValue}
-              <span className="align-top text-[18px]">%</span>
-            </div>
-            <p className="mt-2 whitespace-pre-line text-center text-[11px] leading-tight text-black/60">
-              {verifiedLabel}
-            </p>
-          </div>
-          <h3 className="mt-20 text-[20px] font-semibold leading-tight tracking-tight md:mt-28">
-            {renderLines(leftTitle)}
-          </h3>
-          <p className="mt-2 max-w-[230px] text-[13px] leading-relaxed text-black/60">
-            {leftBody}
-          </p>
+          <p className="text-[12px] font-bold uppercase tracking-[0.18em] text-green-700">ToletZoo for landlords</p>
+          <h2 className="mt-4 max-w-[560px] text-[32px] font-semibold leading-[1.08] tracking-tight md:text-[48px]">{renderLines(title)}</h2>
+          <p className="mt-5 max-w-[500px] text-[15px] leading-relaxed text-black/65">{body}</p>
+          <Link href={href} className="mt-7 inline-flex h-12 items-center gap-2 rounded-full bg-greenx px-6 text-[14px] font-bold text-black transition hover:scale-[1.02]">
+            {cta}<ArrowUpRightIcon className="h-4 w-4" />
+          </Link>
         </div>
-
-        <div className="img-zoom relative aspect-[4/5] overflow-hidden rounded-[20px] bg-slate-100">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={HELP_IMAGE}
-            alt=""
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-          <div className="absolute bottom-[-1px] right-[-1px] h-[124px] w-[124px] rounded-tl-[18px] bg-greenx p-4 text-black">
-            <p className="whitespace-pre-line text-[12px] font-semibold leading-[1.15] tracking-tight">
-              {centerBadge}
-            </p>
-            <span className="absolute bottom-3 right-3 inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-black">
-              <ArrowUpRightIcon className="h-4 w-4" />
-            </span>
+        <div className="relative min-h-[250px] overflow-hidden rounded-[20px] bg-[#151515] p-7 text-white md:min-h-[320px] md:p-10">
+          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-greenx/20 blur-2xl" />
+          <p className="relative whitespace-pre-line text-[28px] font-semibold leading-[1.08] tracking-tight md:text-[42px]">{badge}</p>
+          <div className="absolute bottom-7 left-7 right-7 border-t border-white/15 pt-5 md:bottom-10 md:left-10 md:right-10">
+            <h3 className="text-[17px] font-bold">{stepsTitle}</h3>
+            <p className="mt-2 max-w-[360px] text-[13px] leading-relaxed text-white/65">{stepsBody}</p>
           </div>
-        </div>
-
-        <div className="md:pl-8">
-          <h3 className="text-[20px] font-semibold leading-tight tracking-tight">
-            {renderLines(rightTitle)}
-          </h3>
-          <p className="mt-2 max-w-[240px] text-[13px] leading-relaxed text-black/60">
-            {rightBody}
-          </p>
         </div>
       </div>
     </section>
   );
 }
 
-function StatsRow({ stats }: { stats: { value: string; label: string }[] }) {
+function LandlordSteps({ title, items }: { title: string; items: { title: string; body: string }[] }) {
   return (
-    <section className="mx-auto max-w-7xl px-6 pb-24">
-      <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
-        {stats.map((s, i) => (
-          <div key={`${s.label}-${i}`} className="relative">
-            <span className="text-[64px] font-bold leading-none tracking-tight text-[#cfcfcf] md:text-[78px] tabular-nums">
-              {s.value}
-            </span>
-            <span className="align-top text-2xl font-bold text-greenx">+</span>
-            <span className="absolute bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-black px-3 py-1 text-[10px] font-medium text-white">
-              {s.label}
-            </span>
-          </div>
+    <section className="mx-auto max-w-7xl px-6 pb-24 pt-12">
+      <h2 className="max-w-[520px] text-[30px] font-semibold leading-tight tracking-tight md:text-[42px]">{renderLines(title)}</h2>
+      <div className="mt-10 grid gap-4 md:grid-cols-3">
+        {items.map((item, index) => (
+          <article key={item.title} className="rounded-[20px] border border-black/10 p-6">
+            <span className="text-[54px] font-bold leading-none text-black/15">০{index + 1}</span>
+            <h3 className="mt-8 text-[19px] font-bold tracking-tight">{item.title}</h3>
+            <p className="mt-3 text-[13px] leading-relaxed text-black/60">{item.body}</p>
+          </article>
         ))}
+      </div>
+    </section>
+  );
+}
+
+function TrustSection({ title, body, items, cta, href }: { title: string; body: string; items: string[]; cta: string; href: string }) {
+  return (
+    <section className="mx-auto mt-8 max-w-7xl rounded-[24px] bg-[#111] px-7 py-14 text-white md:px-12 md:py-20">
+      <div className="grid gap-10 md:grid-cols-[1.05fr_.95fr] md:items-end">
+        <div>
+          <h2 className="max-w-[540px] text-[30px] font-semibold leading-tight tracking-tight md:text-[44px]">{renderLines(title)}</h2>
+          <p className="mt-5 max-w-[520px] text-[14px] leading-relaxed text-white/65">{body}</p>
+          <Link href={href} className="mt-7 inline-flex h-12 items-center gap-2 rounded-full bg-greenx px-6 text-[14px] font-bold text-black transition hover:scale-[1.02]">
+            {cta}<ArrowUpRightIcon className="h-4 w-4" />
+          </Link>
+        </div>
+        <div className="grid gap-3">
+          {items.map((item) => <div key={item} className="rounded-[16px] border border-white/15 px-5 py-4 text-[15px] font-semibold"><span className="mr-3 text-greenx">✓</span>{item}</div>)}
+        </div>
       </div>
     </section>
   );
@@ -572,106 +523,6 @@ function FeaturedItem({
         <b>{priceLabel}:</b> ৳ {price}
       </p>
     </article>
-  );
-}
-
-function Testimonials({
-  title,
-  subtitle,
-  t1,
-  t2,
-}: {
-  title: string;
-  subtitle: string;
-  t1: {
-    title: string;
-    body: string;
-    name: string;
-    role: string;
-    avatar: string;
-  };
-  t2: {
-    title: string;
-    body: string;
-    name: string;
-    role: string;
-    avatar: string;
-  };
-}) {
-  return (
-    <section
-      id="why"
-      className="relative mx-auto mt-16 min-h-[570px] max-w-7xl overflow-hidden rounded-[18px] bg-[#111]"
-    >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={TESTIMONIAL_IMAGE}
-        alt=""
-        className="absolute inset-0 h-full w-full object-cover"
-      />
-      <div className="absolute inset-0 z-[1] bg-black/55" />
-
-      <div className="side-pocket left">
-        <button
-          type="button"
-          aria-label="prev"
-          className="absolute left-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-greenx text-black"
-        >
-          <ChevronLeftIcon className="h-4 w-4" />
-        </button>
-      </div>
-      <div className="side-pocket right">
-        <button
-          type="button"
-          aria-label="next"
-          className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-greenx text-black"
-        >
-          <ChevronRightIcon className="h-4 w-4" />
-        </button>
-      </div>
-
-      <div className="relative z-10 px-8 py-16 md:py-20">
-        <h2 className="text-center text-[28px] font-semibold leading-tight tracking-tight text-white md:text-[38px]">
-          {title}
-        </h2>
-        <p className="mx-auto mt-3 max-w-[520px] text-center text-[13px] leading-relaxed text-white/75">
-          {subtitle}
-        </p>
-
-        <div className="mx-auto mt-12 grid max-w-[840px] grid-cols-1 gap-5 md:grid-cols-2">
-          <ReviewCard data={t1} />
-          <ReviewCard data={t2} />
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ReviewCard({
-  data,
-}: {
-  data: { title: string; body: string; name: string; role: string; avatar: string };
-}) {
-  return (
-    <figure className="rounded-[12px] bg-white p-7">
-      <h3 className="text-[15px] font-bold tracking-tight">{data.title}</h3>
-      <p className="mt-3 text-[13px] leading-relaxed text-black/65">{data.body}</p>
-      <figcaption className="mt-7 flex items-center justify-between border-t border-black/5 pt-5">
-        <div className="flex items-center gap-3">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={data.avatar}
-            className="h-12 w-12 rounded-md object-cover"
-            alt=""
-          />
-          <div>
-            <div className="text-[12.5px] font-bold">{data.name}</div>
-            <div className="text-[11px] text-black/55">{data.role}</div>
-          </div>
-        </div>
-        <div className="text-[70px] leading-none text-black/5">”</div>
-      </figcaption>
-    </figure>
   );
 }
 
