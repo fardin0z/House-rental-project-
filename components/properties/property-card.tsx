@@ -1,20 +1,21 @@
 import Link from "next/link";
-import { ArrowUpRightIcon, MapPinIcon } from "lucide-react";
+import { ArrowUpRightIcon, MapPinIcon, PhoneCallIcon } from "lucide-react";
 import { LISTING_BUCKET, publicStorageUrl } from "@/lib/storage/paths";
 import type { PublicListing } from "@/lib/listings/public-queries";
+import { formatBdPhoneForDisplay } from "@/lib/auth/phone";
 
 export function PropertyCard({
   listing,
-  active,
   verifiedLabel,
   bedsLabel,
   bathsLabel,
+  callLabel,
 }: {
   listing: PublicListing;
-  active?: boolean;
   verifiedLabel: string;
   bedsLabel: string;
   bathsLabel: string;
+  callLabel: string;
 }) {
   const titleId = `listing-${listing.id}-title`;
   const location = [listing.area_name, listing.district]
@@ -23,10 +24,10 @@ export function PropertyCard({
   const description = listing.description?.trim();
 
   return (
-    <article aria-labelledby={titleId} className="h-full">
+    <article aria-labelledby={titleId} className="h-full overflow-hidden rounded-[22px] border border-ink-100 bg-white shadow-[0_8px_24px_rgba(15,23,42,0.06)] transition hover:-translate-y-1 hover:shadow-[0_14px_34px_rgba(15,23,42,0.12)]">
       <Link
         href={`/properties/${listing.id}`}
-        className="group block h-full overflow-hidden rounded-[22px] border border-ink-100 bg-white shadow-[0_8px_24px_rgba(15,23,42,0.06)] transition hover:-translate-y-1 hover:shadow-[0_14px_34px_rgba(15,23,42,0.12)]"
+        className="group block h-full"
       >
         <figure className="relative m-0 aspect-[1.45/1] overflow-hidden bg-ink-100">
             {listing.cover_path ? (
@@ -47,6 +48,19 @@ export function PropertyCard({
               {verifiedLabel}
             </figcaption>
           </figure>
+      </Link>
+      {listing.contact_phone ? (
+        <a
+          href={`tel:${listing.contact_phone}`}
+          aria-label={`${callLabel}: ${formatBdPhoneForDisplay(listing.contact_phone)}`}
+          className="flex items-center justify-center gap-2 border-b border-ink-100 bg-lime-50 px-4 py-3 text-[13px] font-bold text-ink-900 transition hover:bg-lime-100"
+        >
+          <PhoneCallIcon className="h-4 w-4 text-lime-700" />
+          <span>{callLabel}</span>
+          <span className="font-medium text-ink-600">{formatBdPhoneForDisplay(listing.contact_phone)}</span>
+        </a>
+      ) : null}
+      <Link href={`/properties/${listing.id}`} className="group block h-full">
           <div className="p-4 sm:p-5">
             <h3 id={titleId} className="line-clamp-2 text-[18px] font-bold leading-tight tracking-tight text-ink-900 sm:text-[20px]">
               {listing.title}

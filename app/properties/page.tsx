@@ -118,6 +118,7 @@ export default async function PropertiesSearchPage({
             verified: t("verified"),
             beds: t("beds"),
             baths: t("baths"),
+            call: t("callLandlord"),
             noResultsTitle: t("noResultsTitle"),
             noResultsBody: t("noResultsBody"),
           }}
@@ -141,6 +142,7 @@ function SidebarList({
     verified: string;
     beds: string;
     baths: string;
+    call: string;
     noResultsTitle: string;
     noResultsBody: string;
   };
@@ -182,14 +184,14 @@ function SidebarList({
         </div>
       ) : (
         <ul className="mt-4 grid list-none grid-cols-1 gap-4 ps-0 sm:grid-cols-2">
-          {listings.map((l, i) => (
+          {listings.map((l) => (
             <li key={l.id}>
               <PropertyCard
                 listing={l}
-                active={i === 0}
                 verifiedLabel={labels.verified}
                 bedsLabel={labels.beds}
                 bathsLabel={labels.baths}
+                callLabel={labels.call}
               />
             </li>
           ))}
