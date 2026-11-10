@@ -292,8 +292,8 @@ function LandlordIntroSection({
         </div>
         <div className="relative min-h-[250px] overflow-hidden rounded-[20px] bg-[#151515] p-7 text-white md:min-h-[320px] md:p-10">
           <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-greenx/20 blur-2xl" />
-          <p className="relative whitespace-pre-line text-[28px] font-semibold leading-[1.08] tracking-tight md:text-[42px]">{badge}</p>
-          <div className="absolute bottom-7 left-7 right-7 border-t border-white/15 pt-5 md:bottom-10 md:left-10 md:right-10">
+          <p className="relative whitespace-pre-line text-[27px] font-semibold leading-[1.12] tracking-tight md:text-[38px]">{badge}</p>
+          <div className="relative mt-8 border-t border-white/15 pt-5">
             <h3 className="text-[17px] font-bold">{stepsTitle}</h3>
             <p className="mt-2 max-w-[360px] text-[13px] leading-relaxed text-white/65">{stepsBody}</p>
           </div>
@@ -305,14 +305,16 @@ function LandlordIntroSection({
 
 function LandlordSteps({ title, items }: { title: string; items: { title: string; body: string }[] }) {
   return (
-    <section className="mx-auto max-w-7xl px-6 pb-24 pt-12">
-      <h2 className="max-w-[520px] text-[30px] font-semibold leading-tight tracking-tight md:text-[42px]">{renderLines(title)}</h2>
-      <div className="mt-10 grid gap-4 md:grid-cols-3">
+    <section className="mx-auto max-w-7xl px-6 pb-16 pt-8">
+      <h2 className="max-w-[520px] text-[26px] font-semibold leading-tight tracking-tight md:text-[34px]">{renderLines(title)}</h2>
+      <div className="mt-7 grid gap-0 border-y border-black/10 md:grid-cols-3 md:divide-x md:divide-black/10">
         {items.map((item, index) => (
-          <article key={item.title} className="rounded-[20px] border border-black/10 p-6">
-            <span className="text-[54px] font-bold leading-none text-black/15">০{index + 1}</span>
-            <h3 className="mt-8 text-[19px] font-bold tracking-tight">{item.title}</h3>
-            <p className="mt-3 text-[13px] leading-relaxed text-black/60">{item.body}</p>
+          <article key={item.title} className="flex items-start gap-4 border-b border-black/10 py-5 last:border-b-0 md:border-b-0 md:px-6 md:first:pl-0">
+            <span className="text-[18px] font-bold text-green-600">০{index + 1}</span>
+            <div>
+              <h3 className="text-[16px] font-bold tracking-tight">{item.title}</h3>
+              <p className="mt-1 text-[12px] leading-relaxed text-black/60">{item.body}</p>
+            </div>
           </article>
         ))}
       </div>
